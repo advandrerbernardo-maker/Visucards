@@ -85,3 +85,33 @@ test('Backend exige usuário confirmado, reserva cota e mantém segredo só no s
   assert.match(quota,/grant execute on function public\.visu_ai_reserve\(uuid\) to service_role/);
   assert.doesNotMatch(workflow,/cp .*functions.*index\.ts/);
 });
+
+test('Modo local cria diagramas específicos a partir das palavras do PDF',()=>{
+  const plan=ai.localPlan(source.text);
+  assert.ok(plan);
+  assert.equal(plan.kind,'compare');
+  assert.ok(plan.labels.some(x=>x.includes('15 dias')));
+  assert.ok(plan.labels.every(x=>source.text.includes(x)));
+  const original=JSON.stringify(source);
+  const local=ai.decorateLocal([source]);
+  assert.equal(local.length,1);
+  assert.deepEqual(local[0].visualPlan,plan);
+  assert.equal(JSON.stringify(source),original,'Não deve alterar o PDF ou card original');
+  assert.equal(local[0].aiVerified,undefined);
+});
+
+test('Diagramas locais podem ser renderizados no cartão sem modificar cardMarkup',()=>{
+  const before=globalThis.VisuArt;
+  globalThis.VisuArt={kindOf:()=> 'book',svg:()=>'<svg/>'};
+  try{
+    ai.installArtHook();
+    const local=ai.decorateLocal([source]);
+    ai.register(local);
+    const visualId=globalThis.VisuArt.kindOf(local[0].title+' '+local[0].text);
+    assert.match(visualId,/^ai-diagram-\d+$/);
+    const graphic=globalThis.VisuArt.svg(visualId);
+    assert.match(graphic,/15 dias/);
+    assert.match(graphic,/Art. 5º/);
+    assert.match(graphic,/^<svg xmlns=/);
+  }finally{globalThis.VisuArt=before}
+});
