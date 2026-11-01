@@ -38,7 +38,7 @@ test('Geração é automática e não depende de dados de questões',()=>{
   assert.match(html,/const candidates=preparedCandidates\(\)/);
   assert.match(html,/VisuSelection\.nextBatch\(candidates,state\.generationCursor/);
   assert.match(html,/VisuPDFIntelligence\.headline\(p\.text\)/);
-  assert.match(html,/Seleção automática por pistas didáticas do texto/);
+  assert.match(html,/VisuSelection\.studyPrompt\(p\.text\)/);
   assert.match(html,/não representa frequência comprovada em provas/);
   assert.match(html,/CARDS DO PDF · SELEÇÃO AUTOMÁTICA/);
 });
