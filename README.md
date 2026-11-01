@@ -1,11 +1,12 @@
-# VISUCARDS 0.4.1 | Protótipo para concursos
+# VISUCARDS 0.4.2 | Protótipo para concursos
 
 Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs com texto selecionável em cards ilustrados para revisão.
 
 ## O que já funciona
 - Interface responsiva em português e demonstração de cards.
 - Leitura de PDFs textuais no próprio navegador, com limite demonstrativo de 1 PDF de até 5 páginas/mês.
-- Geração de até 2 cards ilustrados/mês na modalidade gratuita.
+- **Modo de testes:** geração de cards sem limite mensal, em lotes de até 2 por clique; após percorrer os trechos disponíveis do PDF, o app recomeça para permitir novos testes de estilos.
+- O limite comercial proposto de 2 cards por mês está apenas configurado para uma futura fase, mas **não bloqueia** a geração no modo de testes.
 - Triagem textual didática de regras, exceções, prazos e artigos, quando não há base histórica. Isso **não** mede frequência em concursos.
 - Texto dos trechos selecionados preservado no card, sem o antigo corte automático em 48 palavras (o trecho de origem continua limitado ao fragmento extraído).
 - Três estilos de layout, edição de textos, exportação PNG e impressão/PDF.
@@ -19,7 +20,8 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 - Não há cadastro de usuários, banco de dados ativo, cobrança, OCR nem cotas verificadas por servidor.
 - Foi incluído o arquivo `backend/schema_preparacao.sql` com RLS, mas **não foi executado** em nenhum Supabase. Precisa de testes reais.
 - Dados guardados no navegador podem desaparecer; use o backup.
-- A cota gratuita é demonstrativa, pois o armazenamento local pode ser apagado.
+- O limite demonstrativo de upload de PDF continua em 1 arquivo de até 5 páginas por mês. Apenas o limite de geração de cards foi desativado para testes.
+- O uso sem limite pode ocupar o armazenamento local do aparelho. Faça backup regularmente; os dados podem ser apagados ao limpar o navegador.
 - O leitor PDF.js 6.4.299 é carregado pela internet quando necessário.
 - Não coloque documentos sigilosos nesta versão experimental.
 - Os combos e valores exibidos são exemplos e não estão à venda.
