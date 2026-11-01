@@ -37,32 +37,70 @@ test('Geração usa somente os trechos extraídos do PDF',()=>{
   assert.ok(!html.includes('VisuIncidence'));
 });
 
-test('Lotes sucessivos percorrem trechos do PDF antes de recomeçar',()=>{
+test('Lotes sucessivos não repetem o PDF antes do recomeço manual',()=>{
   const chunks=[
     {page:1,text:'Regra A'},
     {page:2,text:'Regra B'},
     {page:3,text:'Regra C'},
-    {page:4,text:'Regra D'}
+    {page:4,text:'Regra D'},
+    {page:5,text:'Regra E'}
   ];
   const first=selection.nextBatch(chunks,0,2);
   const second=selection.nextBatch(chunks,first.nextCursor,2);
   const third=selection.nextBatch(chunks,second.nextCursor,2);
+  const finished=selection.nextBatch(chunks,third.nextCursor,2);
   assert.deepEqual(first.selected.map(x=>x.page),[1,2]);
   assert.deepEqual(second.selected.map(x=>x.page),[3,4]);
-  assert.deepEqual(third.selected.map(x=>x.page),[1,2]);
-  assert.equal(second.recycled,false);
-  assert.equal(third.recycled,true);
+  assert.deepEqual(third.selected.map(x=>x.page),[5]);
+  assert.equal(third.remaining,0);
+  assert.equal(third.exhausted,true);
+  assert.deepEqual(finished.selected,[]);
+  assert.equal(finished.recycled,false);
   assert.deepEqual(selection.nextBatch([],500,2).selected,[]);
+  assert.deepEqual(selection.nextBatch(chunks,0,2).selected.map(x=>x.page),[1,2]);
 });
-test('Geração pode continuar indefinidamente sem bloquear por quantidade',()=>{
+
+test('Geração continua ilimitada por recomeço voluntário, sem repetir durante um ciclo',()=>{
   const list=[{text:'A'},{text:'B'},{text:'C'}];
   let cursor=0;
+  let generated=0;
   for(let i=0;i<1100;i++){
     const batch=selection.nextBatch(list,cursor,2);
-    assert.equal(batch.selected.length,2);
-    cursor=batch.nextCursor;
+    generated+=batch.selected.length;
+    assert.ok(batch.selected.length>=1&&batch.selected.length<=2);
+    cursor=batch.exhausted?0:batch.nextCursor;
   }
-  assert.ok(cursor>2000);
+  assert.ok(generated>1600);
+});
+
+test('Textos repetidos são eliminados sem misturar artigos ou inverter negações',()=>{
+  const base='O art. 5º determina que os requisitos definidos na lei serão observados pela administração para garantir a validade do procedimento.';
+  assert.equal(selection.nearDuplicate(base,base.toUpperCase()),true);
+  assert.equal(selection.nearDuplicate(base,base.replace('5º','6º')),false);
+  const allowed='É permitido realizar o procedimento indicado na norma conforme as condições legais aplicáveis. O ato deve ser conferido e registrado.';
+  const forbidden='Não é permitido realizar o procedimento indicado na norma conforme as condições legais aplicáveis. O ato deve ser conferido e registrado.';
+  assert.equal(selection.nearDuplicate(allowed,forbidden),false);
+  const queue=selection.buildQueue([
+    {page:1,text:base},
+    {page:2,text:base.toUpperCase()},
+    {page:3,text:base.replace('5º','6º')}
+  ]);
+  assert.equal(queue.length,2);
+  assert.ok(queue.some(x=>x.text.includes('5º')));
+  assert.ok(queue.some(x=>x.text.includes('6º')));
+});
+
+test('Seleção diversifica páginas quando os trechos são igualmente relevantes',()=>{
+  const text=n=>'Art. '+n+'º A competência será exercida conforme os requisitos previstos na norma. A aplicação deverá observar o devido procedimento administrativo.';
+  const queue=selection.buildQueue([
+    {page:1,text:text(5)},
+    {page:1,text:text(6)},
+    {page:2,text:text(7)},
+    {page:3,text:text(8)}
+  ]);
+  assert.equal(queue.length,4);
+  assert.notEqual(queue[0].page,queue[1].page);
+  assert.equal(new Set(queue.map(x=>x.text)).size,4);
 });
 
 test('Pontuação reconhece Art. 5º e parágrafos com ordinal',()=>{
