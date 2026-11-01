@@ -40,7 +40,6 @@ jobs:
         run: |
           mkdir -p site
           cp index.html site/index.html
-          cp incidence.js site/incidence.js
           cp selection.js site/selection.js
           cp pdf-intelligence.js site/pdf-intelligence.js
           cp card-design.js site/card-design.js
