@@ -302,12 +302,12 @@
         <button type="button" data-tab="combos"><span>◈</span> Combos</button>
         <button type="button" data-tab="planos"><span>♛</span> Planos</button>
       </nav>
-      <div class="sidefoot"><strong>PLANO GRATUITO</strong>1 PDF de até 5 páginas/mês<br/>2 cards ilustrados/mês</div>
+      <div class="sidefoot"><strong>PLANO GRATUITO</strong>1 PDF de até 5 páginas/mês<br/>Cards ilimitados para testes</div>
     </aside>
     <main>
       <div class="topbar"><span class="eyebrow">VISUCARDS · VERSÃO 0.5 DE TESTE</span><span class="pill">✦ Plano gratuito</span></div>
       <section id="tab-criar" class="tab">
-        <div class="hero"><div><div class="eyebrow" style="color:#d0b6ff">ESTUDE DE UM JEITO DIFERENTE</div><h1>Seu PDF pode virar um material muito mais visual.</h1><p class="lead">Transforme trechos do seu conteúdo em cards coloridos para revisar e memorizar.</p></div><div class="hero-art" aria-hidden="true">📚✨</div></div>
+        <div class="hero"><div><div class="eyebrow" style="color:#d0b6ff">RESUMO ILUSTRADO PARA CONCURSOS</div><h1>Seu PDF pode virar um material muito mais visual.</h1><p class="lead">Transforme trechos do seu conteúdo em cards coloridos para revisar e memorizar.</p></div><div class="hero-art" aria-hidden="true">📚✨</div></div>
         <div class="grid">
           <section class="panel"><div class="panel-head"><h2>Comece pelo seu PDF</h2><span class="tag">PASSO 1</span></div>
             <div class="dropzone" id="dropzone"><div class="uploadicon">📄</div><strong>Arraste ou selecione um PDF</strong><p>Arquivo de até 5 páginas no plano gratuito.</p><button type="button" class="btn" id="pick-file">Selecionar PDF</button><input type="file" id="pdf-input" accept="application/pdf,.pdf" style="display:none" /></div>
@@ -437,7 +437,7 @@
     const clean=s=>String(s??'').replace(/\s+/g,' ').trim();
     const safeExcerpt=(value,limit)=>{const str=clean(value);if(str.length<=limit)return str;const cut=str.slice(0,limit+1),lastSpace=cut.lastIndexOf(' ');return (lastSpace>=Math.floor(limit*.55)?cut.slice(0,lastSpace):str.slice(0,limit))+'…'};
     function words(s,max){const parts=clean(s).split(/\s+/);return parts.length>max?parts.slice(0,max).join(' ')+'…':parts.join(' ')}
-    const titleFrom=s=>{const sentence=s.split(/[.!?;:]/)[0].trim();const t=sentence.replace(/^\d+[.)]\s*/, '');return words(t,7).replace(/[,:;.!?]$/,'')||'RESUMO PARA REVISÃO'};
+    const titleFrom=s=>{const t=clean(s).replace(/^\d+[.)]\s*/, '');const parts=t.split(/\s+/);return parts.slice(0,11).join(' ').replace(/[,:;.!?]$/,'')+(parts.length>11?'…':'')||'RESUMO PARA REVISÃO'};
     const id=()=>('c'+Date.now().toString(36)+Math.random().toString(36).slice(2,7));
     function refresh(){if(state.month!==month()){state.month=month();state.pdfCount=0;state.cardCount=0;state.generationCursor=0;state.parsed=null;persist()}$('#pdf-counter').textContent=`${state.pdfCount} de 1`;const unlimited=window.VisuPolicy.TEST_MODE.unlimitedCards;$('#card-counter').textContent=unlimited?`${state.cardCount} · ilimitados`:`${state.cardCount} de ${window.VisuPolicy.FREE.cards}`;$('#pdf-meter').style.width=state.pdfCount*100+'%';$('#card-meter').closest('.track').classList.toggle('hidden',unlimited);if(!unlimited)$('#card-meter').style.width=Math.min(state.cardCount/window.VisuPolicy.FREE.cards*100,100)+'%';$('#month-display').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).toUpperCase();$('#library-count').textContent=state.cards.length+' CARDS';$('#generate').textContent=state.parsed&&state.cardCount?'Gerar mais 2 cards':'Gerar meus cards'}
     function switchTab(name){all('.tab').forEach(el=>el.classList.toggle('hidden',el.id!=='tab-'+name));all('[data-tab]').forEach(el=>{if(el.closest('.nav'))el.setAttribute('aria-current',el.dataset.tab===name?'page':'false')});if(name==='biblioteca')renderLibrary();window.scrollTo({top:0,behavior:'smooth'})}
@@ -656,7 +656,10 @@
         ?cards.length+' card(s) criados com prioridade baseada na amostra de questões importada. Confira os conceitos e a fonte.'
         :cards.length+' card(s) criados sem dados históricos de incidência. Não é possível afirmar que são os mais cobrados.')+cycleNote,false,true);
     };
-    $('#demo').onclick=()=>drawCards([{id:'example1',title:'PRINCÍPIO DA AMPLA DEFESA',text:'A ampla defesa garante à pessoa o uso dos meios e recursos admitidos pelo ordenamento para defender seus interesses.',note:'Exemplo ilustrativo: consulte o art. 5º, LV, da Constituição Federal.',source:'Exemplo demonstrativo · conteúdo didático',color:0,layout:currentLayout()},{id:'example2',title:'SEGURANÇA JURÍDICA',text:'A proteção da confiança e a estabilidade das relações jurídicas orientam a atuação da Administração Pública.',note:'Exemplo didático. Consulte a legislação e a jurisprudência aplicáveis.',source:'Exemplo demonstrativo · conteúdo didático',color:1,layout:currentLayout()}],'DEMONSTRAÇÃO · NÃO CONSOME COTA');
+    $('#demo').onclick=()=>drawCards([
+      {id:'example1',title:'CONTRADITÓRIO E AMPLA DEFESA',text:'O art. 5º, LV, da Constituição Federal assegura o contraditório e a ampla defesa em processos judiciais e administrativos. A pessoa interessada pode apresentar argumentos e utilizar os meios e recursos admitidos em direito. A aplicação depende das regras do procedimento correspondente.',note:'Exemplo didático. Confira o texto do art. 5º, LV, da Constituição Federal.',source:'Exemplo demonstrativo · Constituição Federal',color:0,layout:currentLayout()},
+      {id:'example2',title:'COMO IDENTIFICAR UMA EXCEÇÃO',text:'A regra principal deve ser identificada antes de suas ressalvas. Expressões como salvo e exceto podem sinalizar exceções previstas no próprio texto. O estudante deve conferir a condição completa e a fonte antes de memorizar qualquer conclusão.',note:'Modelo ilustrativo de organização de leitura. Não representa uma norma específica.',source:'Exemplo demonstrativo · organização didática',color:1,layout:currentLayout()}
+    ],'DEMONSTRAÇÃO VISUAL · NÃO CONSOME COTA');
     $('#card-grid').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.export!==undefined)exportPNG(state.preview[Number(b.dataset.export)]);if(b.dataset.print!==undefined)printCard(state.preview[Number(b.dataset.print)]);if(b.dataset.edit!==undefined)$('#edit-'+b.dataset.edit).classList.toggle('hidden');if(b.dataset.save!==undefined){const i=Number(b.dataset.save);const c=state.preview[i];const edited=all(`[data-index="${i}"]`);
       const limits={title:240,text:5000,note:3000};
       const tooLong=edited.find(el=>clean(el.value).length>limits[el.dataset.field]);
