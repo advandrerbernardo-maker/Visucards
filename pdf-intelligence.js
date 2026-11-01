@@ -122,7 +122,7 @@
         merged[merged.length-1]+=' '+piece;
       else merged.push(piece);
     }
-    return merged.filter(x=>x.length>=70 && x.length<=MAX_CHARS);
+    return merged.filter(x=>x.length<=MAX_CHARS && (x.length>=70 || (x.length>=35 && (beginsProvision(x) || LEGAL_CUE.test(x)))));
   }
 
   function fingerprint(text){return fold(text).replace(/[^\p{L}\p{N}\s]/gu,'').replace(/\s+/g,' ').trim()}
