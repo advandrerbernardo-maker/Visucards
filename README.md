@@ -1,4 +1,4 @@
-# VISUCARDS 0.6.1 | Protótipo para concursos
+# VISUCARDS 0.7 | Protótipo para concursos
 
 Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs com texto selecionável em cards ilustrados para revisão.
 
@@ -6,11 +6,11 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 - Interface responsiva em português e demonstração de cards.
 - Leitura de PDFs textuais no próprio navegador, com limite demonstrativo de 1 PDF de até 5 páginas/mês.
 - **Triagem 0.6:** reconstrói linhas do PDF, separa artigos e dispositivos legais, remove cabeçalhos e fragmentos repetidos, identifica páginas e prioriza candidatos didaticamente úteis. Dispositivos curtos com referência normativa também são preservados.
-- **Modo de testes:** geração de cards sem limite mensal, em lotes de até 2 por clique; após percorrer os trechos disponíveis do PDF, o app recomeça para permitir novos testes de estilos.
+- **Modo de testes:** geração sem limite mensal de cards, em lotes de até dois por clique. O app mostra quantos trechos ainda faltam e não repete conteúdo durante o mesmo ciclo; ao concluir, o botão **Recomeçar cards** libera outra rodada para testar outros estilos, sem apagar a biblioteca.
 - O limite comercial proposto de 2 cards por mês está apenas configurado para uma futura fase, mas **não bloqueia** a geração no modo de testes.
-- Triagem textual automática de regras, exceções, prazos e artigos, sem necessidade de importar histórico de questões. **Não** mede a frequência real em concursos.
+- **Triagem 0.7:** além de identificar regras, exceções, prazos e artigos, remove textos iguais e muito semelhantes de maneira conservadora e distribui melhor os assuntos entre páginas. É uma seleção didática, **não** uma medida de incidência real nas provas.
 - O texto escolhido é preservado dentro de blocos de até 650 caracteres, sem corte com reticências; blocos longos são divididos. A seleção ainda se limita aos 10 melhores trechos por página e 50 no total, logo não equivale a um resumo completo do PDF.
-- **Cards editoriais ilustrados (0.5):** cabeçalho com hierarquia, ilustração temática em SVG, trecho central, complementos numerados, identificação de artigos/prazos/ressalvas quando constarem literalmente no PDF, notas e fonte.
+- **Cards editoriais ilustrados (0.5):** cabeçalho com hierarquia, ilustração temática em SVG, trecho central, complementos numerados, identificação de artigos/prazos/ressalvas quando constarem literalmente no PDF, notas e fonte. As notas dos novos cards agora oferecem **perguntas de revisão conforme as pistas do texto**, sem acrescentar respostas inventadas.
 - Três estilos visuais (caderno, quadrinhos e minimalista), edição de textos, exportação PNG e impressão/PDF adaptadas ao novo layout.
 - A organização utiliza regras locais e não cria interpretações jurídicas, jurisprudência, dicas ou exemplos por IA a partir do PDF. Os desenhos ainda são modelos vetoriais por tema, não ilustrações exclusivas por conceito.
 - Biblioteca local, busca, backup e restauração.
@@ -61,8 +61,8 @@ O serviço Recebi+ e outros projetos não são utilizados nem alterados por este
 
 1. Selecione um PDF com texto legível de até cinco páginas.
 2. Escolha o estilo dos cards (caderno ilustrado, quadrinhos ou minimalista).
-3. Toque em **Gerar meus cards** para receber dois cards por vez, sem limite mensal durante os testes.
+3. Toque em **Gerar meus cards** para receber até dois cards por vez; acompanhe quantos trechos ainda faltam. Quando terminar, **Recomeçar cards** permite criar novas versões do mesmo PDF sem apagar a biblioteca.
 
 A triagem identifica pistas didáticas no próprio PDF, priorizando regras, artigos, exceções, prazos e conceitos relevantes para revisão. **Não há importação de CSV, filtros de banca/cargo ou ranking histórico de questões.** O aplicativo não afirma que os assuntos escolhidos são estatisticamente os mais cobrados.
 
-Os cards já salvos, as revisões e os backups continuam disponíveis. O novo fluxo não altera o modelo visual 0.5, protegido em `DESIGN_LOCK.md`.
+Os cards já salvos, as revisões e os backups continuam disponíveis. O novo fluxo não altera o modelo visual 0.5, protegido em `DESIGN_LOCK.md`. A nova ordenação se aplica ao PDF do mês recuperado do navegador, sem modificar os cards antigos. PDFs digitalizados ainda precisam de OCR para leitura.
