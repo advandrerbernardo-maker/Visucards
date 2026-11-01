@@ -305,7 +305,7 @@
       <div class="sidefoot"><strong>PLANO GRATUITO</strong>1 PDF de até 5 páginas/mês<br/>Cards ilimitados para testes</div>
     </aside>
     <main>
-      <div class="topbar"><span class="eyebrow">VISUCARDS · VERSÃO 0.5 DE TESTE</span><span class="pill">✦ Plano gratuito</span></div>
+      <div class="topbar"><span class="eyebrow">VISUCARDS · VERSÃO 0.6 DE TESTE</span><span class="pill">✦ Plano gratuito</span></div>
       <section id="tab-criar" class="tab">
         <div class="hero"><div><div class="eyebrow" style="color:#d0b6ff">RESUMO ILUSTRADO PARA CONCURSOS</div><h1>Seu PDF pode virar um material muito mais visual.</h1><p class="lead">Transforme trechos do seu conteúdo em cards coloridos para revisar e memorizar.</p></div><div class="hero-art" aria-hidden="true">📚✨</div></div>
         <div class="grid">
@@ -331,7 +331,7 @@
             <div class="meter"><div class="meter-head"><span>PDFs utilizados</span><span id="pdf-counter">0 de 1</span></div><div class="track"><div class="fill" id="pdf-meter" style="width:0%"></div></div></div>
             <div class="meter"><div class="meter-head"><span>Cards ilustrados</span><span id="card-counter">0 · ilimitados</span></div><div class="track"><div class="fill" id="card-meter" style="width:0%"></div></div></div>
             <div class="stack" style="margin-top:22px"><div class="step"><div class="num">1</div><div><strong>Escolha seu conteúdo</strong><small>Até 5 páginas de PDF</small></div></div><div class="step"><div class="num">2</div><div><strong>Veja um infográfico didático</strong><small>Trechos, regras, prazos e dados destacados do documento</small></div></div><div class="step"><div class="num">3</div><div><strong>Personalize e exporte</strong><small>Edite textos e exporte em PNG ou impressão/PDF</small></div></div></div>
-            <div class="notice">Os novos cards organizam o texto em blocos visuais, ilustrações vetoriais e etiquetas extraídas do PDF. Ainda não há IA capaz de interpretar ou criar desenhos específicos para cada conceito.</div>
+            <div class="notice">O leitor aprimorado identifica artigos e parágrafos, reduz trechos duplicados e mantém a página de origem. O conteúdo é organizado sem inventar normas; ilustrações exclusivas por IA ainda não estão disponíveis.</div>
           </section>
         </div>
         <section id="incidence-results" class="panel hidden" aria-labelledby="ranking-title" style="margin-top:22px">
@@ -410,6 +410,7 @@
 
 </script>
   <script src="./selection.js"></script>
+  <script src="./pdf-intelligence.js"></script>
   <script src="./card-design.js"></script>
   <script src="./incidence.js"></script>
 <script>
@@ -472,7 +473,7 @@
     }
     function drawCards(cards,type){state.preview=cards;$('#results').classList.remove('hidden');$('#result-type').textContent=type;$('#card-grid').innerHTML=cards.map((c,i)=>`<div class="preview-wrap">${cardMarkup(c)}<div class="card-actions"><button class="btn smallbtn" data-export="${i}">⬇ PNG</button><button class="btn outline smallbtn" data-print="${i}">🖨 PDF</button><button class="btn outline smallbtn" data-edit="${i}">✎ Editar</button></div><div id="edit-${i}" class="editorbox hidden"><label>Título</label><textarea class="editing" data-field="title" data-index="${i}">${escapeHTML(c.title)}</textarea><label>Texto principal</label><textarea class="editing" data-field="text" data-index="${i}">${escapeHTML(c.text)}</textarea><label>Observação</label><textarea class="editing" data-field="note" data-index="${i}">${escapeHTML(c.note||'')}</textarea><button type="button" class="btn smallbtn" data-save="${i}">Salvar edição</button></div></div>`).join('');$('#results').scrollIntoView({behavior:'smooth',block:'start'})}
     function renderLibrary(){refresh();const query=clean($('#library-search').value||'').toLowerCase();const entries=state.cards.filter(c=>(c.title+' '+c.text+' '+c.source).toLowerCase().includes(query));$('#library-list').innerHTML=entries.length?entries.slice().reverse().map(c=>`<div class="libitem"><div><strong>${escapeHTML(c.title)}</strong><small>${escapeHTML(c.source)}</small></div><div class="buttonrow"><button class="btn outline smallbtn" data-libexport="${escapeHTML(c.id)}">⬇ PNG</button><button class="btn outline smallbtn" data-libprint="${escapeHTML(c.id)}">🖨 PDF</button><button class="btn outline smallbtn" data-libdelete="${escapeHTML(c.id)}">Excluir</button></div></div>`).join(''):'<div class="empty"><span class="big">📂</span>Nenhum card encontrado.</div>'}
-    function candidateChunks(pages){const chunks=[];pages.forEach((text,p)=>{const normalized=clean(text);const lines=normalized.match(/[^.!?]{70,650}(?:[.!?](?=\s|$)|$)/g)||[];let candidates=lines.map(clean).filter(s=>s.length>85);if(!candidates.length&&normalized.length>70)candidates=[normalized];for(const s of candidates.slice(0,10))chunks.push({text:s,page:p+1})});return window.VisuSelection.prioritize(chunks)}
+    function candidateChunks(pages){return window.VisuPDFIntelligence.extract(pages,window.VisuSelection.prioritize)}
     // Análise por questões históricas: valores apenas do CSV informado pelo usuário.
     function rankingAtual(){
       return window.VisuIncidence.rank(state.parsed?.chunks||[],state.stats,{
@@ -513,8 +514,9 @@
       best.sort((a,b)=>b.questions-a.questions);
       list.innerHTML=best.slice(0,6).map((x,i)=>'<div class="incidence-entry"><strong>'+(i+1)+'º '+escapeHTML(x.topic)+'</strong>'+x.questions+' questão(ões) na base importada · pág. '+x.page+' do PDF</div>').join('');
     }
-    $('#exam-board').addEventListener('input',renderIncidencia);
-    $('#exam-role').addEventListener('input',renderIncidencia);
+    function updateHistoryFilters(){state.generationCursor=0;persist();renderIncidencia()}
+    $('#exam-board').addEventListener('input',updateHistoryFilters);
+    $('#exam-role').addEventListener('input',updateHistoryFilters);
     $('#question-stats').addEventListener('change',async e=>{
       const file=e.target.files?.[0];
       if(!file)return;
@@ -522,7 +524,7 @@
       try{
         const rows=window.VisuIncidence.parseCSV(await file.text());
         const previous=state.stats;
-        state.stats=rows;
+        state.stats=rows;state.generationCursor=0;
         if(!persist()){state.stats=previous;return}
         renderIncidencia();
         show('Histórico importado. Os cards agora poderão priorizar os assuntos encontrados na amostra de questões.',false,true);
@@ -599,7 +601,7 @@
       if(state.pdfCount>=window.VisuPolicy.FREE.pdf){show(state.parsed?'Você já enviou seu PDF neste mês. Gere os cards do material salvo.':'Seu limite de 1 PDF neste mês já foi utilizado.',true);return}
       if(!/\.pdf$/i.test(file.name)&&file.type!=='application/pdf'){show('Selecione um arquivo PDF válido.',true);return}
       if(file.size>window.VisuPolicy.FREE.maxFileBytes){show('Este protótipo aceita arquivos de até 12 MB.',true);return}
-      readingPDF=true;$('#pick-file').disabled=true;$('#generate').disabled=true;state.parsed=null;
+      readingPDF=true;$('#pick-file').disabled=true;$('#generate').disabled=true;
       try{
         show('Lendo seu PDF localmente…');
         const reader=await loadPDFReader();
@@ -608,21 +610,21 @@
         if(pdf.numPages<1||pdf.numPages>window.VisuPolicy.FREE.pages){show(`Este PDF tem ${pdf.numPages} páginas. O plano gratuito aceita de 1 a 5.`,true);return}
         const pages=[];
         for(let p=1;p<=pdf.numPages;p++){
-          const page=await pdf.getPage(p);const content=await page.getTextContent();pages.push(content.items.map(t=>t.str||'').join(' '));
+          const page=await pdf.getPage(p);const content=await page.getTextContent();pages.push(window.VisuPDFIntelligence.pageText(content.items));
         }
         if(pages.join('').replace(/\s/g,'').length<70){show('O arquivo não possui texto suficiente para extrair. PDF digitalizado exige OCR, ainda não disponível.',true);return}
-        const chunks=candidateChunks(pages);
-        if(!chunks.length){show('Não foi possível identificar trechos úteis no PDF.',true);return}
-        const parsed={file:file.name.slice(0,180),chunks:chunks.slice(0,50).map(c=>({text:safeExcerpt(c.text,650),page:c.page}))};
+        const extracted=candidateChunks(pages);
+        if(!extracted.chunks.length){show('Não foi possível identificar trechos úteis no PDF.',true);return}
+        const parsed={file:file.name.slice(0,180),chunks:extracted.chunks.map(c=>({text:c.text,page:c.page}))};
         const previous={parsed:state.parsed,pdfCount:state.pdfCount,generationCursor:state.generationCursor};
         state.parsed=parsed;state.pdfCount=1;state.generationCursor=0;
         if(!persist()){state.parsed=previous.parsed;state.pdfCount=previous.pdfCount;state.generationCursor=previous.generationCursor;refresh();return}
         refresh();
         renderIncidencia();
         $('#generate').disabled=window.VisuPolicy.remainingCards(state.cardCount)<1;
-        show(`${file.name} lido com sucesso: ${pdf.numPages} página(s). O conteúdo foi salvo localmente para continuar depois.`,false,true);
+        show(`${file.name} lido com sucesso: ${pdf.numPages} página(s), ${extracted.diagnostics.selected} trecho(s) selecionado(s) sem repetição. Fonte de cada card identificada pela página.`,false,true);
       }catch(e){console.error(e);show('Não foi possível ler o PDF. Verifique se o arquivo não está protegido por senha ou corrompido.',true)}
-      finally{readingPDF=false;$('#pick-file').disabled=false;$('#pdf-input').value=''}
+      finally{readingPDF=false;$('#pick-file').disabled=false;$('#generate').disabled=!(state.parsed&&window.VisuPolicy.remainingCards(state.cardCount)>0);$('#pdf-input').value=''}
     }
     $('#generate').onclick=()=>{
       refresh();
@@ -641,7 +643,7 @@
         const justified=Boolean(ranking.evidence&&match);
         return {
           id:id(),
-          title:justified?words(match.topic,9):titleFrom(p.text),
+          title:justified?words(match.topic,9):window.VisuPDFIntelligence.headline(p.text),
           text:clean(p.text),
           note:justified
             ?'Assunto associado a '+match.questions+' questão(ões) no histórico fornecido. A base não foi auditada; confira o contexto do PDF.'
@@ -670,7 +672,7 @@
       if(tooLong){show('O campo '+tooLong.dataset.field+' excede o limite. Reduza o texto antes de salvar.',true);return}
       edited.forEach(el=>{c[el.dataset.field]=clean(el.value)});const storedCard=state.cards.find(s=>s.id===c.id);if(storedCard)Object.assign(storedCard,c);persist();drawCards(state.preview,$('#result-type').textContent)}});
     $('#library-search').addEventListener('input',renderLibrary);
-    $('#backup-library').addEventListener('click',()=>{const data=JSON.stringify({app:'VISUCARDS',version:'0.5',exported_at:new Date().toISOString(),cards:state.cards,reviews:state.reviews},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='VISUCARDS_biblioteca_backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+    $('#backup-library').addEventListener('click',()=>{const data=JSON.stringify({app:'VISUCARDS',version:'0.6',exported_at:new Date().toISOString(),cards:state.cards,reviews:state.reviews},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='VISUCARDS_biblioteca_backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
     $('#restore-library').onclick=()=>$('#restore-file').click();
     $('#restore-file').addEventListener('change',async e=>{
       const file=e.target.files[0];e.target.value='';if(!file)return;
