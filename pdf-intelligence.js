@@ -118,7 +118,7 @@
     // Une pequenos fragmentos adjacentes sem misturar páginas.
     const merged=[];
     for(const piece of chunks){
-      if(piece.length<85 && merged.length && merged[merged.length-1].length+piece.length+1<=MAX_CHARS)
+      if(piece.length<85 && merged.length && !beginsProvision(piece) && merged[merged.length-1].length+piece.length+1<=MAX_CHARS)
         merged[merged.length-1]+=' '+piece;
       else merged.push(piece);
     }
