@@ -34,3 +34,31 @@ test('Ranking com dados históricos mantém prioridade sobre triagem textual',()
   const html=fs.readFileSync('index.html','utf8');
   assert.match(html,/const chosenPool=ranking\.evidence\?ranking\.ranked\.filter\(c=>c\.questions>0\):candidates/);
 });
+
+test('Lotes sucessivos percorrem trechos do PDF antes de recomeçar',()=>{
+  const chunks=[
+    {page:1,text:'Regra A'},
+    {page:2,text:'Regra B'},
+    {page:3,text:'Regra C'},
+    {page:4,text:'Regra D'}
+  ];
+  const first=selection.nextBatch(chunks,0,2);
+  const second=selection.nextBatch(chunks,first.nextCursor,2);
+  const third=selection.nextBatch(chunks,second.nextCursor,2);
+  assert.deepEqual(first.selected.map(x=>x.page),[1,2]);
+  assert.deepEqual(second.selected.map(x=>x.page),[3,4]);
+  assert.deepEqual(third.selected.map(x=>x.page),[1,2]);
+  assert.equal(second.recycled,false);
+  assert.equal(third.recycled,true);
+  assert.deepEqual(selection.nextBatch([],500,2).selected,[]);
+});
+test('Geração pode continuar indefinidamente sem bloquear por quantidade',()=>{
+  const list=[{text:'A'},{text:'B'},{text:'C'}];
+  let cursor=0;
+  for(let i=0;i<1100;i++){
+    const batch=selection.nextBatch(list,cursor,2);
+    assert.equal(batch.selected.length,2);
+    cursor=batch.nextCursor;
+  }
+  assert.ok(cursor>2000);
+});
