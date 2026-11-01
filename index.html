@@ -124,6 +124,54 @@
     .review-actions .btn{flex:1 1 185px;min-height:44px}
     .review-summary{font-size:13px;line-height:1.5;color:#6e6180;overflow-wrap:anywhere}
     @media(max-width:380px){.review-actions{display:grid;grid-template-columns:1fr}.review-actions .btn{width:100%}}
+    /* Correção tipográfica mobile: não recortar letras, títulos ou balões. */
+    .showcase .card-visual {
+      overflow:visible;
+      min-width:0;
+      padding-top:24px;
+      padding-bottom:22px;
+      gap:14px;
+    }
+    .showcase .card-visual h3 {
+      display:block;
+      width:100%;
+      margin:0;
+      padding:7px 7px 10px;
+      font-weight:850;
+      line-height:1.27;
+      letter-spacing:0;
+      text-shadow:none;
+      -webkit-text-stroke:0;
+      overflow:visible;
+      overflow-wrap:break-word;
+      word-break:normal;
+      hyphens:manual;
+    }
+    .showcase .card-visual .bubble {
+      overflow:visible;
+      height:auto;
+      min-height:0;
+      max-height:none;
+      line-height:1.55;
+      overflow-wrap:break-word;
+      word-break:normal;
+    }
+    .showcase .card-visual .source {
+      overflow:visible;
+      min-width:0;
+      padding:8px 10px;
+      line-height:1.5;
+    }
+    .showcase .card-visual .visulabel {
+      position:static;
+      margin-top:0;
+      padding:3px 4px 2px;
+    }
+    @media(max-width:680px) {
+      .showcase .card-visual{padding:23px 18px 20px;gap:15px}
+      .showcase .card-visual h3{font-size:clamp(18px,5vw,23px);line-height:1.27;padding:8px 6px 10px}
+      .showcase .card-visual .bubble{font-size:clamp(13px,3.65vw,16px);line-height:1.55;padding:15px 16px}
+    }
   </style>
 </head>
 <body>
@@ -246,7 +294,8 @@
     const show=(str,error=false,ok=false)=>{const n=$('#file-status');n.textContent=str;n.className='status show'+(error?' error':ok?' ok':'')};
     const colors=['#884fc8','#ed578b','#399eba','#83539f'];
     const iconsFor=(s)=>{const v=s.toLowerCase();if(/lei|art\.|jurídic|direito|tribunal|constitui|juiz|processo|defesa/.test(v))return ['⚖️','📜','🔎'];if(/prazo|dia|mês|ano|data|tempo/.test(v))return ['⏳','🗓️','📌'];if(/saúde|medic|hospital/.test(v))return ['🩺','💊','💚'];if(/matem|cálcul|número|soma/.test(v))return ['🔢','📐','🧮'];return ['📚','💡','✏️']};
-    const clean=s=>s.replace(/\s+/g,' ').trim();
+    const clean=s=>String(s??'').replace(/\s+/g,' ').trim();
+    const safeExcerpt=(value,limit)=>{const str=clean(value);if(str.length<=limit)return str;const cut=str.slice(0,limit+1),lastSpace=cut.lastIndexOf(' ');return (lastSpace>=Math.floor(limit*.55)?cut.slice(0,lastSpace):str.slice(0,limit))+'…'};
     function words(s,max){const parts=clean(s).split(/\s+/);return parts.length>max?parts.slice(0,max).join(' ')+'…':parts.join(' ')}
     const titleFrom=s=>{const sentence=s.split(/[.!?;:]/)[0].trim();const t=sentence.replace(/^\d+[.)]\s*/, '');return words(t,7).replace(/[,:;.!?]$/,'')||'RESUMO PARA REVISÃO'};
     const id=()=>('c'+Date.now().toString(36)+Math.random().toString(36).slice(2,7));
@@ -334,7 +383,7 @@
         if(pages.join('').replace(/\s/g,'').length<70){show('O arquivo não possui texto suficiente para extrair. PDF digitalizado exige OCR, ainda não disponível.',true);return}
         const chunks=candidateChunks(pages);
         if(!chunks.length){show('Não foi possível identificar trechos úteis no PDF.',true);return}
-        const parsed={file:file.name.slice(0,180),chunks:chunks.slice(0,50).map(c=>({text:c.text.slice(0,650),page:c.page}))};
+        const parsed={file:file.name.slice(0,180),chunks:chunks.slice(0,50).map(c=>({text:safeExcerpt(c.text,650),page:c.page}))};
         const previous={parsed:state.parsed,pdfCount:state.pdfCount};
         state.parsed=parsed;state.pdfCount=1;
         if(!persist()){state.parsed=previous.parsed;state.pdfCount=previous.pdfCount;refresh();return}
@@ -346,7 +395,11 @@
     }
     $('#generate').onclick=()=>{refresh();if(!state.parsed){show('Selecione primeiro um PDF com texto.',true);return}const remaining=window.VisuPolicy.remainingCards(state.cardCount);if(remaining<1){show('Você já gerou seus 2 cards gratuitos neste mês.',true);return}const candidates=state.parsed.chunks;if(!candidates.length){show('Não encontrei conteúdo suficiente para montar cards.',true);return}const count=Math.min(remaining,candidates.length,2);const selected=[candidates[0]];if(count>1){const other=candidates.find(c=>c.page!==selected[0].page&&c.text!==selected[0].text)||candidates.find(c=>c.text!==selected[0].text);if(other)selected.push(other)}const cards=selected.map((p,i)=>({id:id(),title:titleFrom(p.text),text:words(p.text,48),note:'Trecho extraído. Confira a explicação e o contexto no PDF original.',source:`${state.parsed.file} · pág. ${p.page}`,color:i%4,layout:currentLayout()}));state.cardCount+=cards.length;state.cards.push(...cards);if(!persist()){state.cardCount-=cards.length;state.cards.splice(-cards.length);refresh();return}refresh();$('#generate').disabled=true;drawCards(cards,'CARDS DO PDF');show(`${cards.length} card(s) criado(s) a partir do conteúdo do PDF. Confira antes de usar.`,false,true)};
     $('#demo').onclick=()=>drawCards([{id:'example1',title:'PRINCÍPIO DA AMPLA DEFESA',text:'A ampla defesa garante à pessoa o uso dos meios e recursos admitidos pelo ordenamento para defender seus interesses.',note:'Exemplo ilustrativo: consulte o art. 5º, LV, da Constituição Federal.',source:'Exemplo demonstrativo · conteúdo didático',color:0,layout:currentLayout()},{id:'example2',title:'SEGURANÇA JURÍDICA',text:'A proteção da confiança e a estabilidade das relações jurídicas orientam a atuação da Administração Pública.',note:'Exemplo didático. Consulte a legislação e a jurisprudência aplicáveis.',source:'Exemplo demonstrativo · conteúdo didático',color:1,layout:currentLayout()}],'DEMONSTRAÇÃO · NÃO CONSOME COTA');
-    $('#card-grid').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.export!==undefined)exportPNG(state.preview[Number(b.dataset.export)]);if(b.dataset.print!==undefined)printCard(state.preview[Number(b.dataset.print)]);if(b.dataset.edit!==undefined)$('#edit-'+b.dataset.edit).classList.toggle('hidden');if(b.dataset.save!==undefined){const i=Number(b.dataset.save);const c=state.preview[i];all(`[data-index="${i}"]`).forEach(el=>{c[el.dataset.field]=clean(el.value).slice(0,400)});const storedCard=state.cards.find(s=>s.id===c.id);if(storedCard)Object.assign(storedCard,c);persist();drawCards(state.preview,$('#result-type').textContent)}});
+    $('#card-grid').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.export!==undefined)exportPNG(state.preview[Number(b.dataset.export)]);if(b.dataset.print!==undefined)printCard(state.preview[Number(b.dataset.print)]);if(b.dataset.edit!==undefined)$('#edit-'+b.dataset.edit).classList.toggle('hidden');if(b.dataset.save!==undefined){const i=Number(b.dataset.save);const c=state.preview[i];const edited=all(`[data-index="${i}"]`);
+      const limits={title:240,text:5000,note:3000};
+      const tooLong=edited.find(el=>clean(el.value).length>limits[el.dataset.field]);
+      if(tooLong){show('O campo '+tooLong.dataset.field+' excede o limite. Reduza o texto antes de salvar.',true);return}
+      edited.forEach(el=>{c[el.dataset.field]=clean(el.value)});const storedCard=state.cards.find(s=>s.id===c.id);if(storedCard)Object.assign(storedCard,c);persist();drawCards(state.preview,$('#result-type').textContent)}});
     $('#library-search').addEventListener('input',renderLibrary);
     $('#backup-library').addEventListener('click',()=>{const data=JSON.stringify({app:'VISUCARDS',version:'0.3',exported_at:new Date().toISOString(),cards:state.cards,reviews:state.reviews},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='VISUCARDS_biblioteca_backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
     $('#restore-library').onclick=()=>$('#restore-file').click();
@@ -380,15 +433,84 @@
       }catch(err){show('O backup não é compatível ou contém dados inválidos.',true)}
     });
     $('#library-list').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const key=b.dataset.libexport||b.dataset.libprint||b.dataset.libdelete;const c=state.cards.find(c=>c.id===key);if(!c)return;if(b.dataset.libexport)exportPNG(c);else if(b.dataset.libprint)printCard(c);else if(b.dataset.libdelete&&confirm('Excluir este card da sua biblioteca?')){state.cards=state.cards.filter(item=>item.id!==key);delete state.reviews[key];persist();renderLibrary()}});
-    function printCard(c){if(!c)return;const popup=window.open('','_blank');if(!popup){show('Permita pop-ups para abrir a opção de impressão ou PDF.',true);return}const markup=cardMarkup(c);popup.document.open();popup.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><title>VISUCARDS • ${escapeHTML(c.title)}</title><style>*{box-sizing:border-box}body{margin:0;font-family:system-ui;background:#fff;display:grid;place-items:center}.card-visual{width:190mm;height:253mm;position:relative;padding:18mm 14mm;border:7mm solid ${colors[c.color||0]};background:repeating-linear-gradient(to bottom,#fff 0px,#fff 25px,#bfdeed 26px,#fff 27px);display:flex;flex-direction:column;gap:10mm;overflow:hidden}.card-visual h3{text-align:center;font-size:26pt;line-height:1.1;margin:0;color:#543078;text-transform:uppercase}.illustration svg{display:block;width:100%;max-height:80mm}.bubble{background:#ffdc70;border:2px solid #30243b;border-radius:14px;padding:10mm;font-size:15pt;font-weight:700;line-height:1.35}.bubble.alt{background:#a7e7d8}.source{font-size:9pt;margin-top:auto}.visulabel{position:absolute;right:6mm;bottom:4mm;font-size:9pt;font-weight:800;color:#534162}@page{size:A4 portrait;margin:5mm}@media print{body{display:block}.card-visual{break-inside:avoid}}</style></head><body>${markup}</body></html>`);popup.document.close();popup.focus();let printed=false;const doPrint=()=>{if(printed||popup.closed)return;printed=true;popup.print()};popup.onload=doPrint;setTimeout(doPrint,850)}
+    function printCard(c){if(!c)return;const popup=window.open('','_blank');if(!popup){show('Permita pop-ups para abrir a opção de impressão ou PDF.',true);return}const markup=cardMarkup(c);popup.document.open();popup.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><title>VISUCARDS • ${escapeHTML(c.title)}</title><style>*{box-sizing:border-box}body{margin:0;font-family:system-ui;background:#fff;display:grid;place-items:center}.card-visual{width:190mm;min-height:253mm;height:auto;position:relative;padding:14mm 12mm;border:7mm solid ${colors[c.color||0]};background:repeating-linear-gradient(to bottom,#fff 0px,#fff 25px,#bfdeed 26px,#fff 27px);display:flex;flex-direction:column;gap:7mm;overflow:visible;overflow-wrap:break-word;word-break:normal}.card-visual h3{text-align:center;font-size:24pt;line-height:1.25;margin:0;padding:2mm;color:#543078;text-transform:uppercase;overflow-wrap:break-word}.illustration svg{display:block;width:100%;max-height:80mm}.bubble{background:#ffdc70;border:2px solid #30243b;border-radius:14px;padding:6mm;font-size:13pt;font-weight:700;line-height:1.48;overflow-wrap:break-word}.bubble.alt{background:#a7e7d8}.source{font-size:9pt;margin-top:auto}.visulabel{position:static;align-self:flex-end;margin-top:2mm;font-size:9pt;font-weight:800;color:#534162}@page{size:A4 portrait;margin:5mm}@media print{body{display:block}.card-visual{break-inside:avoid}}</style></head><body>${markup}</body></html>`);popup.document.close();popup.focus();let printed=false;const doPrint=()=>{if(printed||popup.closed)return;printed=true;popup.print()};popup.onload=doPrint;setTimeout(doPrint,850)}
     function rounded(ctx,x,y,w,h,r,fill,stroke){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.lineWidth=4;ctx.strokeStyle=stroke;ctx.stroke()}}
-    function wrap(ctx,str,maxWidth,maxLines){const words=String(str).split(/\s+/),lines=[],current={value:''};for(const word of words){const test=current.value?current.value+' '+word:word;if(ctx.measureText(test).width>maxWidth&&current.value){lines.push(current.value);current.value=word;if(lines.length===maxLines-1)break}else current.value=test}if(current.value)lines.push(current.value);const remaining=words.slice(lines.join(' ').split(/\s+/).length);if(remaining.length&&lines.length){let last=lines.at(-1);while(ctx.measureText(last+'…').width>maxWidth)last=last.slice(0,-1);lines[lines.length-1]=last+'…'}return lines}
-    function textBox(ctx,str,x,y,w,fill,maxLines,fontSize){ctx.font=`800 ${fontSize}px system-ui`;const lines=wrap(ctx,str,w-32,maxLines);const height=Math.max(80,lines.length*(fontSize*1.32)+32);rounded(ctx,x,y,w,height,17,fill,'#30243b');ctx.fillStyle='#251936';lines.forEach((line,i)=>ctx.fillText(line,x+16,y+24+fontSize*.85+i*fontSize*1.32));return height}
+    function wrap(ctx,str,maxWidth){
+      // Preserva todas as palavras: nunca descarta linhas ou letras ao exportar.
+      const words=String(str??'').trim().split(/\s+/).filter(Boolean), lines=[];
+      let current='';
+      for(const word of words){
+        const full=current?current+' '+word:word;
+        if(ctx.measureText(full).width<=maxWidth){current=full;continue}
+        if(current){lines.push(current);current=''}
+        if(ctx.measureText(word).width<=maxWidth){current=word;continue}
+        let part='';
+        for(const letter of Array.from(word)){
+          if(part&&ctx.measureText(part+letter).width>maxWidth){lines.push(part);part=letter}
+          else part+=letter;
+        }
+        current=part;
+      }
+      if(current)lines.push(current);
+      return lines.length?lines:[''];
+    }
+    function textBox(ctx,str,x,y,w,fill,fontSize){
+      ctx.font=`800 ${fontSize}px system-ui`;
+      const lines=wrap(ctx,str,w-42), lineHeight=fontSize*1.35;
+      const height=Math.max(80,Math.ceil(lines.length*lineHeight+42));
+      rounded(ctx,x,y,w,height,17,fill,'#30243b');
+      ctx.fillStyle='#251936';
+      lines.forEach((line,i)=>ctx.fillText(line,x+20,y+24+fontSize*.85+i*lineHeight));
+      return height;
+    }
     async function svgAsImage(svg){const blob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'});const url=URL.createObjectURL(blob);try{const img=new Image();await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url});return img}finally{setTimeout(()=>URL.revokeObjectURL(url),2500)}}
-    async function exportPNG(card){if(!card)return;const cnv=document.createElement('canvas');cnv.width=900;cnv.height=1200;const ctx=cnv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,900,1200);ctx.strokeStyle=colors[card.color||0];ctx.lineWidth=24;ctx.strokeRect(12,12,876,1176);ctx.strokeStyle='#bbe3ee';ctx.lineWidth=2;for(let y=90;y<1140;y+=47){ctx.beginPath();ctx.moveTo(35,y);ctx.lineTo(861,y);ctx.stroke()}ctx.fillStyle='#f7f6fb';for(let y=47;y<1150;y+=54){ctx.beginPath();ctx.arc(15,y,12,0,2*Math.PI);ctx.fill()}
-      ctx.textAlign='center';ctx.font='1000 48px system-ui';const title=wrap(ctx,card.title.toUpperCase(),785,3);ctx.lineWidth=6;ctx.strokeStyle='#271935';ctx.fillStyle=colors[card.color||0];title.forEach((line,i)=>{ctx.strokeText(line,450,126+i*57);ctx.fillText(line,450,126+i*57)});
-      try{const art=await svgAsImage(window.VisuArt.svg(window.VisuArt.kindOf(card.title+' '+card.text)));ctx.drawImage(art,205,277,490,230)}catch(err){console.warn('Ilustração não pôde ser exportada',err);ctx.font='95px system-ui';ctx.fillText('📚',450,435)}
-      ctx.textAlign='left';let y=535;y+=textBox(ctx,card.text,75,y,750,'#ffdc70',6,27)+22;y+=textBox(ctx,card.note||'Confira a fonte original.',75,y,750,'#a7e7d8',4,23);ctx.font='bold 20px system-ui';ctx.fillStyle='#654f7d';ctx.fillText(words(card.source,44),75,1089);ctx.textAlign='right';ctx.fillText('VISUCARDS',830,1148);const a=document.createElement('a');a.href=cnv.toDataURL('image/png');a.download='visucards-'+card.title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').slice(0,50)+'.png';document.body.appendChild(a);a.click();a.remove()}
+    async function exportPNG(card){
+      if(!card)return;
+      if(document.fonts?.ready)await document.fonts.ready;
+      const cnv=document.createElement('canvas');
+      cnv.width=900;
+      const ctx=cnv.getContext('2d');
+      if(!ctx){show('Não foi possível iniciar a exportação neste dispositivo.',true);return}
+      ctx.font='850 44px system-ui';
+      const titleLines=wrap(ctx,card.title.toUpperCase(),770);
+      const artTop=Math.max(250,125+(titleLines.length-1)*56);
+      const mainTop=Math.max(535,artTop+230+30);
+      ctx.font='800 27px system-ui';
+      const mainHeight=Math.max(80,Math.ceil(wrap(ctx,card.text,708).length*27*1.35+42));
+      ctx.font='800 23px system-ui';
+      const noteText=card.note||'Confira a fonte original.';
+      const noteHeight=Math.max(80,Math.ceil(wrap(ctx,noteText,708).length*23*1.35+42));
+      ctx.font='bold 20px system-ui';
+      const sourceLines=wrap(ctx,String(card.source||''),735);
+      const sourceTop=Math.max(1089,mainTop+mainHeight+22+noteHeight+50);
+      const brandTop=sourceTop+(sourceLines.length-1)*29+59;
+      const canvasHeight=Math.max(1200,Math.ceil(brandTop+52));
+      if(canvasHeight>16384){show('Texto muito extenso para um único PNG. Divida o conteúdo em mais cards.',true);return}
+      cnv.height=canvasHeight;
+      ctx.fillStyle='#fff';ctx.fillRect(0,0,900,canvasHeight);
+      ctx.strokeStyle=colors[card.color||0];ctx.lineWidth=24;
+      ctx.strokeRect(12,12,876,canvasHeight-24);
+      ctx.strokeStyle='#bbe3ee';ctx.lineWidth=2;
+      for(let y=90;y<canvasHeight-55;y+=47){ctx.beginPath();ctx.moveTo(35,y);ctx.lineTo(861,y);ctx.stroke()}
+      ctx.fillStyle='#f7f6fb';
+      for(let y=47;y<canvasHeight-55;y+=54){ctx.beginPath();ctx.arc(15,y,12,0,2*Math.PI);ctx.fill()}
+      ctx.textAlign='center';ctx.font='850 44px system-ui';ctx.fillStyle=colors[card.color||0];
+      titleLines.forEach((line,i)=>ctx.fillText(line,450,126+i*56));
+      try{
+        const art=await svgAsImage(window.VisuArt.svg(window.VisuArt.kindOf(card.title+' '+card.text)));
+        ctx.drawImage(art,205,artTop,490,220);
+      }catch(err){console.warn('Ilustração não pôde ser exportada',err);ctx.font='95px system-ui';ctx.fillText('📚',450,artTop+140)}
+      ctx.textAlign='left';let y=mainTop;
+      y+=textBox(ctx,card.text,75,y,750,'#ffdc70',27)+22;
+      y+=textBox(ctx,noteText,75,y,750,'#a7e7d8',23);
+      ctx.font='bold 20px system-ui';ctx.fillStyle='#654f7d';
+      sourceLines.forEach((line,i)=>ctx.fillText(line,75,sourceTop+i*29));
+      ctx.textAlign='right';ctx.fillText('VISUCARDS',830,brandTop);
+      const a=document.createElement('a');
+      a.href=cnv.toDataURL('image/png');
+      a.download='visucards-'+card.title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').slice(0,50)+'.png';
+      document.body.appendChild(a);a.click();a.remove();
+    }
     refresh();persist();renderLibrary();$('#generate').disabled=!(state.parsed&&state.cardCount<window.VisuPolicy.FREE.cards);if(state.parsed&&state.cardCount<window.VisuPolicy.FREE.cards)show('Seu PDF do mês foi recuperado. Você pode continuar a geração dos cards.',false,true);
     // Versão de um arquivo sem service worker; PWA completo disponível no pacote original.
   })();
