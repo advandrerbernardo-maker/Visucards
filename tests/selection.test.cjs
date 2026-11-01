@@ -62,3 +62,8 @@ test('Geração pode continuar indefinidamente sem bloquear por quantidade',()=>
   }
   assert.ok(cursor>2000);
 });
+
+test('Pontuação reconhece Art. 5º e parágrafos com ordinal',()=>{
+  assert.ok(selection.score('Art. 5º assegura direitos.')>selection.score('Texto neutro de consulta.'));
+  assert.ok(selection.score('§ 1º A competência será exercida conforme a lei.')>selection.score('Texto neutro de consulta.'));
+});
