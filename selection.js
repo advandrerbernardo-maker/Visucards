@@ -6,7 +6,7 @@
     const s=normalize(text);
     if(!s.trim())return -100;
     let value=Math.min(s.length,550)/140;
-    if(/\bart(?:igo)?\.?\s*\d+[º°]?\b/.test(s))value+=6;
+    if(/(?:^|\s)art(?:igo)?\.?\s*\d+[º°]?(?=\s|[.,;:]|$)|§\s*\d+[º°]?/.test(s))value+=6;
     if(/\b(exceto|salvo|vedad[oa]|ressalvad[oa]|nao se aplica|somente se)\b/.test(s))value+=6;
     if(/\b(prazo|dias|meses|anos|prescricao|decadencia)\b/.test(s))value+=4;
     if(/\b(compete|competencia|requisitos?|hipoteses?|devera|obrigatorio|proibido)\b/.test(s))value+=4;
