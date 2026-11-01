@@ -40,7 +40,7 @@ test('Geração é automática e não depende de dados de questões',()=>{
   assert.match(html,/VisuPDFIntelligence\.headline\(p\.text\)/);
   assert.match(html,/VisuSelection\.studyPrompt\(p\.text\)/);
   assert.match(html,/não representa frequência comprovada em concursos/);
-  assert.match(html,/CARDS DO PDF · SELEÇÃO AUTOMÁTICA/);
+  assert.match(html,/CARDS DO PDF · SELEÇÃO LOCAL/);
 });
 
 test('Dados antigos sem CSV continuam aceitos sem perder biblioteca e revisão',()=>{
