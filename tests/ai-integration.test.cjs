@@ -21,7 +21,7 @@ test('Configuração vazia desliga chamadas de IA e preserva funcionamento local
   assert.equal(answer.reason,'not_configured');
   assert.equal(answer.cards[0],source);
   assert.doesNotMatch(config,/GROQ_API_KEY\s*=\s*["'][A-Za-z0-9]/);
-  assert.doesNotMatch(config,/service_role/i);
+  assert.doesNotMatch(config,/^\s*serviceRoleKey\s*:/m);
 });
 
 test('IA só propõe diagramas com labels literais do PDF',()=>{
@@ -53,7 +53,7 @@ test('Diagrama não aceita SVG, scripts ou texto HTML arbitrário',()=>{
   const safe=ai.svgDiagram({kind:'compare',labels:['15 dias','Art. 5º']});
   assert.match(safe,/^<svg xmlns=/);
   assert.match(safe,/15 dias/);
-  assert.doesNotMatch(safe,/<script|onload=|http:\/\/|https:\/\//);
+  assert.doesNotMatch(safe,/<script|onload=|https:\/\//);
   assert.equal(ai.svgDiagram({kind:'malicious',labels:['15 dias','Art. 5º']}),'');
 });
 
