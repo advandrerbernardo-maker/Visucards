@@ -22,8 +22,9 @@ test('Modo de testes: geração sem limite mensal de cards, mantendo limite de P
   assert.match(html, /Cards ilimitados durante os testes/);
   assert.match(html, /pdf:\s*1/);
   assert.match(html, /pages:\s*5/);
-  const scripts=[...html.matchAll(/<script[^>]*>([\\s\\S]*?)<\\/script>/g)];
-  const policy=scripts.map(x=>x[1]).find(x=>x.includes('const TEST_MODE = Object.freeze'));
+  const begin=html.indexOf('/* Fonte original: policy.js */');
+  const finish=html.indexOf('</script>',begin);
+  const policy=html.slice(begin,finish);
   assert.ok(policy, 'Não encontrou a configuração de testes');
   const sandbox={module:{exports:{}}};
   vm.runInNewContext(policy,sandbox);
@@ -37,9 +38,9 @@ test('Modo de testes: geração sem limite mensal de cards, mantendo limite de P
   assert.equal(cfg.canUploadPDF(0,6,1024),false);
 });
 test('Geração permanece disponível após salvar cards',()=>{
-  assert.match(html,/state\\.generationCursor=batch\\.nextCursor/);
-  assert.match(html,/remainingCards\\(state\\.cardCount\\)<1/);
-  assert.match(html,/Gerar mais 2 cards/);
+  assert.ok(html.includes('state.generationCursor=batch.nextCursor'));
+  assert.ok(html.includes('remainingCards(state.cardCount)<1'));
+  assert.ok(html.includes('Gerar mais 2 cards'));
 });
 
 test('Uploads e compras não são apresentados como serviço ativo', () => {
