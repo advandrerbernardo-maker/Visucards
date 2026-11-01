@@ -1,53 +1,46 @@
-# VISUCARDS 0.3 | Protótipo de aplicativo para concursos
+# VISUCARDS 0.3 | Protótipo para concursos
 
-Transforma trechos de PDFs textuais em cards didáticos com **ilustrações vetoriais originais**, editáveis, exportáveis em PNG e por impressão/PDF.
+Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs com texto selecionável em cards ilustrados para revisão.
 
-## Novidades na 0.3
+## O que já funciona
+- Interface responsiva em português e demonstração de cards.
+- Leitura de PDFs textuais no próprio navegador, com limite demonstrativo de 1 PDF de até 5 páginas/mês.
+- Geração de até 2 cards ilustrados/mês na modalidade gratuita.
+- Três estilos de layout, edição de textos, exportação PNG e impressão/PDF.
+- Biblioteca local, busca, backup e restauração.
+- Vitrine ilustrativa de combos e planos, **sem compras reais**.
 
-- Ilustrações vetoriais próprias para temas jurídicos, prazos, estudo, matemática e saúde.
-- Estilos visuais: caderno ilustrado, quadrinhos e minimalista.
-- Exportação em PNG com desenho, mais janela de impressão para **Salvar como PDF**.
-- Biblioteca local com busca, exclusão, backup JSON e restauração validada, sem truncamento silencioso.
-- Rascunho do PDF do mês persistido localmente, para retomar após fechar e reabrir a interface.
-- Travamento de leitura simultânea de PDFs, melhorias de exibição no celular e testes automatizados no GitHub Actions.
-- GitHub Pages publica apenas os arquivos públicos do aplicativo.
-- Leitor de PDF atualizado, com `isEvalSupported:false` como proteção adicional.
-- Repositório pronto para configurar GitHub Pages com workflow em `.github/workflows/pages.yml`.
-- Arquivo `backend/schema.sql` com modelo para Supabase separado, políticas RLS, cotas e direitos de acesso para venda avulsa + Premium. **Não aplicado nem conectado**.
+## Limitações importantes
+- O processamento é **local** e não possui IA para interpretar conceitos ou gerar desenhos sob demanda.
+- Não há cadastro de usuários, banco de dados, cobrança, OCR nem cotas verificadas por servidor.
+- Dados guardados no navegador podem desaparecer; use o backup.
+- A cota gratuita é demonstrativa, pois o armazenamento local pode ser apagado.
+- O leitor PDF.js 6.4.299 é carregado pela internet quando necessário.
+- Não coloque documentos sigilosos nesta versão experimental.
+- Os combos e valores exibidos são exemplos e não estão à venda.
 
-## Testes automáticos
+## Testes e publicação
+
+O arquivo `index.html` desta versão concentra a interface e o JavaScript do protótipo para facilitar a publicação.
+
+O fluxo `.github/workflows/pages.yml` executa os testes em `tests/site.test.cjs` e só depois tenta publicar o HTML no GitHub Pages.
+
+Para rodar os testes localmente:
 
 ```bash
-node --test tests/*.test.mjs
+node --test tests/*.test.cjs
 ```
 
-Veja `tests/RESULTADOS.md` para os limites dos testes.
+Para visualizar sem GitHub Pages, abra `index.html` em um servidor HTTP local. Não é necessário configurar chaves.
 
-## Testar no computador
+### GitHub Pages
 
-```bash
-python -m http.server 8080
-```
+1. Abra **Settings > Pages** no repositório.
+2. Se necessário, escolha **Build and deployment > Source: GitHub Actions**.
+3. Confira a execução em **Actions**. A URL esperada depois da publicação é https://advandrerbernardo-maker.github.io/Visucards/ .
 
-Abra `http://localhost:8080`. No celular, publique em HTTPS para instalar como PWA.
+## Próximos passos
 
-O leitor PDF.js 6.4.299 é importado sob demanda por CDN ao abrir PDFs; requer internet nesse momento (a versão vulnerável 3.11.174 foi removida). PDFs digitalizados sem texto selecionável não são suportados nesta versão. Os PDFs não são enviados a servidor. O limite gratuito é **demonstrativo, gravado no navegador**: 1 PDF de até 5 páginas e 2 cards por mês. O navegador pode ser limpo, então ainda não é sistema comercial pronto. O aplicativo salva temporariamente no dispositivo alguns trechos de texto do PDF para retomar a geração depois: evite documentos confidenciais nesta versão.
+Criar um projeto Supabase exclusivo, com Auth e políticas RLS para biblioteca, cotas e direito de acesso a combos; integrar IA com referências às páginas do PDF; validar PDFs reais; e apenas depois implementar pagamentos.
 
-## Publicar no GitHub Pages
-
-1. Os arquivos do projeto devem estar no repositório `advandrerbernardo-maker/Visucards`, mantendo a estrutura e a pasta `.github`.
-2. Nas configurações do repositório, abra **Settings > Pages** e selecione **Source: GitHub Actions**.
-3. Vá a **Actions**, confira a execução do workflow `Publicar VISUCARDS no GitHub Pages`.
-4. O endereço esperado, **somente depois da publicação**, é `https://SEU-USUARIO.github.io/visucards/`.
-
-Não publique PDFs enviados por clientes nem chaves secretas no repositório. O GitHub Pages hospeda apenas a interface estática.
-
-## O que ainda falta
-
-- IA real para interpretar, resumir e desenhar ilustrações personalizadas a partir do texto, com aprovação do estudante antes de gerar a arte.
-- OCR para PDFs escaneados.
-- Login, sincronização, cota verificada no servidor e backend de processamento.
-- Checkout, assinatura recorrente e publicação de combos revisados.
-- Testes de uso real com múltiplos usuários, políticas de privacidade e termos de venda.
-
-**A publicação no GitHub Pages requer habilitar a origem GitHub Actions nas configurações de Pages. O protótipo ainda não está conectado ao Supabase.**
+O serviço Recebi+ e outros projetos não são utilizados nem alterados por este repositório.
