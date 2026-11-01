@@ -85,3 +85,9 @@ test('Integra extração e bloqueio visual sem alterar o desenho aprovado',()=>{
   assert.match(html,/window\.VisuPDFIntelligence\.headline\(p\.text\)/);
   assert.match(workflow,/cp pdf-intelligence\.js site\/pdf-intelligence\.js/);
 });
+
+test('Não descarta artigos curtos com conteúdo legal específico',()=>{
+  const result=engine.extract(['Art. 10 É livre a manifestação do pensamento.\nArt. 11 É vedado o anonimato, nos termos da norma.'],selection.prioritize);
+  assert.ok(result.chunks.some(c=>c.text.startsWith('Art. 10')));
+  assert.ok(result.chunks.some(c=>c.text.startsWith('Art. 11')));
+});
