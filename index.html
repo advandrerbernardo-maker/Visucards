@@ -186,6 +186,111 @@
     .incidence-entry strong{display:block;margin-bottom:4px}
     @media(max-width:680px){.incidence-fields{grid-template-columns:minmax(0,1fr)}.incidence-panel{padding:13px}.incidence-entry{font-size:12px}}
   </style>
+
+  <style id="premium-card-style">
+    /* VISUCARDS 0.5: infográficos de leitura com conteúdo completo, sem cortes. */
+    .card-visual.premium-card{
+      --card-head:#261541;--card-wash:#f2eaff;
+      width:100%;height:auto;min-height:0;aspect-ratio:auto;padding:0;gap:0;
+      background:#fff;border:0;border-radius:23px;
+      box-shadow:0 16px 40px rgba(32,19,60,.16);
+      overflow:hidden;display:flex;flex-direction:column;position:relative;
+      color:#251b36;overflow-wrap:break-word;word-break:normal;
+    }
+    .card-visual.premium-card::before{display:none}
+    .card-visual.premium-card.layout-quadrinhos{
+      --card-head:#4c2551;--card-wash:#fff0e2;
+      background:#fff9f2;border:0;transform:none;
+    }
+    .card-visual.premium-card.layout-minimalista{
+      --card-head:#153d4c;--card-wash:#e8f7f6;
+      background:#f9fdfc;border:0;border-radius:22px;
+    }
+    .premium-head{
+      background:var(--card-head);color:white;padding:22px 24px 25px;
+      position:relative;isolation:isolate;overflow:hidden;
+    }
+    .premium-head::after{
+      content:"";position:absolute;width:180px;height:180px;border:2px solid #ffffff22;
+      border-radius:50%;right:-64px;top:-65px;z-index:-1;
+      box-shadow:0 0 0 23px #ffffff0a,0 0 0 48px #ffffff08;
+    }
+    .premium-eyebrow{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;
+      font-size:10px;line-height:1.5;font-weight:850;letter-spacing:.12em;text-transform:uppercase;color:#ebddff}
+    .premium-head .premium-title{color:#fff!important;text-align:left!important;font-size:clamp(23px,3vw,33px)!important;
+      font-weight:900!important;line-height:1.15!important;letter-spacing:-.025em!important;
+      text-shadow:none!important;text-transform:none!important;margin:22px 0 0!important;
+      padding:0!important;max-height:none!important;overflow:visible!important;width:100%}
+    .premium-head .premium-sub{display:inline-flex;gap:7px;align-items:center;background:#ffffff22;border:1px solid #ffffff35;
+      border-radius:100px;padding:6px 10px;font-size:10px;font-weight:800;letter-spacing:.06em;margin-top:17px}
+    .premium-hero{display:grid;grid-template-columns:minmax(0,.90fr) minmax(0,1.1fr);
+      background:var(--card-wash);border-bottom:1px solid #e4ddea;min-height:168px;align-items:center}
+    .premium-illustration{display:flex;align-items:center;justify-content:center;padding:18px 10px;min-width:0;
+      background:radial-gradient(circle at 30% 40%,#ffffffc7,transparent 55%);
+      isolation:isolate;position:relative}
+    .premium-illustration::after{content:"";position:absolute;inset:12px;border:1.5px dashed #63528a55;
+      border-radius:24px;transform:rotate(-3deg);z-index:-1}
+    .premium-illustration svg{display:block;width:100%;height:auto;max-height:160px;max-width:230px}
+    .premium-hero-copy{padding:19px 16px 19px 5px;display:grid;gap:9px;min-width:0}
+    .premium-big-number{font-size:45px;font-weight:950;line-height:1;letter-spacing:-.08em;color:var(--accent,#7e4ed7)}
+    .premium-hero-copy strong{font-size:12px;letter-spacing:.08em;line-height:1.25}
+    .premium-hero-copy p{font-size:12px;line-height:1.42;color:#5e546e;margin:0}
+    .premium-body{padding:24px;display:grid;gap:15px;min-width:0}
+    .premium-kicker{font-size:10px;color:#786b89;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+    .premium-lead{background:#fff;border:1px solid #e8e2f0;border-left:5px solid var(--accent,#8d59cc);
+      border-radius:12px;padding:16px 17px;font-size:clamp(14px,1.7vw,18px);line-height:1.55;
+      font-weight:750;margin:0;white-space:normal;overflow-wrap:break-word;color:#241c33}
+    .premium-steps{display:grid;gap:10px}
+    .premium-step{display:grid;grid-template-columns:31px minmax(0,1fr);align-items:start;gap:10px}
+    .premium-step-index{display:grid;place-items:center;height:31px;width:31px;border-radius:10px;
+      font-weight:950;background:var(--card-head);color:white;font-size:12px}
+    .premium-step-copy{padding:11px 13px;border-radius:12px;background:#f9f7fc;border:1px solid #eae5f2;min-width:0}
+    .premium-step-copy strong{display:block;font-size:10px;letter-spacing:.08em;color:var(--accent,#764ac0);margin-bottom:5px}
+    .premium-step-copy p{margin:0;line-height:1.55;font-size:13px;color:#322b41;overflow-wrap:break-word}
+    .premium-anchor-area{background:var(--card-wash);padding:14px;border-radius:12px;display:grid;gap:9px}
+    .premium-tags{display:flex;flex-wrap:wrap;gap:7px}
+    .premium-tags span{display:inline-flex;max-width:100%;padding:7px 9px;background:#fff;border:1px solid #dfd3e9;
+      border-radius:9px;color:#382b51;font-size:11px;line-height:1.25;font-weight:800;overflow-wrap:anywhere}
+    .premium-note{display:grid;gap:7px;background:#fff6dc;padding:13px 15px;border-radius:12px;
+      border:1px solid #f1db9c;color:#58431b}
+    .premium-note strong{font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+    .premium-note p{margin:0;font-size:12px;line-height:1.5;overflow-wrap:break-word}
+    .premium-foot{margin-top:auto;border-top:1px solid #eae4f0;padding:13px 24px 17px;
+      display:flex;gap:12px;justify-content:space-between;align-items:flex-end}
+    .premium-foot .premium-source{color:#625676;font-size:10px;line-height:1.45;
+      overflow-wrap:anywhere;min-width:0;flex:1}
+    .premium-foot .premium-brand{font-size:10px;letter-spacing:.07em;font-weight:950;
+      color:var(--card-head);white-space:nowrap}
+    .card-visual.premium-card.layout-quadrinhos .premium-step-copy{
+      border:2px solid #4c2551;box-shadow:3px 3px 0 #4c2551;background:#fff}
+    .card-visual.premium-card.layout-quadrinhos .premium-lead{
+      border:2px solid #4c2551;border-left:7px solid #ff6c87;box-shadow:4px 4px 0 #4c2551}
+    .card-visual.premium-card.layout-minimalista .premium-step-copy{background:#fff;border-color:#d6e9e7}
+    .card-visual.premium-card.layout-minimalista .premium-lead{border-color:#d5e8e7;border-left-color:#299b9b}
+    @media(max-width:680px){
+      .showcase .card-visual.premium-card{padding:0;gap:0;overflow:hidden}
+      .premium-head{padding:20px 19px 22px}
+      .premium-head .premium-title{font-size:clamp(21px,6vw,30px)!important}
+      .premium-body{padding:20px 17px;gap:13px}
+      .premium-hero{grid-template-columns:41% 59%;min-height:130px}
+      .premium-illustration{padding:13px 8px}
+      .premium-illustration svg{max-height:130px}
+      .premium-hero-copy{padding:13px 12px 13px 0;gap:6px}
+      .premium-big-number{font-size:36px}
+      .premium-lead{font-size:15px;line-height:1.55}
+      .premium-foot{padding:13px 17px 17px}
+    }
+    @media(max-width:360px){
+      .premium-hero{grid-template-columns:38% 62%}
+      .premium-hero-copy p{font-size:11px}
+    }
+    @media print{
+      body{background:#fff!important}
+      .card-visual.premium-card{width:100%;box-shadow:none!important;border-radius:10px;
+        -webkit-print-color-adjust:exact;print-color-adjust:exact}
+      .premium-head,.premium-hero,.premium-step,.premium-note,.premium-anchor-area{break-inside:avoid}
+    }
+  </style>
 </head>
 <body>
   <div class="app">
@@ -200,7 +305,7 @@
       <div class="sidefoot"><strong>PLANO GRATUITO</strong>1 PDF de até 5 páginas/mês<br/>2 cards ilustrados/mês</div>
     </aside>
     <main>
-      <div class="topbar"><span class="eyebrow">VISUCARDS · VERSÃO 0.4.2 DE TESTE</span><span class="pill">✦ Plano gratuito</span></div>
+      <div class="topbar"><span class="eyebrow">VISUCARDS · VERSÃO 0.5 DE TESTE</span><span class="pill">✦ Plano gratuito</span></div>
       <section id="tab-criar" class="tab">
         <div class="hero"><div><div class="eyebrow" style="color:#d0b6ff">ESTUDE DE UM JEITO DIFERENTE</div><h1>Seu PDF pode virar um material muito mais visual.</h1><p class="lead">Transforme trechos do seu conteúdo em cards coloridos para revisar e memorizar.</p></div><div class="hero-art" aria-hidden="true">📚✨</div></div>
         <div class="grid">
@@ -225,8 +330,8 @@
           <section class="panel"><div class="panel-head"><h2>Uso no modo de testes</h2><span class="tag" id="month-display">MÊS ATUAL</span></div>
             <div class="meter"><div class="meter-head"><span>PDFs utilizados</span><span id="pdf-counter">0 de 1</span></div><div class="track"><div class="fill" id="pdf-meter" style="width:0%"></div></div></div>
             <div class="meter"><div class="meter-head"><span>Cards ilustrados</span><span id="card-counter">0 · ilimitados</span></div><div class="track"><div class="fill" id="card-meter" style="width:0%"></div></div></div>
-            <div class="stack" style="margin-top:22px"><div class="step"><div class="num">1</div><div><strong>Escolha seu conteúdo</strong><small>Até 5 páginas de PDF</small></div></div><div class="step"><div class="num">2</div><div><strong>Confira os trechos</strong><small>O protótipo usa frases extraídas do documento</small></div></div><div class="step"><div class="num">3</div><div><strong>Personalize e exporte</strong><small>Edite textos e exporte em PNG ou impressão/PDF</small></div></div></div>
-            <div class="notice">Nesta primeira versão, os cards são diagramados automaticamente a partir de trechos extraídos. O protótipo agora inclui ilustrações vetoriais originais. A interpretação e a geração de desenhos por IA ainda não estão ativas.</div>
+            <div class="stack" style="margin-top:22px"><div class="step"><div class="num">1</div><div><strong>Escolha seu conteúdo</strong><small>Até 5 páginas de PDF</small></div></div><div class="step"><div class="num">2</div><div><strong>Veja um infográfico didático</strong><small>Trechos, regras, prazos e dados destacados do documento</small></div></div><div class="step"><div class="num">3</div><div><strong>Personalize e exporte</strong><small>Edite textos e exporte em PNG ou impressão/PDF</small></div></div></div>
+            <div class="notice">Os novos cards organizam o texto em blocos visuais, ilustrações vetoriais e etiquetas extraídas do PDF. Ainda não há IA capaz de interpretar ou criar desenhos específicos para cada conceito.</div>
           </section>
         </div>
         <section id="incidence-results" class="panel hidden" aria-labelledby="ranking-title" style="margin-top:22px">
@@ -301,6 +406,7 @@
 
 </script>
   <script src="./selection.js"></script>
+  <script src="./card-design.js"></script>
   <script src="./incidence.js"></script>
 <script>
 /* Fonte original: app.js */
@@ -336,7 +442,30 @@
     function refresh(){if(state.month!==month()){state.month=month();state.pdfCount=0;state.cardCount=0;state.generationCursor=0;state.parsed=null;persist()}$('#pdf-counter').textContent=`${state.pdfCount} de 1`;const unlimited=window.VisuPolicy.TEST_MODE.unlimitedCards;$('#card-counter').textContent=unlimited?`${state.cardCount} · ilimitados`:`${state.cardCount} de ${window.VisuPolicy.FREE.cards}`;$('#pdf-meter').style.width=state.pdfCount*100+'%';$('#card-meter').closest('.track').classList.toggle('hidden',unlimited);if(!unlimited)$('#card-meter').style.width=Math.min(state.cardCount/window.VisuPolicy.FREE.cards*100,100)+'%';$('#month-display').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).toUpperCase();$('#library-count').textContent=state.cards.length+' CARDS';$('#generate').textContent=state.parsed&&state.cardCount?'Gerar mais 2 cards':'Gerar meus cards'}
     function switchTab(name){all('.tab').forEach(el=>el.classList.toggle('hidden',el.id!=='tab-'+name));all('[data-tab]').forEach(el=>{if(el.closest('.nav'))el.setAttribute('aria-current',el.dataset.tab===name?'page':'false')});if(name==='biblioteca')renderLibrary();window.scrollTo({top:0,behavior:'smooth'})}
     all('[data-tab]').forEach(el=>el.addEventListener('click',()=>switchTab(el.dataset.tab)));
-    function cardMarkup(c){const kind=window.VisuArt.kindOf(c.title+' '+c.text);const illustration=window.VisuArt.svg(kind);return `<div class="card-visual layout-${['caderno','quadrinhos','minimalista'].includes(c.layout)?c.layout:'caderno'}" style="--accent:${colors[c.color||0]}"><h3>${escapeHTML(c.title)}</h3><div class="illustration" aria-hidden="true">${illustration}</div><div class="bubble">${escapeHTML(c.text)}</div><div class="bubble alt">${escapeHTML(c.note||'Confira sempre o trecho completo no material de origem.')}</div><span class="source">📄 ${escapeHTML(c.source)}</span><span class="visulabel">VISUCARDS</span></div>`}
+    function cardMarkup(c){
+      const d=window.VisuCardDesign.build(c);
+      const kind=window.VisuArt.kindOf(d.title+' '+d.fullText);
+      const illustration=window.VisuArt.svg(kind);
+      const layout=['caderno','quadrinhos','minimalista'].includes(c.layout)?c.layout:'caderno';
+      const steps=d.sections.map((part,i)=>`<div class="premium-step"><span class="premium-step-index">${String(i+2).padStart(2,'0')}</span><div class="premium-step-copy"><strong>${escapeHTML(part.label)}</strong><p>${escapeHTML(part.text)}</p></div></div>`).join('');
+      const anchors=d.anchors.length?`<div class="premium-anchor-area"><span class="premium-kicker">PALAVRAS E DADOS PARA REVISAR</span><div class="premium-tags">${d.anchors.map(x=>`<span>${escapeHTML(x)}</span>`).join('')}</div></div>`:'';
+      const note=d.note?`<div class="premium-note"><strong>▣ NOTA DE REVISÃO</strong><p>${escapeHTML(d.note)}</p></div>`:'';
+      return `<article class="card-visual premium-card layout-${layout}" style="--accent:${colors[c.color||0]}">
+        <header class="premium-head">
+          <div class="premium-eyebrow"><span>✦ VISUCARDS / ESTUDO VISUAL</span><span>LEITURA GUIADA</span></div>
+          <h3 class="premium-title">${escapeHTML(d.title)}</h3>
+          <span class="premium-sub" aria-label="Tipo de conteúdo">${escapeHTML(d.subject.symbol)} ${escapeHTML(d.subject.label)} DO TEXTO</span>
+        </header>
+        <div class="premium-hero"><div class="premium-illustration" aria-hidden="true">${illustration}</div>
+          <div class="premium-hero-copy"><span class="premium-big-number">01</span><strong>LEIA • IDENTIFIQUE • REVISE</strong><p>Informação organizada a partir do trecho original, sem acrescentar regras.</p></div>
+        </div>
+        <div class="premium-body"><span class="premium-kicker">01 / TRECHO CENTRAL</span><p class="premium-lead">${escapeHTML(d.lead)}</p>
+          ${steps?`<div class="premium-steps" aria-label="Continuação do texto original">${steps}</div>`:''}
+          ${anchors}${note}
+        </div>
+        <footer class="premium-foot"><span class="premium-source">FONTE: ${escapeHTML(d.source)}</span><span class="premium-brand">VISUCARDS ✦</span></footer>
+      </article>`;
+    }
     function drawCards(cards,type){state.preview=cards;$('#results').classList.remove('hidden');$('#result-type').textContent=type;$('#card-grid').innerHTML=cards.map((c,i)=>`<div class="preview-wrap">${cardMarkup(c)}<div class="card-actions"><button class="btn smallbtn" data-export="${i}">⬇ PNG</button><button class="btn outline smallbtn" data-print="${i}">🖨 PDF</button><button class="btn outline smallbtn" data-edit="${i}">✎ Editar</button></div><div id="edit-${i}" class="editorbox hidden"><label>Título</label><textarea class="editing" data-field="title" data-index="${i}">${escapeHTML(c.title)}</textarea><label>Texto principal</label><textarea class="editing" data-field="text" data-index="${i}">${escapeHTML(c.text)}</textarea><label>Observação</label><textarea class="editing" data-field="note" data-index="${i}">${escapeHTML(c.note||'')}</textarea><button type="button" class="btn smallbtn" data-save="${i}">Salvar edição</button></div></div>`).join('');$('#results').scrollIntoView({behavior:'smooth',block:'start'})}
     function renderLibrary(){refresh();const query=clean($('#library-search').value||'').toLowerCase();const entries=state.cards.filter(c=>(c.title+' '+c.text+' '+c.source).toLowerCase().includes(query));$('#library-list').innerHTML=entries.length?entries.slice().reverse().map(c=>`<div class="libitem"><div><strong>${escapeHTML(c.title)}</strong><small>${escapeHTML(c.source)}</small></div><div class="buttonrow"><button class="btn outline smallbtn" data-libexport="${escapeHTML(c.id)}">⬇ PNG</button><button class="btn outline smallbtn" data-libprint="${escapeHTML(c.id)}">🖨 PDF</button><button class="btn outline smallbtn" data-libdelete="${escapeHTML(c.id)}">Excluir</button></div></div>`).join(''):'<div class="empty"><span class="big">📂</span>Nenhum card encontrado.</div>'}
     function candidateChunks(pages){const chunks=[];pages.forEach((text,p)=>{const normalized=clean(text);const lines=normalized.match(/[^.!?]{70,650}(?:[.!?](?=\s|$)|$)/g)||[];let candidates=lines.map(clean).filter(s=>s.length>85);if(!candidates.length&&normalized.length>70)candidates=[normalized];for(const s of candidates.slice(0,10))chunks.push({text:s,page:p+1})});return window.VisuSelection.prioritize(chunks)}
@@ -534,7 +663,7 @@
       if(tooLong){show('O campo '+tooLong.dataset.field+' excede o limite. Reduza o texto antes de salvar.',true);return}
       edited.forEach(el=>{c[el.dataset.field]=clean(el.value)});const storedCard=state.cards.find(s=>s.id===c.id);if(storedCard)Object.assign(storedCard,c);persist();drawCards(state.preview,$('#result-type').textContent)}});
     $('#library-search').addEventListener('input',renderLibrary);
-    $('#backup-library').addEventListener('click',()=>{const data=JSON.stringify({app:'VISUCARDS',version:'0.4.2',exported_at:new Date().toISOString(),cards:state.cards,reviews:state.reviews},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='VISUCARDS_biblioteca_backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+    $('#backup-library').addEventListener('click',()=>{const data=JSON.stringify({app:'VISUCARDS',version:'0.5',exported_at:new Date().toISOString(),cards:state.cards,reviews:state.reviews},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='VISUCARDS_biblioteca_backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
     $('#restore-library').onclick=()=>$('#restore-file').click();
     $('#restore-file').addEventListener('change',async e=>{
       const file=e.target.files[0];e.target.value='';if(!file)return;
