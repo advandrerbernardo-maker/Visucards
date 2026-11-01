@@ -586,7 +586,7 @@
         id:id(),
         title:window.VisuPDFIntelligence.headline(p.text),
         text:clean(p.text),
-        note:'Seleção automática por pistas didáticas do texto. Confira o contexto na página original; não representa frequência comprovada em provas.',
+        note:window.VisuSelection.studyPrompt(p.text),
         source:state.parsed.file+' · pág. '+p.page,
         color:i%4,layout:currentLayout()
       }));
