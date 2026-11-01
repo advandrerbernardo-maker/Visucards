@@ -34,7 +34,8 @@ test('Não há importação de CSV, banca, cargo ou resultados históricos',()=>
 });
 
 test('Geração é automática e não depende de dados de questões',()=>{
-  assert.match(html,/const candidates=state\.parsed\.chunks/);
+  assert.match(html,/function preparedCandidates\(\)/);
+  assert.match(html,/const candidates=preparedCandidates\(\)/);
   assert.match(html,/VisuSelection\.nextBatch\(candidates,state\.generationCursor/);
   assert.match(html,/VisuPDFIntelligence\.headline\(p\.text\)/);
   assert.match(html,/Seleção automática por pistas didáticas do texto/);
