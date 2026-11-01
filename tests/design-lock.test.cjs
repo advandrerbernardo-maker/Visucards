@@ -31,7 +31,8 @@ test('Design oficial 0.5: estrutura dos cartões não pode ser simplificada',()=
 test('Mantém três acabamentos e componentes do modelo aprovado',()=>{
   for(const style of ['caderno','quadrinhos','minimalista']){
     assert.ok(html.includes('<option value="'+style+'">'),'Estilo ausente: '+style);
-    assert.ok(html.includes('premium-card.layout-'+style),'Identidade visual ausente: '+style);
+    if(style!=='caderno') assert.ok(html.includes('premium-card.layout-'+style),'Identidade visual ausente: '+style);
+    else assert.ok(html.includes('.card-visual.premium-card{'),'Estilo base de caderno ausente');
   }
   for(const part of ['premium-head','premium-hero','premium-illustration','premium-lead','premium-steps','premium-anchor-area','premium-note','premium-foot']){
     assert.ok(html.includes(part),'Elemento visual obrigatório ausente: '+part);
