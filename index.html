@@ -637,10 +637,9 @@
       }));
       let aiResult={cards,usedAI:false,reason:'not_configured'};
       try{aiResult=await window.VisuAI.enhance(cards)}catch{aiResult={cards,usedAI:false,reason:'service_error'}}
-      if(aiResult.usedAI){
-        cards.splice(0,cards.length,...aiResult.cards);
-        window.VisuAI.register(cards);
-      }
+      if(aiResult.usedAI)cards.splice(0,cards.length,...aiResult.cards);
+      else cards.splice(0,cards.length,...window.VisuAI.decorateLocal(cards));
+      window.VisuAI.register(cards);
       const previousCursor=state.generationCursor;
       state.cardCount+=cards.length;state.generationCursor=batch.nextCursor;state.cards.push(...cards);
       if(!persist()){state.cardCount-=cards.length;state.generationCursor=previousCursor;state.cards.splice(-cards.length);refresh();return}
