@@ -172,19 +172,6 @@
       .showcase .card-visual h3{font-size:clamp(18px,5vw,23px);line-height:1.27;padding:8px 6px 10px}
       .showcase .card-visual .bubble{font-size:clamp(13px,3.65vw,16px);line-height:1.55;padding:15px 16px}
     }
-    /* VISUCARDS: painel de incidência por histórico de questões importado. */
-    .incidence-panel{margin-top:17px;padding:17px;border:1px solid #e0d3f4;background:#fbf8ff;border-radius:15px;display:grid;gap:10px}
-    .incidence-panel>strong{font-size:15px}
-    .incidence-panel p{margin:0}
-    .incidence-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-    .incidence-fields label{display:grid;gap:5px;font-size:12px;font-weight:700;min-width:0}
-    .incidence-fields input{width:100%;min-width:0;font-size:12px}
-    .incidence-upload{display:flex;flex-direction:column;gap:7px;font-size:12px;line-height:1.4;font-weight:700}
-    .incidence-upload input{font-size:12px;max-width:100%}
-    .incidence-list{display:grid;gap:8px}
-    .incidence-entry{background:#f8f4ff;border:1px solid #e5d9f8;border-radius:10px;padding:10px 12px;overflow-wrap:anywhere;font-size:13px;line-height:1.45}
-    .incidence-entry strong{display:block;margin-bottom:4px}
-    @media(max-width:680px){.incidence-fields{grid-template-columns:minmax(0,1fr)}.incidence-panel{padding:13px}.incidence-entry{font-size:12px}}
   </style>
 
   <style id="premium-card-style">
@@ -305,25 +292,15 @@
       <div class="sidefoot"><strong>PLANO GRATUITO</strong>1 PDF de até 5 páginas/mês<br/>Cards ilimitados para testes</div>
     </aside>
     <main>
-      <div class="topbar"><span class="eyebrow">VISUCARDS · VERSÃO 0.6 DE TESTE</span><span class="pill">✦ Plano gratuito</span></div>
+      <div class="topbar"><span class="eyebrow">VISUCARDS · VERSÃO 0.6.1 DE TESTE</span><span class="pill">✦ Plano gratuito</span></div>
       <section id="tab-criar" class="tab">
-        <div class="hero"><div><div class="eyebrow" style="color:#d0b6ff">RESUMO ILUSTRADO PARA CONCURSOS</div><h1>Seu PDF pode virar um material muito mais visual.</h1><p class="lead">Transforme trechos do seu conteúdo em cards coloridos para revisar e memorizar.</p></div><div class="hero-art" aria-hidden="true">📚✨</div></div>
+        <div class="hero"><div><div class="eyebrow" style="color:#d0b6ff">RESUMO ILUSTRADO PARA CONCURSOS</div><h1>Seu PDF vira cards ilustrados para revisar.</h1><p class="lead">Transforme trechos do seu conteúdo em cards coloridos para revisar e memorizar.</p></div><div class="hero-art" aria-hidden="true">📚✨</div></div>
         <div class="grid">
           <section class="panel"><div class="panel-head"><h2>Comece pelo seu PDF</h2><span class="tag">PASSO 1</span></div>
             <div class="dropzone" id="dropzone"><div class="uploadicon">📄</div><strong>Arraste ou selecione um PDF</strong><p>Arquivo de até 5 páginas no plano gratuito.</p><button type="button" class="btn" id="pick-file">Selecionar PDF</button><input type="file" id="pdf-input" accept="application/pdf,.pdf" style="display:none" /></div>
             <div id="file-status" class="status" role="status"></div>
             <div class="setting-row"><label for="visual-style">Estilo dos cards</label><select id="visual-style"><option value="caderno">Caderno ilustrado</option><option value="quadrinhos">Quadrinhos</option><option value="minimalista">Minimalista</option></select></div>
-            <section class="incidence-panel" aria-labelledby="incidence-heading">
-              <strong id="incidence-heading">🎯 Selecionar os assuntos mais cobrados</strong>
-              <p class="hint">Para identificar incidência real, importe uma tabela de questões anteriores (CSV). O PDF sozinho não informa o que mais caiu em provas.</p>
-              <div class="incidence-fields">
-                <label>Banca (opcional)<input id="exam-board" class="search-input" type="text" maxlength="80" placeholder="Ex.: FGV ou Cebraspe" autocomplete="off"></label>
-                <label>Cargo (opcional)<input id="exam-role" class="search-input" type="text" maxlength="80" placeholder="Ex.: Analista Judiciário" autocomplete="off"></label>
-              </div>
-              <label class="incidence-upload" for="question-stats">Importar histórico CSV com assunto e nº de questões<input type="file" id="question-stats" accept=".csv,text/csv,text/plain"></label>
-              <button class="btn outline smallbtn" type="button" id="csv-model">Baixar exemplo de formato CSV</button>
-              <p id="incidence-status" class="hint" role="status">Sem histórico de questões. A seleção será apenas textual, sem percentual de cobrança comprovado.</p>
-            </section>
+            <p class="hint" style="margin-top:12px">Os assuntos são selecionados automaticamente do PDF, com prioridade didática para artigos, regras, prazos e exceções. Isso não representa frequência comprovada em concursos.</p>
             <div class="actionrow"><button class="btn yellow" id="generate" disabled>Gerar meus cards</button><button class="btn outline" id="demo">Ver demonstração</button></div>
             <p class="hint" style="margin-top:13px">O PDF é lido no próprio navegador nesta versão de teste. Não há envio a servidor. Arquivos escaneados sem texto selecionável ainda não são compatíveis.</p>
           </section>
@@ -334,11 +311,6 @@
             <div class="notice">O leitor aprimorado identifica artigos e parágrafos, reduz trechos duplicados e mantém a página de origem. O conteúdo é organizado sem inventar normas; ilustrações exclusivas por IA ainda não estão disponíveis.</div>
           </section>
         </div>
-        <section id="incidence-results" class="panel hidden" aria-labelledby="ranking-title" style="margin-top:22px">
-          <h2 id="ranking-title">Assuntos encontrados no PDF</h2>
-          <p id="incidence-summary" class="hint"></p>
-          <div id="incidence-list" class="incidence-list"></div>
-        </section>
         <div id="results" class="hidden"><div class="sectiontitle"><div><h2>Seus cards ilustrados</h2><div class="muted small">Revise o conteúdo antes de estudar.</div></div><span class="tag" id="result-type">PRÉVIA</span></div><div class="showcase" id="card-grid"></div></div>
       </section>
       <section id="tab-biblioteca" class="tab hidden"><h1>Minha biblioteca</h1><p class="lead">Os cards ficam salvos neste navegador, nesta primeira versão.</p><div class="panel" style="margin-top:22px"><div class="panel-head"><h2>Cards salvos</h2><span class="tag" id="library-count">0 CARDS</span></div><div class="librarytools"><input id="library-search" class="search-input" type="search" placeholder="Buscar meus cards" aria-label="Buscar cards"/><button id="backup-library" class="btn secondary smallbtn">⬇ Backup da biblioteca</button><button id="restore-library" type="button" class="btn secondary smallbtn">↥ Restaurar backup</button><input id="restore-file" type="file" accept="application/json,.json" hidden/></div><div class="actionrow"><button type="button" id="start-review" class="btn">🧠 Revisar meus cards</button></div><div id="library-list" class="librarylist"></div><div class="notice">Armazenamento local demonstrativo: ao limpar os dados do navegador, seus cards poderão desaparecer. A biblioteca sincronizada será implementada com login e banco de dados.</div></div></section>
@@ -412,7 +384,6 @@
   <script src="./selection.js"></script>
   <script src="./pdf-intelligence.js"></script>
   <script src="./card-design.js"></script>
-  <script src="./incidence.js"></script>
 <script>
 /* Fonte original: app.js */
 (()=>{
@@ -425,7 +396,7 @@
     const escapeHTML=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     let stored;try{stored=JSON.parse(localStorage.getItem(STORE)||'{}')}catch{stored={}}
     const recoverParsed=(p)=>p&&typeof p.file==='string'&&p.file.length<=180&&Array.isArray(p.chunks)&&p.chunks.length<=50&&p.chunks.every(c=>typeof c.text==='string'&&c.text.length<=650&&Number.isInteger(c.page)&&c.page>=1&&c.page<=5)?p:null;
-    const state={month:stored.month||month(),pdfCount:stored.pdfCount||0,cardCount:stored.cardCount||0,generationCursor:Number.isSafeInteger(stored.generationCursor)&&stored.generationCursor>=0?stored.generationCursor:0,cards:Array.isArray(stored.cards)?stored.cards:[],parsed:recoverParsed(stored.parsed),stats:Array.isArray(stored.stats)?stored.stats.filter(r=>r&&typeof r.topic==='string'&&Number.isInteger(r.questions)&&r.questions>0).slice(0,750):[],preview:[],reviews:stored.reviews&&typeof stored.reviews==='object'&&!Array.isArray(stored.reviews)?stored.reviews:{}};
+    const state={month:stored.month||month(),pdfCount:stored.pdfCount||0,cardCount:stored.cardCount||0,generationCursor:Number.isSafeInteger(stored.generationCursor)&&stored.generationCursor>=0?stored.generationCursor:0,cards:Array.isArray(stored.cards)?stored.cards:[],parsed:recoverParsed(stored.parsed),preview:[],reviews:stored.reviews&&typeof stored.reviews==='object'&&!Array.isArray(stored.reviews)?stored.reviews:{}};
     let readingPDF=false;
     const PDFJS_VERSION='6.4.299';
     const PDFJS_CDN=`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}`;
@@ -435,7 +406,7 @@
       return lib;
     }
     if(state.month!==month()){state.month=month();state.pdfCount=0;state.cardCount=0;state.generationCursor=0;state.parsed=null}
-    const persist=()=>{try{localStorage.setItem(STORE,JSON.stringify({month:state.month,pdfCount:state.pdfCount,cardCount:state.cardCount,generationCursor:state.generationCursor,cards:state.cards,parsed:state.parsed,stats:state.stats,reviews:state.reviews}));return true}catch(e){show('Não foi possível salvar os dados neste aparelho. Faça um backup e libere espaço.',true);return false}};
+    const persist=()=>{try{localStorage.setItem(STORE,JSON.stringify({month:state.month,pdfCount:state.pdfCount,cardCount:state.cardCount,generationCursor:state.generationCursor,cards:state.cards,parsed:state.parsed,reviews:state.reviews}));return true}catch(e){show('Não foi possível salvar os dados neste aparelho. Faça um backup e libere espaço.',true);return false}};
     const show=(str,error=false,ok=false)=>{const n=$('#file-status');n.textContent=str;n.className='status show'+(error?' error':ok?' ok':'')};
     const colors=['#884fc8','#ed578b','#399eba','#83539f'];
     const iconsFor=(s)=>{const v=s.toLowerCase();if(/lei|art\.|jurídic|direito|tribunal|constitui|juiz|processo|defesa/.test(v))return ['⚖️','📜','🔎'];if(/prazo|dia|mês|ano|data|tempo/.test(v))return ['⏳','🗓️','📌'];if(/saúde|medic|hospital/.test(v))return ['🩺','💊','💚'];if(/matem|cálcul|número|soma/.test(v))return ['🔢','📐','🧮'];return ['📚','💡','✏️']};
@@ -474,70 +445,6 @@
     function drawCards(cards,type){state.preview=cards;$('#results').classList.remove('hidden');$('#result-type').textContent=type;$('#card-grid').innerHTML=cards.map((c,i)=>`<div class="preview-wrap">${cardMarkup(c)}<div class="card-actions"><button class="btn smallbtn" data-export="${i}">⬇ PNG</button><button class="btn outline smallbtn" data-print="${i}">🖨 PDF</button><button class="btn outline smallbtn" data-edit="${i}">✎ Editar</button></div><div id="edit-${i}" class="editorbox hidden"><label>Título</label><textarea class="editing" data-field="title" data-index="${i}">${escapeHTML(c.title)}</textarea><label>Texto principal</label><textarea class="editing" data-field="text" data-index="${i}">${escapeHTML(c.text)}</textarea><label>Observação</label><textarea class="editing" data-field="note" data-index="${i}">${escapeHTML(c.note||'')}</textarea><button type="button" class="btn smallbtn" data-save="${i}">Salvar edição</button></div></div>`).join('');$('#results').scrollIntoView({behavior:'smooth',block:'start'})}
     function renderLibrary(){refresh();const query=clean($('#library-search').value||'').toLowerCase();const entries=state.cards.filter(c=>(c.title+' '+c.text+' '+c.source).toLowerCase().includes(query));$('#library-list').innerHTML=entries.length?entries.slice().reverse().map(c=>`<div class="libitem"><div><strong>${escapeHTML(c.title)}</strong><small>${escapeHTML(c.source)}</small></div><div class="buttonrow"><button class="btn outline smallbtn" data-libexport="${escapeHTML(c.id)}">⬇ PNG</button><button class="btn outline smallbtn" data-libprint="${escapeHTML(c.id)}">🖨 PDF</button><button class="btn outline smallbtn" data-libdelete="${escapeHTML(c.id)}">Excluir</button></div></div>`).join(''):'<div class="empty"><span class="big">📂</span>Nenhum card encontrado.</div>'}
     function candidateChunks(pages){return window.VisuPDFIntelligence.extract(pages,window.VisuSelection.prioritize)}
-    // Análise por questões históricas: valores apenas do CSV informado pelo usuário.
-    function rankingAtual(){
-      return window.VisuIncidence.rank(state.parsed?.chunks||[],state.stats,{
-        banca:$('#exam-board').value.trim(),cargo:$('#exam-role').value.trim()
-      });
-    }
-    function renderIncidencia(){
-      const panel=$('#incidence-results'),status=$('#incidence-status');
-      status.textContent=state.stats.length
-        ? 'Histórico carregado: '+state.stats.length+' registro(s). Os números são os informados no CSV e não foram verificados pelo VISUCARDS.'
-        : 'Sem histórico de questões. A seleção usará pistas textuais didáticas, sem percentual de cobrança comprovado.';
-      if(!state.parsed){panel.classList.add('hidden');return}
-      panel.classList.remove('hidden');
-      const data=rankingAtual(), summary=$('#incidence-summary'),list=$('#incidence-list');
-      if(!state.stats.length){
-        summary.textContent='O PDF foi lido. Para saber quais desses assuntos são mais cobrados, importe dados de questões anteriores; sem eles, a ordem é apenas textual.';
-        list.innerHTML='';return;
-      }
-      if(data.sampleRows===0){
-        summary.textContent='Nenhum registro do histórico atende aos filtros de banca/cargo. Ajuste os filtros para comparar com questões anteriores.';
-        list.innerHTML='';return;
-      }
-      if(!data.evidence){
-        summary.textContent='Foram considerados '+data.sampleRows+' registros de histórico, mas os assuntos do CSV não foram reconhecidos nos trechos deste PDF. Não é possível atribuir incidência real a este documento.';
-        list.innerHTML='';return;
-      }
-      summary.textContent='Ranking por assunto no PDF a partir de '+data.sampleRows+' registro(s) e '+data.sampleQuestions+' questões informadas no CSV. Valores da amostra, não da população total de provas.';
-      const seen=new Set();
-      const best=[];
-      for(const c of data.ranked){
-        if(!c.questions)continue;
-        for(const match of c.matches){
-          const key=window.VisuIncidence.normalizar(match.topic);
-          if(seen.has(key))continue;
-          seen.add(key);best.push({topic:match.topic,questions:match.questions,page:c.page});
-        }
-      }
-      best.sort((a,b)=>b.questions-a.questions);
-      list.innerHTML=best.slice(0,6).map((x,i)=>'<div class="incidence-entry"><strong>'+(i+1)+'º '+escapeHTML(x.topic)+'</strong>'+x.questions+' questão(ões) na base importada · pág. '+x.page+' do PDF</div>').join('');
-    }
-    function updateHistoryFilters(){state.generationCursor=0;persist();renderIncidencia()}
-    $('#exam-board').addEventListener('input',updateHistoryFilters);
-    $('#exam-role').addEventListener('input',updateHistoryFilters);
-    $('#question-stats').addEventListener('change',async e=>{
-      const file=e.target.files?.[0];
-      if(!file)return;
-      if(file.size>1000000){show('O CSV deve ter no máximo 1 MB.',true);e.target.value='';return}
-      try{
-        const rows=window.VisuIncidence.parseCSV(await file.text());
-        const previous=state.stats;
-        state.stats=rows;state.generationCursor=0;
-        if(!persist()){state.stats=previous;return}
-        renderIncidencia();
-        show('Histórico importado. Os cards agora poderão priorizar os assuntos encontrados na amostra de questões.',false,true);
-      }catch(err){show('Histórico não importado: '+String(err.message||err).slice(0,180),true)}
-      finally{e.target.value=''}
-    });
-    $('#csv-model').addEventListener('click',()=>{
-      const sample='assunto;questoes;banca;cargo;ano\nPREENCHA_COM_O_ASSUNTO;1;PREENCHA_COM_A_BANCA;PREENCHA_COM_O_CARGO;2026\n';
-      const url=URL.createObjectURL(new Blob(['\uFEFF'+sample],{type:'text/csv;charset=utf-8'}));
-      const link=document.createElement('a');link.href=url;link.download='modelo_historico_visucards.csv';
-      document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-    });
-
     // Modo revisão local: agendamentos por ID, sem consumo de cotas de geração.
     const reviewSession={queue:[],index:0,done:0,correct:0};
     const reviewDate=(days=0)=>{const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+days);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
@@ -620,7 +527,6 @@
         state.parsed=parsed;state.pdfCount=1;state.generationCursor=0;
         if(!persist()){state.parsed=previous.parsed;state.pdfCount=previous.pdfCount;state.generationCursor=previous.generationCursor;refresh();return}
         refresh();
-        renderIncidencia();
         $('#generate').disabled=window.VisuPolicy.remainingCards(state.cardCount)<1;
         show(`${file.name} lido com sucesso: ${pdf.numPages} página(s), ${extracted.diagnostics.selected} trecho(s) selecionado(s) sem repetição. Fonte de cada card identificada pela página.`,false,true);
       }catch(e){console.error(e);show('Não foi possível ler o PDF. Verifique se o arquivo não está protegido por senha ou corrompido.',true)}
@@ -633,34 +539,25 @@
       if(remaining<1){show('Você atingiu o limite de cards do seu plano.',true);return}
       const candidates=state.parsed.chunks;
       if(!candidates.length){show('Não encontrei conteúdo suficiente para montar cards.',true);return}
-      const ranking=rankingAtual();
-      const chosenPool=ranking.evidence?ranking.ranked.filter(c=>c.questions>0):candidates;
-      const batch=window.VisuSelection.nextBatch(chosenPool,state.generationCursor,Math.min(remaining,2));
+      // Seleção automática do próprio PDF, sem CSV e sem alegar incidência em provas.
+      const batch=window.VisuSelection.nextBatch(candidates,state.generationCursor,Math.min(remaining,2));
       const selected=batch.selected;
       if(!selected.length){show('Nenhum trecho disponível para gerar cards.',true);return}
-      const cards=selected.map((p,i)=>{
-        const match=p.matches?.[0];
-        const justified=Boolean(ranking.evidence&&match);
-        return {
-          id:id(),
-          title:justified?words(match.topic,9):window.VisuPDFIntelligence.headline(p.text),
-          text:clean(p.text),
-          note:justified
-            ?'Assunto associado a '+match.questions+' questão(ões) no histórico fornecido. A base não foi auditada; confira o contexto do PDF.'
-            :'Trecho selecionado por critérios didáticos (conceitos, regras, exceções e prazos). Sem histórico de questões, não há comprovação de incidência em provas.',
-          source:state.parsed.file+' · pág. '+p.page,
-          color:i%4,layout:currentLayout()
-        };
-      });
+      const cards=selected.map((p,i)=>({
+        id:id(),
+        title:window.VisuPDFIntelligence.headline(p.text),
+        text:clean(p.text),
+        note:'Seleção automática por pistas didáticas do texto. Confira o contexto na página original; não representa frequência comprovada em provas.',
+        source:state.parsed.file+' · pág. '+p.page,
+        color:i%4,layout:currentLayout()
+      }));
       const previousCursor=state.generationCursor;
       state.cardCount+=cards.length;state.generationCursor=batch.nextCursor;state.cards.push(...cards);
       if(!persist()){state.cardCount-=cards.length;state.generationCursor=previousCursor;state.cards.splice(-cards.length);refresh();return}
       refresh();$('#generate').disabled=window.VisuPolicy.remainingCards(state.cardCount)<1;
-      drawCards(cards,ranking.evidence?'PRIORIZADOS POR HISTÓRICO CSV':'CARDS DO PDF · SEM DADOS DE INCIDÊNCIA');
-      const cycleNote=batch.recycled?' Os trechos disponíveis começaram a se repetir para testar novas versões.':'';
-      show((ranking.evidence
-        ?cards.length+' card(s) criados com prioridade baseada na amostra de questões importada. Confira os conceitos e a fonte.'
-        :cards.length+' card(s) criados sem dados históricos de incidência. Não é possível afirmar que são os mais cobrados.')+cycleNote,false,true);
+      drawCards(cards,'CARDS DO PDF · SELEÇÃO AUTOMÁTICA');
+      const cycleNote=batch.recycled?' Os trechos disponíveis recomeçaram para você testar novos estilos.':'';
+      show(cards.length+' card(s) criados a partir dos trechos do PDF. Confira o contexto e a página de origem.'+cycleNote,false,true);
     };
     $('#demo').onclick=()=>drawCards([
       {id:'example1',title:'CONTRADITÓRIO E AMPLA DEFESA',text:'O art. 5º, LV, da Constituição Federal assegura o contraditório e a ampla defesa em processos judiciais e administrativos. A pessoa interessada pode apresentar argumentos e utilizar os meios e recursos admitidos em direito. A aplicação depende das regras do procedimento correspondente.',note:'Exemplo didático. Confira o texto do art. 5º, LV, da Constituição Federal.',source:'Exemplo demonstrativo · Constituição Federal',color:0,layout:currentLayout()},
@@ -672,7 +569,7 @@
       if(tooLong){show('O campo '+tooLong.dataset.field+' excede o limite. Reduza o texto antes de salvar.',true);return}
       edited.forEach(el=>{c[el.dataset.field]=clean(el.value)});const storedCard=state.cards.find(s=>s.id===c.id);if(storedCard)Object.assign(storedCard,c);persist();drawCards(state.preview,$('#result-type').textContent)}});
     $('#library-search').addEventListener('input',renderLibrary);
-    $('#backup-library').addEventListener('click',()=>{const data=JSON.stringify({app:'VISUCARDS',version:'0.6',exported_at:new Date().toISOString(),cards:state.cards,reviews:state.reviews},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='VISUCARDS_biblioteca_backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+    $('#backup-library').addEventListener('click',()=>{const data=JSON.stringify({app:'VISUCARDS',version:'0.6.1',exported_at:new Date().toISOString(),cards:state.cards,reviews:state.reviews},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='VISUCARDS_biblioteca_backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
     $('#restore-library').onclick=()=>$('#restore-file').click();
     $('#restore-file').addEventListener('change',async e=>{
       const file=e.target.files[0];e.target.value='';if(!file)return;
@@ -856,7 +753,7 @@
       a.download='visucards-'+d.title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').slice(0,50)+'.png';
       document.body.appendChild(a);a.click();a.remove();
     }
-    refresh();persist();renderLibrary();renderIncidencia();$('#generate').disabled=!(state.parsed&&window.VisuPolicy.remainingCards(state.cardCount)>0);if(state.parsed&&window.VisuPolicy.remainingCards(state.cardCount)>0)show('Seu PDF do mês foi recuperado. A geração de cards está liberada para testes.',false,true);
+    refresh();persist();renderLibrary();$('#generate').disabled=!(state.parsed&&window.VisuPolicy.remainingCards(state.cardCount)>0);if(state.parsed&&window.VisuPolicy.remainingCards(state.cardCount)>0)show('Seu PDF do mês foi recuperado. A geração de cards está liberada para testes.',false,true);
     // Versão de um arquivo sem service worker; PWA completo disponível no pacote original.
   })();
 
