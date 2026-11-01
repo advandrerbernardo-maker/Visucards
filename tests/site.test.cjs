@@ -36,3 +36,9 @@ test('Leitor PDF possui proteção extra contra execução de scripts', () => {
   assert.match(html, /isEvalSupported:false/);
   assert.doesNotMatch(html, /3\.11\.174/);
 });
+
+test('Mobile: o cabeçalho não pode cobrir o conteúdo ao rolar a página', () => {
+  assert.match(html, /@media\(max-width:680px\)[\s\S]*?\.sidebar\{height:67px;position:relative;z-index:10;top:auto/);
+  assert.doesNotMatch(html, /\.sidebar\{height:67px;position:sticky/);
+  assert.match(html, /\.nav button\{padding:10px 6px;font-size:0\}/);
+});
