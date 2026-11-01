@@ -183,7 +183,7 @@
     return base(shape);
   }
   const registry=new Map();
-  const key=card=>fold(card.title+' '+card.text);
+  const key=card=>folded(card.title+' '+card.text);
   function register(cards){
     for(const card of (Array.isArray(cards)?cards:[])){
       const plan=validatePlan(card.visualPlan,card.text);
@@ -200,7 +200,7 @@
       ...previous,
       __visuAIHooked:true,
       kindOf(titleAndText){
-        const svg=registry.get(fold(titleAndText));
+        const svg=registry.get(folded(titleAndText));
         if(!svg)return originalKind(titleAndText);
         const token='ai-diagram-'+(++count);
         visuals.set(token,svg);
