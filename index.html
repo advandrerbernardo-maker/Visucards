@@ -695,7 +695,26 @@
       }catch(err){show('O backup não é compatível ou contém dados inválidos.',true)}
     });
     $('#library-list').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const key=b.dataset.libexport||b.dataset.libprint||b.dataset.libdelete;const c=state.cards.find(c=>c.id===key);if(!c)return;if(b.dataset.libexport)exportPNG(c);else if(b.dataset.libprint)printCard(c);else if(b.dataset.libdelete&&confirm('Excluir este card da sua biblioteca?')){state.cards=state.cards.filter(item=>item.id!==key);delete state.reviews[key];persist();renderLibrary()}});
-    function printCard(c){if(!c)return;const popup=window.open('','_blank');if(!popup){show('Permita pop-ups para abrir a opção de impressão ou PDF.',true);return}const markup=cardMarkup(c);popup.document.open();popup.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><title>VISUCARDS • ${escapeHTML(c.title)}</title><style>*{box-sizing:border-box}body{margin:0;font-family:system-ui;background:#fff;display:grid;place-items:center}.card-visual{width:190mm;min-height:253mm;height:auto;position:relative;padding:14mm 12mm;border:7mm solid ${colors[c.color||0]};background:repeating-linear-gradient(to bottom,#fff 0px,#fff 25px,#bfdeed 26px,#fff 27px);display:flex;flex-direction:column;gap:7mm;overflow:visible;overflow-wrap:break-word;word-break:normal}.card-visual h3{text-align:center;font-size:24pt;line-height:1.25;margin:0;padding:2mm;color:#543078;text-transform:uppercase;overflow-wrap:break-word}.illustration svg{display:block;width:100%;max-height:80mm}.bubble{background:#ffdc70;border:2px solid #30243b;border-radius:14px;padding:6mm;font-size:13pt;font-weight:700;line-height:1.48;overflow-wrap:break-word}.bubble.alt{background:#a7e7d8}.source{font-size:9pt;margin-top:auto}.visulabel{position:static;align-self:flex-end;margin-top:2mm;font-size:9pt;font-weight:800;color:#534162}@page{size:A4 portrait;margin:5mm}@media print{body{display:block}.card-visual{break-inside:avoid}}</style></head><body>${markup}</body></html>`);popup.document.close();popup.focus();let printed=false;const doPrint=()=>{if(printed||popup.closed)return;printed=true;popup.print()};popup.onload=doPrint;setTimeout(doPrint,850)}
+    function printCard(c){
+      if(!c)return;
+      const popup=window.open('','_blank');
+      if(!popup){show('Permita pop-ups para abrir a opção de impressão ou PDF.',true);return}
+      const styles=document.getElementById('premium-card-style').textContent;
+      const markup=cardMarkup(c);
+      popup.document.open();
+      popup.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><title>VISUCARDS • ${escapeHTML(c.title)}</title>
+      <style>*{box-sizing:border-box}body{font-family:system-ui,-apple-system,sans-serif;margin:0;color:#241b35;background:#fff}
+      ${styles}
+      .card-visual.premium-card{width:100%!important;max-width:none!important;box-shadow:none!important}
+      @page{size:A4 portrait;margin:12mm}
+      @media print{.card-visual.premium-card{break-inside:auto!important}.premium-head,.premium-hero,.premium-step,.premium-anchor-area,.premium-note,.premium-foot{break-inside:avoid!important}}
+      </style></head><body>${markup}</body></html>`);
+      popup.document.close();popup.focus();
+      let printed=false;
+      const doPrint=()=>{if(printed||popup.closed)return;printed=true;popup.print()};
+      popup.onload=doPrint;
+      setTimeout(doPrint,800);
+    }
     function rounded(ctx,x,y,w,h,r,fill,stroke){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.lineWidth=4;ctx.strokeStyle=stroke;ctx.stroke()}}
     function wrap(ctx,str,maxWidth){
       // Preserva todas as palavras: nunca descarta linhas ou letras ao exportar.
@@ -729,48 +748,102 @@
     async function exportPNG(card){
       if(!card)return;
       if(document.fonts?.ready)await document.fonts.ready;
+      const d=window.VisuCardDesign.build(card);
       const cnv=document.createElement('canvas');
       cnv.width=900;
       const ctx=cnv.getContext('2d');
       if(!ctx){show('Não foi possível iniciar a exportação neste dispositivo.',true);return}
-      ctx.font='850 44px system-ui';
-      const titleLines=wrap(ctx,card.title.toUpperCase(),770);
-      const artTop=Math.max(250,125+(titleLines.length-1)*56);
-      const mainTop=Math.max(535,artTop+230+30);
-      ctx.font='800 27px system-ui';
-      const mainHeight=Math.max(80,Math.ceil(wrap(ctx,card.text,708).length*27*1.35+42));
-      ctx.font='800 23px system-ui';
-      const noteText=card.note||'Confira a fonte original.';
-      const noteHeight=Math.max(80,Math.ceil(wrap(ctx,noteText,708).length*23*1.35+42));
-      ctx.font='bold 20px system-ui';
-      const sourceLines=wrap(ctx,String(card.source||''),735);
-      const sourceTop=Math.max(1089,mainTop+mainHeight+22+noteHeight+50);
-      const brandTop=sourceTop+(sourceLines.length-1)*29+59;
-      const canvasHeight=Math.max(1200,Math.ceil(brandTop+52));
+      const font=(size,weight=700)=>`${weight} ${size}px system-ui`;
+      const split=(value,width,size,weight=700)=>{ctx.font=font(size,weight);return wrap(ctx,value,width)};
+      const titleLines=split(d.title,765,45,900);
+      const leadLines=split(d.lead,708,29,750);
+      const steps=d.sections.map(s=>({...s,lines:split(s.text,664,25,650)}));
+      const anchorLines=d.anchors.length?split(d.anchors.join('   •   '),708,23,750):[];
+      const noteLines=d.note?split(d.note,706,22,650):[];
+      const sourceLines=split('FONTE: '+d.source,725,19,650);
+      const headerH=112+titleLines.length*56+50;
+      const heroH=210;
+      const leadH=34+Math.max(64,leadLines.length*40+34)+26;
+      const stepHeights=steps.map(step=>Math.max(100,step.lines.length*36+70));
+      const stepTotal=steps.reduce((acc,step,i)=>acc+stepHeights[i]+14,0);
+      const anchorH=anchorLines.length?55+anchorLines.length*33+22:0;
+      const noteH=noteLines.length?54+noteLines.length*33+18:0;
+      const footerH=78+sourceLines.length*28;
+      const canvasHeight=Math.max(1200,Math.ceil(headerH+heroH+42+leadH+stepTotal+anchorH+noteH+footerH+36));
       if(canvasHeight>16384){show('Texto muito extenso para um único PNG. Divida o conteúdo em mais cards.',true);return}
       cnv.height=canvasHeight;
+      const accent=colors[card.color||0]||colors[0];
+      const headColor=card.layout==='minimalista'?'#153d4c':card.layout==='quadrinhos'?'#4c2551':'#261541';
+      const wash=card.layout==='minimalista'?'#e8f7f6':card.layout==='quadrinhos'?'#fff0e2':'#f2eaff';
+      function paragraph(lines,x,y,lineHeight,size,weight,color){
+        ctx.textAlign='left';ctx.font=font(size,weight);ctx.fillStyle=color;
+        lines.forEach((line,i)=>ctx.fillText(line,x,y+size+i*lineHeight));
+        return y+lines.length*lineHeight;
+      }
       ctx.fillStyle='#fff';ctx.fillRect(0,0,900,canvasHeight);
-      ctx.strokeStyle=colors[card.color||0];ctx.lineWidth=24;
-      ctx.strokeRect(12,12,876,canvasHeight-24);
-      ctx.strokeStyle='#bbe3ee';ctx.lineWidth=2;
-      for(let y=90;y<canvasHeight-55;y+=47){ctx.beginPath();ctx.moveTo(35,y);ctx.lineTo(861,y);ctx.stroke()}
-      ctx.fillStyle='#f7f6fb';
-      for(let y=47;y<canvasHeight-55;y+=54){ctx.beginPath();ctx.arc(15,y,12,0,2*Math.PI);ctx.fill()}
-      ctx.textAlign='center';ctx.font='850 44px system-ui';ctx.fillStyle=colors[card.color||0];
-      titleLines.forEach((line,i)=>ctx.fillText(line,450,126+i*56));
+      ctx.fillStyle=headColor;ctx.fillRect(0,0,900,headerH);
+      ctx.fillStyle='#e3d3f5';ctx.font=font(19,850);
+      ctx.fillText('✦ VISUCARDS / ESTUDO VISUAL',64,55);
+      ctx.textAlign='right';ctx.fillText('LEITURA GUIADA',836,55);
+      paragraph(titleLines,64,90,56,45,900,'#fff');
+      rounded(ctx,64,headerH-55,230,33,16,'#ffffff26');
+      ctx.fillStyle='#fff';ctx.font=font(17,850);ctx.textAlign='left';
+      ctx.fillText(d.subject.label+' DO TEXTO',80,headerH-32);
+      ctx.fillStyle=wash;ctx.fillRect(0,headerH,900,heroH);
+      ctx.strokeStyle='#dcd0e8';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(0,headerH+heroH);ctx.lineTo(900,headerH+heroH);ctx.stroke();
+      ctx.fillStyle=accent;ctx.font=font(86,950);ctx.textAlign='left';ctx.fillText('01',420,headerH+92);
+      ctx.fillStyle=headColor;ctx.font=font(24,850);ctx.fillText('LEIA • IDENTIFIQUE',420,headerH+134);
+      ctx.fillStyle='#66566f';ctx.font=font(22,650);ctx.fillText('REVISE O TEXTO ORIGINAL',420,headerH+168);
       try{
-        const art=await svgAsImage(window.VisuArt.svg(window.VisuArt.kindOf(card.title+' '+card.text)));
-        ctx.drawImage(art,205,artTop,490,220);
-      }catch(err){console.warn('Ilustração não pôde ser exportada',err);ctx.font='95px system-ui';ctx.fillText('📚',450,artTop+140)}
-      ctx.textAlign='left';let y=mainTop;
-      y+=textBox(ctx,card.text,75,y,750,'#ffdc70',27)+22;
-      y+=textBox(ctx,noteText,75,y,750,'#a7e7d8',23);
-      ctx.font='bold 20px system-ui';ctx.fillStyle='#654f7d';
-      sourceLines.forEach((line,i)=>ctx.fillText(line,75,sourceTop+i*29));
-      ctx.textAlign='right';ctx.fillText('VISUCARDS',830,brandTop);
+        const art=await svgAsImage(window.VisuArt.svg(window.VisuArt.kindOf(d.title+' '+d.fullText)));
+        const scale=Math.min(300/art.width,160/art.height);
+        const w=art.width*scale,h=art.height*scale;
+        ctx.drawImage(art,66+(290-w)/2,headerH+(heroH-h)/2,w,h);
+      }catch(err){console.warn('Ilustração não pôde ser exportada',err);ctx.fillStyle=accent;ctx.font=font(110,850);ctx.fillText('✦',142,headerH+137)}
+      let y=headerH+heroH+42;
+      ctx.textAlign='left';ctx.fillStyle='#7b6c8d';ctx.font=font(19,900);
+      ctx.fillText('01 / TRECHO CENTRAL',64,y+19);y+=35;
+      const leadBoxH=Math.max(64,leadLines.length*40+34);
+      rounded(ctx,63,y,774,leadBoxH,17,'#f8f5fe');
+      ctx.fillStyle=accent;ctx.fillRect(63,y,7,leadBoxH);
+      paragraph(leadLines,85,y+17,40,29,750,'#251a35');
+      y+=leadBoxH+26;
+      for(let i=0;i<steps.length;i++){
+        const step=steps[i],h=stepHeights[i];
+        rounded(ctx,64,y,774,h,17,'#f8f6fc','#e5dfed');
+        rounded(ctx,82,y+17,58,52,13,headColor);
+        ctx.fillStyle='#fff';ctx.font=font(25,900);ctx.textAlign='center';
+        ctx.fillText(String(i+2).padStart(2,'0'),111,y+52);
+        ctx.textAlign='left';ctx.fillStyle=accent;ctx.font=font(18,850);
+        ctx.fillText(step.label,163,y+35);
+        paragraph(step.lines,163,y+43,36,25,650,'#312841');
+        y+=h+14;
+      }
+      if(anchorLines.length){
+        const ah=anchorH-12;
+        rounded(ctx,64,y,774,ah,16,wash);
+        ctx.fillStyle='#715b8a';ctx.textAlign='left';ctx.font=font(18,900);
+        ctx.fillText('DADOS PARA REVISAR',84,y+28);
+        paragraph(anchorLines,84,y+39,33,23,750,'#322345');
+        y+=anchorH;
+      }
+      if(noteLines.length){
+        const nh=noteH-12;
+        rounded(ctx,64,y,774,nh,16,'#fff2d4');
+        ctx.fillStyle='#74551e';ctx.textAlign='left';ctx.font=font(18,900);
+        ctx.fillText('NOTA DE REVISÃO',84,y+29);
+        paragraph(noteLines,84,y+41,33,22,650,'#57411c');
+        y+=noteH;
+      }
+      ctx.strokeStyle='#e8e0ed';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(64,y+18);ctx.lineTo(836,y+18);ctx.stroke();
+      paragraph(sourceLines,64,y+32,28,19,650,'#665675');
+      ctx.textAlign='right';ctx.fillStyle=headColor;ctx.font=font(21,950);
+      ctx.fillText('VISUCARDS ✦',835,canvasHeight-32);
       const a=document.createElement('a');
       a.href=cnv.toDataURL('image/png');
-      a.download='visucards-'+card.title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').slice(0,50)+'.png';
+      a.download='visucards-'+d.title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').slice(0,50)+'.png';
       document.body.appendChild(a);a.click();a.remove();
     }
     refresh();persist();renderLibrary();renderIncidencia();$('#generate').disabled=!(state.parsed&&window.VisuPolicy.remainingCards(state.cardCount)>0);if(state.parsed&&window.VisuPolicy.remainingCards(state.cardCount)>0)show('Seu PDF do mês foi recuperado. A geração de cards está liberada para testes.',false,true);
