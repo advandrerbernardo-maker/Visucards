@@ -16,7 +16,7 @@
     const text=clean(value);
     if(!text)return [];
     // Segmentação somente tipográfica: não altera nem resume o conteúdo.
-    const sentences=text.split(/(?<=[.!?;])\s+(?=[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ0-9])/u);
+    const sentences=text.split(/(?<=[.!?;])\s+(?=[A-ZÁÀÂÃÉÊÍÓÔÕÚÇ])/u);
     const pieces=[];
     for(const sentence of sentences){
       let rest=sentence;
