@@ -9,11 +9,11 @@ test('Regras, exceções e prazos são relevantes para triagem didática',()=>{
   assert.ok(selection.score(normative)>selection.score(generic));
 });
 
-test('Texto sem pistas não é apresentado como incidência histórica',()=>{
+test('Seleção didática não é divulgada como frequência de questões',()=>{
   const s=fs.readFileSync('selection.js','utf8');
   assert.match(s,/Não representa incidência estatística/);
   const html=fs.readFileSync('index.html','utf8');
-  assert.match(html,/Sem histórico de questões, não há comprovação de incidência/);
+  assert.match(html,/não representa frequência comprovada em provas/i);
   assert.match(html,/selection\.js/);
 });
 
@@ -30,9 +30,11 @@ test('Geração não reduz trechos a 48 palavras arbitrárias',()=>{
   assert.match(html,/text:clean\(p\.text\)/);
 });
 
-test('Ranking com dados históricos mantém prioridade sobre triagem textual',()=>{
+test('Geração usa somente os trechos extraídos do PDF',()=>{
   const html=fs.readFileSync('index.html','utf8');
-  assert.match(html,/const chosenPool=ranking\.evidence\?ranking\.ranked\.filter\(c=>c\.questions>0\):candidates/);
+  assert.ok(html.includes('VisuSelection.nextBatch(candidates,state.generationCursor'));
+  assert.ok(!html.includes('rankingAtual()'));
+  assert.ok(!html.includes('VisuIncidence'));
 });
 
 test('Lotes sucessivos percorrem trechos do PDF antes de recomeçar',()=>{
