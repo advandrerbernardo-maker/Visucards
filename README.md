@@ -1,4 +1,4 @@
-# VISUCARDS 0.4 | Protótipo para concursos
+# VISUCARDS 0.4.1 | Protótipo para concursos
 
 Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs com texto selecionável em cards ilustrados para revisão.
 
@@ -6,6 +6,8 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 - Interface responsiva em português e demonstração de cards.
 - Leitura de PDFs textuais no próprio navegador, com limite demonstrativo de 1 PDF de até 5 páginas/mês.
 - Geração de até 2 cards ilustrados/mês na modalidade gratuita.
+- Triagem textual didática de regras, exceções, prazos e artigos, quando não há base histórica. Isso **não** mede frequência em concursos.
+- Texto dos trechos selecionados preservado no card, sem o antigo corte automático em 48 palavras (o trecho de origem continua limitado ao fragmento extraído).
 - Três estilos de layout, edição de textos, exportação PNG e impressão/PDF.
 - Biblioteca local, busca, backup e restauração.
 - **Modo revisão** na biblioteca: ocultar/responder, marcar dificuldade, agendar próximas revisões e fazer revisão livre. Revisar não consome cota mensal.
@@ -26,7 +28,7 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 
 O arquivo `index.html` desta versão concentra a interface e o JavaScript do protótipo para facilitar a publicação.
 
-O fluxo `.github/workflows/pages.yml` executa os testes presentes em `tests/*.test.cjs` e só depois tenta publicar o HTML no GitHub Pages.
+O fluxo `.github/workflows/pages.yml` publica também `selection.js` e `incidence.js`, executa os testes presentes em `tests/*.test.cjs` e só depois tenta publicar o HTML no GitHub Pages.
 
 Para rodar os testes localmente:
 
