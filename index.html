@@ -298,6 +298,7 @@
 })(typeof window !== 'undefined' ? window : globalThis);
 
 </script>
+  <script src="./selection.js"></script>
   <script src="./incidence.js"></script>
 <script>
 /* Fonte original: app.js */
@@ -336,7 +337,7 @@
     function cardMarkup(c){const kind=window.VisuArt.kindOf(c.title+' '+c.text);const illustration=window.VisuArt.svg(kind);return `<div class="card-visual layout-${['caderno','quadrinhos','minimalista'].includes(c.layout)?c.layout:'caderno'}" style="--accent:${colors[c.color||0]}"><h3>${escapeHTML(c.title)}</h3><div class="illustration" aria-hidden="true">${illustration}</div><div class="bubble">${escapeHTML(c.text)}</div><div class="bubble alt">${escapeHTML(c.note||'Confira sempre o trecho completo no material de origem.')}</div><span class="source">📄 ${escapeHTML(c.source)}</span><span class="visulabel">VISUCARDS</span></div>`}
     function drawCards(cards,type){state.preview=cards;$('#results').classList.remove('hidden');$('#result-type').textContent=type;$('#card-grid').innerHTML=cards.map((c,i)=>`<div class="preview-wrap">${cardMarkup(c)}<div class="card-actions"><button class="btn smallbtn" data-export="${i}">⬇ PNG</button><button class="btn outline smallbtn" data-print="${i}">🖨 PDF</button><button class="btn outline smallbtn" data-edit="${i}">✎ Editar</button></div><div id="edit-${i}" class="editorbox hidden"><label>Título</label><textarea class="editing" data-field="title" data-index="${i}">${escapeHTML(c.title)}</textarea><label>Texto principal</label><textarea class="editing" data-field="text" data-index="${i}">${escapeHTML(c.text)}</textarea><label>Observação</label><textarea class="editing" data-field="note" data-index="${i}">${escapeHTML(c.note||'')}</textarea><button type="button" class="btn smallbtn" data-save="${i}">Salvar edição</button></div></div>`).join('');$('#results').scrollIntoView({behavior:'smooth',block:'start'})}
     function renderLibrary(){refresh();const query=clean($('#library-search').value||'').toLowerCase();const entries=state.cards.filter(c=>(c.title+' '+c.text+' '+c.source).toLowerCase().includes(query));$('#library-list').innerHTML=entries.length?entries.slice().reverse().map(c=>`<div class="libitem"><div><strong>${escapeHTML(c.title)}</strong><small>${escapeHTML(c.source)}</small></div><div class="buttonrow"><button class="btn outline smallbtn" data-libexport="${escapeHTML(c.id)}">⬇ PNG</button><button class="btn outline smallbtn" data-libprint="${escapeHTML(c.id)}">🖨 PDF</button><button class="btn outline smallbtn" data-libdelete="${escapeHTML(c.id)}">Excluir</button></div></div>`).join(''):'<div class="empty"><span class="big">📂</span>Nenhum card encontrado.</div>'}
-    function candidateChunks(pages){const chunks=[];pages.forEach((text,p)=>{const normalized=clean(text);const lines=normalized.match(/[^.!?]{70,650}(?:[.!?](?=\s|$)|$)/g)||[];let candidates=lines.map(clean).filter(s=>s.length>85);if(!candidates.length&&normalized.length>70)candidates=[normalized];for(const s of candidates.slice(0,10))chunks.push({text:s,page:p+1})});return chunks.sort((a,b)=>Math.min(b.text.length,600)-Math.min(a.text.length,600))}
+    function candidateChunks(pages){const chunks=[];pages.forEach((text,p)=>{const normalized=clean(text);const lines=normalized.match(/[^.!?]{70,650}(?:[.!?](?=\s|$)|$)/g)||[];let candidates=lines.map(clean).filter(s=>s.length>85);if(!candidates.length&&normalized.length>70)candidates=[normalized];for(const s of candidates.slice(0,10))chunks.push({text:s,page:p+1})});return window.VisuSelection.prioritize(chunks)}
     // Análise por questões históricas: valores apenas do CSV informado pelo usuário.
     function rankingAtual(){
       return window.VisuIncidence.rank(state.parsed?.chunks||[],state.stats,{
@@ -347,7 +348,7 @@
       const panel=$('#incidence-results'),status=$('#incidence-status');
       status.textContent=state.stats.length
         ? 'Histórico carregado: '+state.stats.length+' registro(s). Os números são os informados no CSV e não foram verificados pelo VISUCARDS.'
-        : 'Sem histórico de questões. A seleção será apenas textual, sem percentual de cobrança comprovado.';
+        : 'Sem histórico de questões. A seleção usará pistas textuais didáticas, sem percentual de cobrança comprovado.';
       if(!state.parsed){panel.classList.add('hidden');return}
       panel.classList.remove('hidden');
       const data=rankingAtual(), summary=$('#incidence-summary'),list=$('#incidence-list');
@@ -512,10 +513,10 @@
         return {
           id:id(),
           title:justified?words(match.topic,9):titleFrom(p.text),
-          text:words(p.text,48),
+          text:clean(p.text),
           note:justified
             ?'Assunto associado a '+match.questions+' questão(ões) no histórico fornecido. A base não foi auditada; confira o contexto do PDF.'
-            :'Trecho selecionado do PDF. Sem histórico de questões, não há comprovação de incidência em provas.',
+            :'Trecho selecionado por critérios didáticos (conceitos, regras, exceções e prazos). Sem histórico de questões, não há comprovação de incidência em provas.',
           source:state.parsed.file+' · pág. '+p.page,
           color:i%4,layout:currentLayout()
         };
