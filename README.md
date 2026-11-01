@@ -1,14 +1,15 @@
-# VISUCARDS 0.5 | Protótipo para concursos
+# VISUCARDS 0.6 | Protótipo para concursos
 
 Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs com texto selecionável em cards ilustrados para revisão.
 
 ## O que já funciona
 - Interface responsiva em português e demonstração de cards.
 - Leitura de PDFs textuais no próprio navegador, com limite demonstrativo de 1 PDF de até 5 páginas/mês.
+- **Triagem 0.6:** reconstrói linhas do PDF, separa artigos e dispositivos legais, remove cabeçalhos e fragmentos repetidos, identifica páginas e prioriza candidatos didaticamente úteis. Dispositivos curtos com referência normativa também são preservados.
 - **Modo de testes:** geração de cards sem limite mensal, em lotes de até 2 por clique; após percorrer os trechos disponíveis do PDF, o app recomeça para permitir novos testes de estilos.
 - O limite comercial proposto de 2 cards por mês está apenas configurado para uma futura fase, mas **não bloqueia** a geração no modo de testes.
 - Triagem textual didática de regras, exceções, prazos e artigos, quando não há base histórica. Isso **não** mede frequência em concursos.
-- Texto dos trechos selecionados preservado no card, sem o antigo corte automático em 48 palavras (o trecho de origem continua limitado ao fragmento extraído).
+- O texto escolhido é preservado dentro de blocos de até 650 caracteres, sem corte com reticências; blocos longos são divididos. A seleção ainda se limita aos 10 melhores trechos por página e 50 no total, logo não equivale a um resumo completo do PDF.
 - **Cards editoriais ilustrados (0.5):** cabeçalho com hierarquia, ilustração temática em SVG, trecho central, complementos numerados, identificação de artigos/prazos/ressalvas quando constarem literalmente no PDF, notas e fonte.
 - Três estilos visuais (caderno, quadrinhos e minimalista), edição de textos, exportação PNG e impressão/PDF adaptadas ao novo layout.
 - A organização utiliza regras locais e não cria interpretações jurídicas, jurisprudência, dicas ou exemplos por IA a partir do PDF. Os desenhos ainda são modelos vetoriais por tema, não ilustrações exclusivas por conceito.
@@ -18,7 +19,8 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 - Vitrine ilustrativa de combos e planos, **sem compras reais**.
 
 ## Limitações importantes
-- O processamento é **local** e não possui IA para interpretar conceitos ou gerar desenhos sob demanda.
+- O processamento é **local** e não possui IA para interpretar conceitos ou gerar desenhos sob demanda. Melhorias da seleção não equivalem a avaliação humana nem a previsão da banca.
+- A nova análise completa de estrutura do PDF será aplicada a arquivos enviados **a partir da versão 0.6**. Cards já salvos não são reescritos.
 - Não há cadastro de usuários, banco de dados ativo, cobrança, OCR nem cotas verificadas por servidor.
 - Foi incluído o arquivo `backend/schema_preparacao.sql` com RLS, mas **não foi executado** em nenhum Supabase. Precisa de testes reais.
 - Dados guardados no navegador podem desaparecer; use o backup.
@@ -32,7 +34,7 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 
 O arquivo `index.html` desta versão concentra a interface e o JavaScript do protótipo para facilitar a publicação.
 
-O fluxo `.github/workflows/pages.yml` publica também `selection.js`, `incidence.js` e `card-design.js`, executa os testes presentes em `tests/*.test.cjs` e só depois tenta publicar o HTML no GitHub Pages.
+O fluxo `.github/workflows/pages.yml` publica também `selection.js`, `incidence.js`, `card-design.js` e `pdf-intelligence.js`, executa os testes presentes em `tests/*.test.cjs` e só depois tenta publicar o HTML no GitHub Pages.
 
 Para rodar os testes localmente:
 
@@ -50,7 +52,7 @@ Para visualizar sem GitHub Pages, abra `index.html` em um servidor HTTP local. N
 
 ## Próximos passos
 
-Criar um projeto Supabase exclusivo, com Auth e políticas RLS para biblioteca, cotas e direito de acesso a combos; integrar IA com referências às páginas do PDF; validar PDFs reais; e apenas depois implementar pagamentos.
+Validar a triagem com PDFs reais de concursos, incluindo PDFs digitalizados e documentos jurídicos em duas colunas; depois estudar OCR local e uma integração segura com IA por backend, com referências de página e conferência do texto original. Antes de monetizar, criar Supabase exclusivo com Auth, RLS e controle real de direitos, cotas e acesso a combos. Os cartões mantêm o layout editorial 0.5, protegido em `DESIGN_LOCK.md`.
 
 O serviço Recebi+ e outros projetos não são utilizados nem alterados por este repositório.
 
