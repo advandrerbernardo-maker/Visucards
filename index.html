@@ -200,7 +200,7 @@
       <div class="sidefoot"><strong>PLANO GRATUITO</strong>1 PDF de até 5 páginas/mês<br/>2 cards ilustrados/mês</div>
     </aside>
     <main>
-      <div class="topbar"><span class="eyebrow">VISUCARDS · VERSÃO 0.3 DE TESTE</span><span class="pill">✦ Plano gratuito</span></div>
+      <div class="topbar"><span class="eyebrow">VISUCARDS · VERSÃO 0.4.1 DE TESTE</span><span class="pill">✦ Plano gratuito</span></div>
       <section id="tab-criar" class="tab">
         <div class="hero"><div><div class="eyebrow" style="color:#d0b6ff">ESTUDE DE UM JEITO DIFERENTE</div><h1>Seu PDF pode virar um material muito mais visual.</h1><p class="lead">Transforme trechos do seu conteúdo em cards coloridos para revisar e memorizar.</p></div><div class="hero-art" aria-hidden="true">📚✨</div></div>
         <div class="grid">
@@ -536,7 +536,7 @@
       if(tooLong){show('O campo '+tooLong.dataset.field+' excede o limite. Reduza o texto antes de salvar.',true);return}
       edited.forEach(el=>{c[el.dataset.field]=clean(el.value)});const storedCard=state.cards.find(s=>s.id===c.id);if(storedCard)Object.assign(storedCard,c);persist();drawCards(state.preview,$('#result-type').textContent)}});
     $('#library-search').addEventListener('input',renderLibrary);
-    $('#backup-library').addEventListener('click',()=>{const data=JSON.stringify({app:'VISUCARDS',version:'0.3',exported_at:new Date().toISOString(),cards:state.cards,reviews:state.reviews},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='VISUCARDS_biblioteca_backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+    $('#backup-library').addEventListener('click',()=>{const data=JSON.stringify({app:'VISUCARDS',version:'0.4.1',exported_at:new Date().toISOString(),cards:state.cards,reviews:state.reviews},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='VISUCARDS_biblioteca_backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
     $('#restore-library').onclick=()=>$('#restore-file').click();
     $('#restore-file').addEventListener('change',async e=>{
       const file=e.target.files[0];e.target.value='';if(!file)return;
