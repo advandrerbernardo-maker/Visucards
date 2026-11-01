@@ -37,10 +37,11 @@ test('Modo de testes: geração sem limite mensal de cards, mantendo limite de P
   assert.equal(cfg.canUploadPDF(1,5,1024),false);
   assert.equal(cfg.canUploadPDF(0,6,1024),false);
 });
-test('Geração permanece disponível após salvar cards',()=>{
+test('Geração continua livre por lotes e oferece recomeço após usar todo o conteúdo',()=>{
   assert.ok(html.includes('state.generationCursor=batch.nextCursor'));
-  assert.ok(html.includes('remainingCards(state.cardCount)<1'));
+  assert.ok(html.includes('window.VisuPolicy.remainingCards(state.cardCount)>0'));
   assert.ok(html.includes('Gerar mais 2 cards'));
+  assert.ok(html.includes("$('#restart-generation').onclick"));
 });
 
 test('Uploads e compras não são apresentados como serviço ativo', () => {
