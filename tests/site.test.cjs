@@ -47,7 +47,7 @@ test('Geração continua livre por lotes e oferece recomeço após usar todo o c
 test('Uploads e compras não são apresentados como serviço ativo', () => {
   assert.match(html, /nenhuma compra será realizada/);
   assert.match(html, /Assinaturas ainda não estão habilitadas/);
-  assert.match(html, /Não há envio a servidor/);
+  assert.match(html, /Sem IA conectada, os trechos não são enviados a servidores/);
 });
 
 test('Leitor PDF possui proteção extra contra execução de scripts', () => {
