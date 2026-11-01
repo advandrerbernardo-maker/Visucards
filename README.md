@@ -1,4 +1,4 @@
-# VISUCARDS 0.4.2 | Protótipo para concursos
+# VISUCARDS 0.5 | Protótipo para concursos
 
 Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs com texto selecionável em cards ilustrados para revisão.
 
@@ -9,7 +9,9 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 - O limite comercial proposto de 2 cards por mês está apenas configurado para uma futura fase, mas **não bloqueia** a geração no modo de testes.
 - Triagem textual didática de regras, exceções, prazos e artigos, quando não há base histórica. Isso **não** mede frequência em concursos.
 - Texto dos trechos selecionados preservado no card, sem o antigo corte automático em 48 palavras (o trecho de origem continua limitado ao fragmento extraído).
-- Três estilos de layout, edição de textos, exportação PNG e impressão/PDF.
+- **Cards editoriais ilustrados (0.5):** cabeçalho com hierarquia, ilustração temática em SVG, trecho central, complementos numerados, identificação de artigos/prazos/ressalvas quando constarem literalmente no PDF, notas e fonte.
+- Três estilos visuais (caderno, quadrinhos e minimalista), edição de textos, exportação PNG e impressão/PDF adaptadas ao novo layout.
+- A organização utiliza regras locais e não cria interpretações jurídicas, jurisprudência, dicas ou exemplos por IA a partir do PDF. Os desenhos ainda são modelos vetoriais por tema, não ilustrações exclusivas por conceito.
 - Biblioteca local, busca, backup e restauração.
 - **Modo revisão** na biblioteca: ocultar/responder, marcar dificuldade, agendar próximas revisões e fazer revisão livre. Revisar não consome cota mensal.
 - Próxima revisão armazenada no navegador e incluída no backup.
@@ -30,7 +32,7 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 
 O arquivo `index.html` desta versão concentra a interface e o JavaScript do protótipo para facilitar a publicação.
 
-O fluxo `.github/workflows/pages.yml` publica também `selection.js` e `incidence.js`, executa os testes presentes em `tests/*.test.cjs` e só depois tenta publicar o HTML no GitHub Pages.
+O fluxo `.github/workflows/pages.yml` publica também `selection.js`, `incidence.js` e `card-design.js`, executa os testes presentes em `tests/*.test.cjs` e só depois tenta publicar o HTML no GitHub Pages.
 
 Para rodar os testes localmente:
 
