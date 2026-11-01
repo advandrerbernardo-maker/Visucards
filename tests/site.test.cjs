@@ -17,12 +17,29 @@ test('Scripts internos compilam sem erros', () => {
   for (const match of scripts) assert.doesNotThrow(() => new vm.Script(match[1]));
 });
 
-test('Plano gratuito: 1 PDF de 5 páginas e 2 cards por mês', () => {
+test('Modo de testes: geração sem limite mensal de cards, mantendo limite de PDF', () => {
   assert.match(html, /PDF de até 5 páginas/);
-  assert.match(html, /2 cards ilustrados\/mês/);
+  assert.match(html, /Cards ilimitados durante os testes/);
   assert.match(html, /pdf:\s*1/);
   assert.match(html, /pages:\s*5/);
-  assert.match(html, /cards:\s*2/);
+  const scripts=[...html.matchAll(/<script[^>]*>([\\s\\S]*?)<\\/script>/g)];
+  const policy=scripts.map(x=>x[1]).find(x=>x.includes('const TEST_MODE = Object.freeze'));
+  assert.ok(policy, 'Não encontrou a configuração de testes');
+  const sandbox={module:{exports:{}}};
+  vm.runInNewContext(policy,sandbox);
+  const cfg=sandbox.module.exports;
+  assert.equal(cfg.TEST_MODE.unlimitedCards,true);
+  assert.equal(cfg.remainingCards(0),Infinity);
+  assert.equal(cfg.remainingCards(2),Infinity);
+  assert.equal(cfg.remainingCards(999999),Infinity);
+  assert.equal(cfg.canUploadPDF(0,5,1024),true);
+  assert.equal(cfg.canUploadPDF(1,5,1024),false);
+  assert.equal(cfg.canUploadPDF(0,6,1024),false);
+});
+test('Geração permanece disponível após salvar cards',()=>{
+  assert.match(html,/state\\.generationCursor=batch\\.nextCursor/);
+  assert.match(html,/remainingCards\\(state\\.cardCount\\)<1/);
+  assert.match(html,/Gerar mais 2 cards/);
 });
 
 test('Uploads e compras não são apresentados como serviço ativo', () => {
