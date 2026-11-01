@@ -1,4 +1,4 @@
-# VISUCARDS 0.7 | Protótipo para concursos
+# VISUCARDS 0.8 | Protótipo para concursos
 
 Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs com texto selecionável em cards ilustrados para revisão.
 
@@ -12,14 +12,16 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 - O texto escolhido é preservado dentro de blocos de até 650 caracteres, sem corte com reticências; blocos longos são divididos. A seleção ainda se limita aos 10 melhores trechos por página e 50 no total, logo não equivale a um resumo completo do PDF.
 - **Cards editoriais ilustrados (0.5):** cabeçalho com hierarquia, ilustração temática em SVG, trecho central, complementos numerados, identificação de artigos/prazos/ressalvas quando constarem literalmente no PDF, notas e fonte. As notas dos novos cards agora oferecem **perguntas de revisão conforme as pistas do texto**, sem acrescentar respostas inventadas.
 - Três estilos visuais (caderno, quadrinhos e minimalista), edição de textos, exportação PNG e impressão/PDF adaptadas ao novo layout.
-- A organização utiliza regras locais e não cria interpretações jurídicas, jurisprudência, dicas ou exemplos por IA a partir do PDF. Os desenhos ainda são modelos vetoriais por tema, não ilustrações exclusivas por conceito.
+- **Integração de IA preparada (0.8):** cliente autenticado, Edge Function Supabase exclusiva, cota diária por usuário e retorno em diagramas vetoriais específicos com rótulos literais do PDF. O modelo pode sugerir título e disposição gráfica, mas nunca substitui o texto original nem inventa leis ou dados.
+- **IA ainda não ativada em produção:** os campos públicos de `ai-config.js` permanecem vazios porque não existe projeto Supabase VISUCARDS exclusivo nem segredo do provedor configurado. O modo local continua funcionando sem qualquer chave.
+- Diagramas da IA são SVGs próprios de estudo (fluxo, passos, comparação ou linha do tempo), não imagens realistas geradas por difusão. O design visual 0.5 permanece bloqueado.
 - Biblioteca local, busca, backup e restauração.
 - **Modo revisão** na biblioteca: ocultar/responder, marcar dificuldade, agendar próximas revisões e fazer revisão livre. Revisar não consome cota mensal.
 - Próxima revisão armazenada no navegador e incluída no backup.
 - Vitrine ilustrativa de combos e planos, **sem compras reais**.
 
 ## Limitações importantes
-- O processamento é **local** e não possui IA para interpretar conceitos ou gerar desenhos sob demanda. Melhorias da seleção não equivalem a avaliação humana nem a previsão da banca.
+- O processamento e a seleção padrão são **locais**. A integração de IA será opcional quando o backend próprio estiver ativo; nesse caso, apenas os trechos selecionados serão transmitidos com autenticação para gerar diagramas, não o PDF completo. Melhorias de triagem não equivalem a avaliação humana nem à previsão da banca.
 - A nova análise completa de estrutura do PDF será aplicada a arquivos enviados **a partir da versão 0.6**. Cards já salvos não são reescritos.
 - Não há cadastro de usuários, banco de dados ativo, cobrança, OCR nem cotas verificadas por servidor.
 - Foi incluído o arquivo `backend/schema_preparacao.sql` com RLS, mas **não foi executado** em nenhum Supabase. Precisa de testes reais.
@@ -34,7 +36,7 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 
 O arquivo `index.html` desta versão concentra a interface e o JavaScript do protótipo para facilitar a publicação.
 
-O fluxo `.github/workflows/pages.yml` publica `selection.js`, `card-design.js` e `pdf-intelligence.js`, executa os testes presentes em `tests/*.test.cjs` e só depois tenta publicar o HTML no GitHub Pages.
+O fluxo `.github/workflows/pages.yml` publica `selection.js`, `card-design.js`, `pdf-intelligence.js`, `ai-cards.js` e `ai-config.js`, executa os testes presentes em `tests/*.test.cjs` e só depois tenta publicar o HTML no GitHub Pages.
 
 Para rodar os testes localmente:
 
@@ -52,7 +54,7 @@ Para visualizar sem GitHub Pages, abra `index.html` em um servidor HTTP local. N
 
 ## Próximos passos
 
-Validar a triagem com PDFs reais de concursos, incluindo PDFs digitalizados e documentos jurídicos em duas colunas; depois estudar OCR local e uma integração segura com IA por backend, com referências de página e conferência do texto original. Antes de monetizar, criar Supabase exclusivo com Auth, RLS e controle real de direitos, cotas e acesso a combos. Os cartões mantêm o layout editorial 0.5, protegido em `DESIGN_LOCK.md`.
+**Ativar o serviço de IA em um Supabase exclusivo** após escolher organização, confirmar eventuais custos, aplicar quota SQL, definir o segredo GROQ_API_KEY, implantar a Edge Function e preencher a URL/publishable key públicas. Consulte [docs/AI_SETUP.md](docs/AI_SETUP.md). Não utilizar o projeto Recebi+. Depois, testar PDFs reais com texto selecionável, documentos em duas colunas, OCR e as funções comerciais. O layout editorial 0.5 permanece protegido em `DESIGN_LOCK.md`.
 
 O serviço Recebi+ e outros projetos não são utilizados nem alterados por este repositório.
 
@@ -66,3 +68,7 @@ O serviço Recebi+ e outros projetos não são utilizados nem alterados por este
 A triagem identifica pistas didáticas no próprio PDF, priorizando regras, artigos, exceções, prazos e conceitos relevantes para revisão. **Não há importação de CSV, filtros de banca/cargo ou ranking histórico de questões.** O aplicativo não afirma que os assuntos escolhidos são estatisticamente os mais cobrados.
 
 Os cards já salvos, as revisões e os backups continuam disponíveis. O novo fluxo não altera o modelo visual 0.5, protegido em `DESIGN_LOCK.md`. A nova ordenação se aplica ao PDF do mês recuperado do navegador, sem modificar os cards antigos. PDFs digitalizados ainda precisam de OCR para leitura.
+
+### IA opcional
+
+A função de IA só aparece após configurar um backend Supabase **dedicado ao VISUCARDS**. O usuário confirma acesso por e-mail e pode gerar os cards normalmente. O navegador transmite até dois trechos por solicitação, valida com o backend os dados extraídos literalmente e guarda apenas um plano de ilustração na biblioteca. Se a IA estiver indisponível, a geração local permanece utilizável. A ativação depende de infraestrutura separada e credenciais de provedor que ainda não foram configuradas. Leia [docs/AI_SETUP.md](docs/AI_SETUP.md) para concluir a implantação de modo seguro.
