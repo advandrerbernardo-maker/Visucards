@@ -40,6 +40,7 @@ jobs:
         run: |
           mkdir -p site
           cp index.html site/index.html
+          cp incidence.js site/incidence.js
           touch site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
