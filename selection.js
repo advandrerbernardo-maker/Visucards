@@ -34,6 +34,18 @@
     if(/(?:^|\s)art(?:igo)?\.?\s*\d+/.test(s))return "artigo";
     return "conceito";
   }
+  function studyPrompt(text){
+    const prompts={
+      excecao:'Pergunta de revisão: qual é a exceção descrita no trecho e quando se aplica?',
+      prazo:'Pergunta de revisão: qual é o prazo informado e para qual situação?',
+      vedacao:'Pergunta de revisão: o que o trecho proíbe e em quais condições?',
+      requisito:'Pergunta de revisão: quais requisitos são exigidos no texto?',
+      competencia:'Pergunta de revisão: a quem é atribuída a competência mencionada?',
+      artigo:'Pergunta de revisão: o que estabelece o artigo citado?',
+      conceito:'Pergunta de revisão: qual é a ideia central do trecho?'
+    };
+    return prompts[signal(text)];
+  }
   function articleRef(text){
     const found=normalize(text).match(/\bart(?:igo)?\.?\s*(\d+[a-z]?)\b/);
     return found?found[1]:"";
@@ -96,7 +108,7 @@
     const nextCursor=start+selected.length;
     return {selected,nextCursor,recycled:false,exhausted:nextCursor>=pool.length,remaining:pool.length-nextCursor,total:pool.length};
   }
-  const api={score,prioritize,signal,canonical,nearDuplicate,buildQueue,nextBatch};
+  const api={score,prioritize,signal,studyPrompt,canonical,nearDuplicate,buildQueue,nextBatch};
   if(typeof module!=="undefined"&&module.exports)module.exports=api;
   else root.VisuSelection=api;
 })(typeof window!=="undefined"?window:globalThis);
