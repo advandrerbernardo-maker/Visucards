@@ -44,6 +44,36 @@
     const supabase=await client();
     if(supabase)await supabase.auth.signOut();
   }
+  function localPlan(text){
+    const source=clean(text),labels=[];
+    const patterns=[
+      /(?:^|\s)art(?:igo)?\.?\s*\d+[º°]?(?:\s*,\s*[IVXLCDM]+)?/gi,
+      /§\s*\d+[º°]?/g,
+      /\b\d+\s*(?:dias?|meses?|anos?|horas?)\b/gi,
+      /\b(?:salvo|exceto|ressalvada|ressalvado|vedado|vedada|proibido|proibida|requisitos?|competência|prazo|somente)\b/gi
+    ];
+    for(const pattern of patterns){
+      for(const match of source.matchAll(pattern)){
+        const label=clean(match[0]);
+        if(label.length>=3&&label.length<=42&&source.includes(label)&&!labels.includes(label))labels.push(label);
+        if(labels.length>=3)break;
+      }
+      if(labels.length>=3)break;
+    }
+    if(labels.length<2)return null;
+    const foldedText=folded(source);
+    const kind=/\b(salvo|exceto|ressalvad)/.test(foldedText)?'compare'
+      :/\b(prazo|dias|meses|anos|horas)\b/.test(foldedText)?'timeline'
+      :/\b(requisitos|condicoes|hipoteses)\b/.test(foldedText)?'steps':'flow';
+    return validatePlan({kind,labels},source);
+  }
+  function decorateLocal(cards){
+    return (Array.isArray(cards)?cards:[]).map(card=>{
+      if(card.visualPlan)return card;
+      const visualPlan=localPlan(card.text);
+      return visualPlan?{...card,visualPlan}:card;
+    });
+  }
   function validatePlan(visual,text){
     if(!visual||!kinds.has(visual.kind)||!Array.isArray(visual.labels))return null;
     const source=clean(text);
@@ -180,7 +210,7 @@
       svg(kind){return visuals.get(kind)||originalSvg(kind);}
     };
   }
-  const api={configured,signedIn,emailLogin,logout,enhance,validatePlan,validateOutput,svgDiagram,register,installArtHook};
+  const api={configured,signedIn,emailLogin,logout,enhance,localPlan,decorateLocal,validatePlan,validateOutput,svgDiagram,register,installArtHook};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   else root.VisuAI=api;
 })(typeof window!=='undefined'?window:globalThis);
