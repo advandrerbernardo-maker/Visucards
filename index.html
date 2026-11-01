@@ -35,6 +35,81 @@
     .librarytools{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:18px}
     .librarytools input{flex:1;min-width:140px}
     @media(max-width:680px){.card-visual .illustration svg{max-height:95px}.card-visual{min-height:320px}.librarytools{display:grid;grid-template-columns:1fr 1fr;gap:8px}.librarytools input{grid-column:1/-1;width:100%;min-width:0}.librarytools button{width:100%;white-space:normal;padding:9px 5px;font-size:11px}.libitem>div:first-child{min-width:0;overflow-wrap:anywhere}.libitem .buttonrow{flex:0 0 98px}}
+  
+    /* CORREÇÃO VISUAL 0.3.2: cards com altura definida pelo conteúdo, sem sobreposições. */
+    .showcase .card-visual{
+      aspect-ratio:auto;
+      min-height:520px;
+      height:auto;
+      padding-bottom:18px;
+      gap:12px;
+      overflow:hidden;
+    }
+    .showcase .card-visual h3{
+      flex:0 0 auto;
+      min-height:0;
+      max-height:none;
+      font-size:clamp(18px,2.1vw,27px);
+      line-height:1.19;
+      letter-spacing:-.02em;
+      text-shadow:none;
+      overflow-wrap:anywhere;
+      hyphens:auto;
+    }
+    .showcase .card-visual .illustration{flex:0 0 auto;min-width:0}
+    .showcase .card-visual .illustration svg{max-height:155px}
+    .showcase .card-visual .bubble{
+      flex:0 0 auto;
+      min-width:0;
+      font-size:clamp(12px,1.4vw,16px);
+      line-height:1.46;
+      overflow-wrap:anywhere;
+      white-space:normal;
+    }
+    .showcase .card-visual .source{
+      display:block;
+      flex:0 0 auto;
+      margin-top:auto;
+      width:100%;
+      max-width:100%;
+      overflow-wrap:anywhere;
+      white-space:normal;
+      font-size:11px;
+      line-height:1.4;
+    }
+    .showcase .card-visual .visulabel{
+      position:static;
+      flex:0 0 auto;
+      align-self:flex-end;
+      display:block;
+      margin:0;
+      padding-top:3px;
+      line-height:1.25;
+      font-size:10px;
+    }
+    @media (max-width:900px){
+      .showcase{grid-template-columns:minmax(0,1fr);max-width:560px;margin-left:auto;margin-right:auto}
+      .showcase .card-visual{min-height:500px}
+      .showcase .card-visual h3{font-size:clamp(20px,4.2vw,27px)}
+    }
+    @media (max-width:360px){
+      .sidebar{padding-left:9px;padding-right:9px}
+      .sidebar .brand .word{font-size:12px}
+      .sidebar .nav button{padding-left:3px;padding-right:3px}
+    }
+    @media (max-width:680px){
+      .sectiontitle{flex-wrap:wrap;align-items:flex-start;gap:10px}
+      .sectiontitle .tag{max-width:100%;overflow-wrap:anywhere;white-space:normal}
+      .showcase{width:100%;gap:24px}
+      .showcase .card-visual{min-height:0;padding:19px 17px 16px;gap:12px;border-width:7px}
+      .showcase .card-visual h3{font-size:clamp(19px,5.1vw,25px);line-height:1.2;letter-spacing:0}
+      .showcase .card-visual .illustration svg{max-height:165px}
+      .showcase .card-visual .bubble{font-size:clamp(13px,3.6vw,16px);line-height:1.44;padding:12px 14px;box-shadow:2px 3px 0 rgba(30,20,35,.20)}
+      .showcase .card-visual .source{font-size:11px;padding:7px 9px}
+      .showcase .card-visual .visulabel{font-size:10px}
+      .showcase .card-actions{gap:8px}
+    }
+
   </style>
 </head>
 <body>
