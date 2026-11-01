@@ -20,7 +20,17 @@
       .map((chunk,index)=>({...chunk,qualityScore:score(chunk.text),originalIndex:index}))
       .sort((a,b)=>b.qualityScore-a.qualityScore || a.originalIndex-b.originalIndex);
   }
-  const api={score,prioritize};
+  // Cada clique usa até dois novos trechos; após percorrer o PDF, volta ao início
+  // para permitir testar estilos sem impor uma cota mensal.
+  function nextBatch(chunks,cursor=0,batchSize=2){
+    const pool=Array.isArray(chunks)?chunks:[];
+    if(!pool.length)return {selected:[],nextCursor:0,recycled:false};
+    const start=Number.isSafeInteger(cursor)&&cursor>=0?cursor:0;
+    const size=Math.min(pool.length,Math.max(1,Math.min(2,Number.isInteger(batchSize)?batchSize:2)));
+    const selected=Array.from({length:size},(_,i)=>pool[(start+i)%pool.length]);
+    return {selected,nextCursor:start+size,recycled:start+size>pool.length || start>=pool.length};
+  }
+  const api={score,prioritize,nextBatch};
   if(typeof module!=="undefined"&&module.exports)module.exports=api;
   else root.VisuSelection=api;
 })(typeof window!=="undefined"?window:globalThis);
