@@ -92,7 +92,7 @@
     for(const line of lines){
       const s=clean(line);
       if(!s)continue;
-      if(current && (beginsProvision(s) || isHeader(s)))flush();
+      if(current && (beginsProvision(s) || isHeader(s) || (/[.!?;]$/.test(current) && /^[A-ZÀ-Ý]/.test(s))))flush();
       current+=(current?' ':'')+s;
       // Um novo artigo ou cabeçalho tem prioridade sobre comprimento.
       // Parágrafos longos só são quebrados em fronteiras de frase ou palavra.
