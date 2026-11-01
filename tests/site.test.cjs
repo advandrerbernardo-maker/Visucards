@@ -20,9 +20,9 @@ test('Scripts internos compilam sem erros', () => {
 test('Plano gratuito: 1 PDF de 5 páginas e 2 cards por mês', () => {
   assert.match(html, /PDF de até 5 páginas/);
   assert.match(html, /2 cards ilustrados\/mês/);
-  assert.match(html, /pdf:1/);
-  assert.match(html, /pages:5/);
-  assert.match(html, /cards:2/);
+  assert.match(html, /pdf:\s*1/);
+  assert.match(html, /pages:\s*5/);
+  assert.match(html, /cards:\s*2/);
 });
 
 test('Uploads e compras não são apresentados como serviço ativo', () => {
