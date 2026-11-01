@@ -1,4 +1,4 @@
-# VISUCARDS 0.6 | Protótipo para concursos
+# VISUCARDS 0.6.1 | Protótipo para concursos
 
 Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs com texto selecionável em cards ilustrados para revisão.
 
@@ -8,7 +8,7 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 - **Triagem 0.6:** reconstrói linhas do PDF, separa artigos e dispositivos legais, remove cabeçalhos e fragmentos repetidos, identifica páginas e prioriza candidatos didaticamente úteis. Dispositivos curtos com referência normativa também são preservados.
 - **Modo de testes:** geração de cards sem limite mensal, em lotes de até 2 por clique; após percorrer os trechos disponíveis do PDF, o app recomeça para permitir novos testes de estilos.
 - O limite comercial proposto de 2 cards por mês está apenas configurado para uma futura fase, mas **não bloqueia** a geração no modo de testes.
-- Triagem textual didática de regras, exceções, prazos e artigos, quando não há base histórica. Isso **não** mede frequência em concursos.
+- Triagem textual automática de regras, exceções, prazos e artigos, sem necessidade de importar histórico de questões. **Não** mede a frequência real em concursos.
 - O texto escolhido é preservado dentro de blocos de até 650 caracteres, sem corte com reticências; blocos longos são divididos. A seleção ainda se limita aos 10 melhores trechos por página e 50 no total, logo não equivale a um resumo completo do PDF.
 - **Cards editoriais ilustrados (0.5):** cabeçalho com hierarquia, ilustração temática em SVG, trecho central, complementos numerados, identificação de artigos/prazos/ressalvas quando constarem literalmente no PDF, notas e fonte.
 - Três estilos visuais (caderno, quadrinhos e minimalista), edição de textos, exportação PNG e impressão/PDF adaptadas ao novo layout.
@@ -34,7 +34,7 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 
 O arquivo `index.html` desta versão concentra a interface e o JavaScript do protótipo para facilitar a publicação.
 
-O fluxo `.github/workflows/pages.yml` publica também `selection.js`, `incidence.js`, `card-design.js` e `pdf-intelligence.js`, executa os testes presentes em `tests/*.test.cjs` e só depois tenta publicar o HTML no GitHub Pages.
+O fluxo `.github/workflows/pages.yml` publica `selection.js`, `card-design.js` e `pdf-intelligence.js`, executa os testes presentes em `tests/*.test.cjs` e só depois tenta publicar o HTML no GitHub Pages.
 
 Para rodar os testes localmente:
 
@@ -57,20 +57,12 @@ Validar a triagem com PDFs reais de concursos, incluindo PDFs digitalizados e do
 O serviço Recebi+ e outros projetos não são utilizados nem alterados por este repositório.
 
 
-## Priorização por incidência de questões (protótipo)
-O VISUCARDS pode importar um CSV com as colunas **assunto;questoes** e, opcionalmente, **banca;cargo;ano**.
-- Ao selecionar PDF de até 5 páginas, o app cruza os trechos com os assuntos e contagens da amostra importada.
-- Se houver correspondência, apresenta uma lista dos temas reconhecidos e prioriza a geração dos cards correspondentes.
-- Os números exibidos vêm exclusivamente do arquivo fornecido, sem validação de fontes. Não são estatísticas de todas as provas.
-- Se não houver histórico ou correspondência, o app cria cards textuais normais e avisa que **não existe prova de que o assunto seja o mais cobrado**.
-- Não consulta automaticamente QConcursos, TEC ou plataformas comerciais; não coleta questões protegidas nem acesso de contas.
-- Sem IA e sem base histórica licenciada, a interpretação de sinônimos e a identificação de temas ainda são limitadas.
+## Fluxo de criação simplificado
 
-### Exemplo de CSV (apenas formato, valores fictícios)
-\`\`\`csv
-assunto;questoes;banca;cargo;ano
-Ampla defesa;12;BANCA_DE_EXEMPLO;CARGO_DE_EXEMPLO;2025
-Segurança jurídica;9;BANCA_DE_EXEMPLO;CARGO_DE_EXEMPLO;2024
-\`\`\`
+1. Selecione um PDF com texto legível de até cinco páginas.
+2. Escolha o estilo dos cards (caderno ilustrado, quadrinhos ou minimalista).
+3. Toque em **Gerar meus cards** para receber dois cards por vez, sem limite mensal durante os testes.
 
-**Próxima evolução:** conectar um acervo legítimo de provas e questões com banca, cargo, ano, fonte e identificação do item, permitindo cálculo verificável da incidência por assunto e comparação por edital. Só então usar percentuais de frequência históricos reais.
+A triagem identifica pistas didáticas no próprio PDF, priorizando regras, artigos, exceções, prazos e conceitos relevantes para revisão. **Não há importação de CSV, filtros de banca/cargo ou ranking histórico de questões.** O aplicativo não afirma que os assuntos escolhidos são estatisticamente os mais cobrados.
+
+Os cards já salvos, as revisões e os backups continuam disponíveis. O novo fluxo não altera o modelo visual 0.5, protegido em `DESIGN_LOCK.md`.
