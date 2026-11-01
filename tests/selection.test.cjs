@@ -13,7 +13,7 @@ test('Seleção didática não é divulgada como frequência de questões',()=>{
   const s=fs.readFileSync('selection.js','utf8');
   assert.match(s,/Não representa incidência estatística/);
   const html=fs.readFileSync('index.html','utf8');
-  assert.match(html,/não representa frequência comprovada em provas/i);
+  assert.match(html,/não representa frequência comprovada em concursos/i);
   assert.match(html,/selection\.js/);
 });
 
