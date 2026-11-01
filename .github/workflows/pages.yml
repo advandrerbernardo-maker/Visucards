@@ -43,6 +43,8 @@ jobs:
           cp selection.js site/selection.js
           cp pdf-intelligence.js site/pdf-intelligence.js
           cp card-design.js site/card-design.js
+          cp ai-config.js site/ai-config.js
+          cp ai-cards.js site/ai-cards.js
           touch site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
