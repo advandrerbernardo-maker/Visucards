@@ -47,3 +47,22 @@ Para visualizar sem GitHub Pages, abra `index.html` em um servidor HTTP local. N
 Criar um projeto Supabase exclusivo, com Auth e políticas RLS para biblioteca, cotas e direito de acesso a combos; integrar IA com referências às páginas do PDF; validar PDFs reais; e apenas depois implementar pagamentos.
 
 O serviço Recebi+ e outros projetos não são utilizados nem alterados por este repositório.
+
+
+## Priorização por incidência de questões (protótipo)
+O VISUCARDS pode importar um CSV com as colunas **assunto;questoes** e, opcionalmente, **banca;cargo;ano**.
+- Ao selecionar PDF de até 5 páginas, o app cruza os trechos com os assuntos e contagens da amostra importada.
+- Se houver correspondência, apresenta uma lista dos temas reconhecidos e prioriza a geração dos cards correspondentes.
+- Os números exibidos vêm exclusivamente do arquivo fornecido, sem validação de fontes. Não são estatísticas de todas as provas.
+- Se não houver histórico ou correspondência, o app cria cards textuais normais e avisa que **não existe prova de que o assunto seja o mais cobrado**.
+- Não consulta automaticamente QConcursos, TEC ou plataformas comerciais; não coleta questões protegidas nem acesso de contas.
+- Sem IA e sem base histórica licenciada, a interpretação de sinônimos e a identificação de temas ainda são limitadas.
+
+### Exemplo de CSV (apenas formato, valores fictícios)
+\`\`\`csv
+assunto;questoes;banca;cargo;ano
+Ampla defesa;12;BANCA_DE_EXEMPLO;CARGO_DE_EXEMPLO;2025
+Segurança jurídica;9;BANCA_DE_EXEMPLO;CARGO_DE_EXEMPLO;2024
+\`\`\`
+
+**Próxima evolução:** conectar um acervo legítimo de provas e questões com banca, cargo, ano, fonte e identificação do item, permitindo cálculo verificável da incidência por assunto e comparação por edital. Só então usar percentuais de frequência históricos reais.
