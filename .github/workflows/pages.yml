@@ -42,6 +42,7 @@ jobs:
           cp index.html site/index.html
           cp incidence.js site/incidence.js
           cp selection.js site/selection.js
+          cp card-design.js site/card-design.js
           touch site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
