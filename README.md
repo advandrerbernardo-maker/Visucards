@@ -14,7 +14,7 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 - Três estilos visuais (caderno, quadrinhos e minimalista), edição de textos, exportação PNG e impressão/PDF adaptadas ao novo layout.
 - **Diagramas locais (0.8):** mesmo sem IA externa, o VISUCARDS combina artigos, prazos e ressalvas encontrados literalmente no PDF em diagramas vetoriais personalizados quando há pistas suficientes. Quando não há, mantém a ilustração temática anterior.
 - **Integração de IA preparada (0.8):** cliente autenticado, Edge Function Supabase exclusiva, cota diária por usuário e retorno em diagramas vetoriais específicos com rótulos literais do PDF. O modelo pode sugerir título e disposição gráfica, mas nunca substitui o texto original nem inventa leis ou dados.
-- **IA ainda não ativada em produção:** os campos públicos de `ai-config.js` permanecem vazios porque não existe projeto Supabase VISUCARDS exclusivo nem segredo do provedor configurado. O modo local continua funcionando sem qualquer chave.
+- **Infraestrutura criada:** projeto Supabase exclusivo **VISUCARDS** (`cuzqfjmjfozfngrahkzz`, São Paulo), tabela de cota com RLS e função `visucards-ai` publicada com verificação de JWT. **A IA externa continua desativada** (`enabled:false` em `ai-config.js`) até concluir a configuração do segredo `GROQ_API_KEY`, as URLs de autenticação e um teste real. O modo local continua funcionando.
 - Diagramas da IA são SVGs próprios de estudo (fluxo, passos, comparação ou linha do tempo), não imagens realistas geradas por difusão. O design visual 0.5 permanece bloqueado.
 - Biblioteca local, busca, backup e restauração.
 - **Modo revisão** na biblioteca: ocultar/responder, marcar dificuldade, agendar próximas revisões e fazer revisão livre. Revisar não consome cota mensal.
@@ -24,7 +24,7 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 ## Limitações importantes
 - O processamento e a seleção padrão são **locais**. A integração de IA será opcional quando o backend próprio estiver ativo; nesse caso, apenas os trechos selecionados serão transmitidos com autenticação para gerar diagramas, não o PDF completo. Melhorias de triagem não equivalem a avaliação humana nem à previsão da banca.
 - A nova análise completa de estrutura do PDF será aplicada a arquivos enviados **a partir da versão 0.6**. Cards já salvos não são reescritos.
-- Não há cadastro de usuários, banco de dados ativo, cobrança, OCR nem cotas verificadas por servidor.
+- Existe um banco Supabase exclusivo com controle de cota para IA, mas a autenticação por e-mail ainda depende da configuração das URLs e a integração está desativada. A biblioteca segue local, sem sincronização, cobrança ou OCR. As cotas comerciais de PDFs e cards ainda são locais.
 - Foi incluído o arquivo `backend/schema_preparacao.sql` com RLS, mas **não foi executado** em nenhum Supabase. Precisa de testes reais.
 - Dados guardados no navegador podem desaparecer; use o backup.
 - O limite demonstrativo de upload de PDF continua em 1 arquivo de até 5 páginas por mês. Apenas o limite de geração de cards foi desativado para testes.
@@ -55,7 +55,7 @@ Para visualizar sem GitHub Pages, abra `index.html` em um servidor HTTP local. N
 
 ## Próximos passos
 
-**Ativar o serviço de IA em um Supabase exclusivo** após escolher organização, confirmar eventuais custos, aplicar quota SQL, definir o segredo GROQ_API_KEY, implantar a Edge Function e preencher a URL/publishable key públicas. Consulte [docs/AI_SETUP.md](docs/AI_SETUP.md). Não utilizar o projeto Recebi+. Depois, testar PDFs reais com texto selecionável, documentos em duas colunas, OCR e as funções comerciais. O layout editorial 0.5 permanece protegido em `DESIGN_LOCK.md`.
+**Falta a ativação final do provedor de IA:** adicionar o segredo `GROQ_API_KEY` no painel do projeto VISUCARDS, configurar Auth > URL Configuration com a URL do GitHub Pages, testar login e saída validada do provedor e então mudar `enabled:false` para `true` em `ai-config.js`. URL e publishable key públicas do projeto já estão preenchidas. Consulte [docs/AI_SETUP.md](docs/AI_SETUP.md). **Não utilizar o projeto Recebi+.** Depois testar PDFs reais, OCR e funções comerciais. O layout editorial 0.5 permanece protegido em `DESIGN_LOCK.md`.
 
 O serviço Recebi+ e outros projetos não são utilizados nem alterados por este repositório.
 
@@ -72,4 +72,4 @@ Os cards já salvos, as revisões e os backups continuam disponíveis. O novo fl
 
 ### IA opcional
 
-A função de IA só aparece após configurar um backend Supabase **dedicado ao VISUCARDS**. O usuário confirma acesso por e-mail e pode gerar os cards normalmente. O navegador transmite até dois trechos por solicitação, valida com o backend os dados extraídos literalmente e guarda apenas um plano de ilustração na biblioteca. Se a IA estiver indisponível, a geração local permanece utilizável. A ativação depende de infraestrutura separada e credenciais de provedor que ainda não foram configuradas. Leia [docs/AI_SETUP.md](docs/AI_SETUP.md) para concluir a implantação de modo seguro.
+A função de IA só aparece após a ativação controlada de um backend Supabase **dedicado ao VISUCARDS**. A infraestrutura foi criada, mas o serviço está temporariamente desativado até a configuração segura do provedor e do login. Depois disso, o usuário confirma acesso por e-mail e pode gerar os cards normalmente. O navegador transmite até dois trechos por solicitação, valida com o backend os dados extraídos literalmente e guarda apenas um plano de ilustração na biblioteca. Se a IA estiver indisponível, a geração local permanece utilizável. A ativação depende de infraestrutura separada e credenciais de provedor que ainda não foram configuradas. Leia [docs/AI_SETUP.md](docs/AI_SETUP.md) para concluir a implantação de modo seguro.
