@@ -154,9 +154,26 @@
       }
     });
     const ranked=typeof prioritize==='function'?prioritize(result):result;
+    // Até 15 páginas: evitar que páginas com pontuação mais baixa desapareçam
+    // ao aplicar o limite global de 50 trechos. Reservar um por página que
+    // contenha texto útil, depois completar por relevância didática.
+    const selected=[],keys=new Set(),representedPages=new Set();
+    const add=entry=>{
+      const key=entry.page+'|'+fingerprint(entry.text);
+      if(keys.has(key)||selected.length>=MAX_CHUNKS)return;
+      selected.push(entry);keys.add(key);
+    };
+    for(const entry of ranked){
+      if(!representedPages.has(entry.page)){
+        add(entry);
+        representedPages.add(entry.page);
+      }
+    }
+    for(const entry of ranked)add(entry);
+    const ordered=typeof prioritize==='function'?prioritize(selected):selected;
     return {
-      chunks:ranked.slice(0,MAX_CHUNKS).map(({text,page})=>({text,page})),
-      diagnostics:{pages:pages.length,candidates,duplicates,selected:Math.min(ranked.length,MAX_CHUNKS)}
+      chunks:ordered.map(({text,page})=>({text,page})),
+      diagnostics:{pages:pages.length,candidates,duplicates,selected:ordered.length}
     };
   }
 
