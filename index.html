@@ -353,7 +353,7 @@
       <section id="tab-biblioteca" class="tab hidden"><h1>Minha biblioteca</h1><p class="lead">Organize seus cards em pastas e abra uma delas para ler deslizando para os lados.</p><div class="panel" style="margin-top:22px">
             <div class="panel-head"><h2>Minhas pastas</h2><span class="tag" id="library-count">0 CARDS</span></div>
             <div class="folder-create"><input id="folder-name-input" maxlength="65" class="search-input" placeholder="Nome da nova pasta. Ex.: Direito Constitucional" aria-label="Nome da nova pasta"/><button type="button" id="create-folder" class="btn">+ Criar pasta</button></div>
-            <div id="folder-grid" class="folder-grid" aria-label="Pastas da biblioteca"></div>
+            <p id="folder-feedback" class="hint" role="status" aria-live="polite"></p><div id="folder-grid" class="folder-grid" aria-label="Pastas da biblioteca"></div>
             <div id="library-folder-header" class="hidden folder-current"><div class="folder-current-title"><button type="button" id="folder-back" class="btn outline smallbtn">← Minhas pastas</button><h2 id="current-folder-name">Meus cards</h2></div><div class="buttonrow"><button type="button" id="read-folder" class="btn">↔ Leitura rápida</button><button type="button" id="rename-folder" class="btn secondary smallbtn">Renomear</button><button type="button" id="delete-folder" class="btn outline smallbtn">Excluir pasta</button></div></div>
             <div class="librarytools"><input id="library-search" class="search-input" type="search" placeholder="Buscar meus cards" aria-label="Buscar cards"/><button id="backup-library" class="btn secondary smallbtn">⬇ Backup da biblioteca</button><button id="restore-library" type="button" class="btn secondary smallbtn">↥ Restaurar backup</button><input id="restore-file" type="file" accept="application/json,.json" hidden/></div><div class="actionrow"><button type="button" id="start-review" class="btn">🧠 Revisar meus cards</button><button type="button" id="read-all" class="btn outline">↔ Ler todos os cards</button></div><div id="library-list" class="librarylist hidden"></div><div class="notice">Armazenamento local demonstrativo: ao limpar os dados do navegador, seus cards poderão desaparecer. A biblioteca sincronizada será implementada com login e banco de dados.</div></div></section>
       <section id="tab-revisao" class="tab hidden" aria-labelledby="review-heading">
@@ -644,6 +644,167 @@
           '<button class="btn outline smallbtn" data-libdelete="'+escapeHTML(card.id)+'">Excluir</button></div></div>';
       }).join(''):'<div class="empty"><span class="big">📂</span>Nenhum card encontrado nesta pasta ou busca.</div>';
     }
+    function folderFeedback(message,error=false){
+      const label=$('#folder-feedback');
+      label.textContent=message;
+      label.style.color=error?'#9d3155':'#216f54';
+    }
+    function createNamedFolder(name){
+      const oldFolders=state.folders,oldSelected=state.selectedFolderId;
+      try{
+        const folderId=newFolderId();
+        state.folders=F.create(state.folders,name,folderId);
+        state.selectedFolderId=folderId;
+        if(!persist()){
+          state.folders=oldFolders;state.selectedFolderId=oldSelected;return null;
+        }
+        renderLibrary();
+        renderFolderSelect();
+        folderFeedback('Pasta "'+F.folderName(state.folders,folderId)+'" criada. Novos cards serão salvos nela.');
+        return folderId;
+      }catch(error){folderFeedback(error.message,true);return null}
+    }
+    $('#create-folder').onclick=()=>{
+      const field=$('#folder-name-input');
+      const folderId=createNamedFolder(field.value);
+      if(folderId)field.value='';
+    };
+    $('#folder-name-input').addEventListener('keydown',e=>{
+      if(e.key==='Enter'){e.preventDefault();$('#create-folder').click()}
+    });
+    $('#quick-new-folder').onclick=()=>{
+      const name=prompt('Qual será o nome da pasta?',state.parsed?.file?.replace(/\.pdf$/i,'')||'');
+      if(name===null)return;
+      const folderId=createNamedFolder(name);
+      if(folderId)show('Pasta criada e selecionada: '+F.folderName(state.folders,folderId),false,true);
+    };
+    $('#target-folder').addEventListener('change',e=>{
+      const folderId=e.target.value;
+      if(!state.folders.some(f=>f.id===folderId))return;
+      const oldSelected=state.selectedFolderId,oldMapping=state.documentFolders;
+      state.selectedFolderId=folderId;
+      if(state.parsed?.hash)
+        state.documentFolders={...state.documentFolders,[state.parsed.hash]:folderId};
+      if(!persist()){
+        state.selectedFolderId=oldSelected;state.documentFolders=oldMapping;
+      }
+      renderFolderSelect();
+    });
+    $('#folder-grid').addEventListener('click',e=>{
+      const button=e.target.closest('button[data-openfolder]');
+      if(!button)return;
+      if(!state.folders.some(f=>f.id===button.dataset.openfolder))return;
+      openFolderId=button.dataset.openfolder;
+      renderLibrary();
+    });
+    $('#folder-back').onclick=()=>{openFolderId=null;$('#library-search').value='';renderLibrary()};
+    $('#rename-folder').onclick=()=>{
+      if(!openFolderId||openFolderId===F.DEFAULT_ID)return;
+      const current=F.folderName(state.folders,openFolderId);
+      const name=prompt('Novo nome desta pasta:',current);
+      if(name===null)return;
+      const oldFolders=state.folders;
+      try{
+        state.folders=F.rename(state.folders,openFolderId,name);
+        if(!persist()){state.folders=oldFolders;return}
+        renderLibrary();folderFeedback('Pasta renomeada com sucesso.');
+      }catch(error){folderFeedback(error.message,true)}
+    };
+    $('#delete-folder').onclick=()=>{
+      if(!openFolderId||openFolderId===F.DEFAULT_ID)return;
+      const count=F.cardsIn(state.cards,state.folders,openFolderId).length;
+      if(!confirm('Excluir esta pasta? Seus '+count+' card(s) serão movidos para "Meus cards", sem serem apagados.'))return;
+      const old={folders:state.folders,cards:state.cards,selectedFolderId:state.selectedFolderId,documentFolders:state.documentFolders};
+      try{
+        const moved=F.remove(state.folders,state.cards,openFolderId);
+        state.folders=moved.folders;state.cards=moved.cards;
+        if(state.selectedFolderId===openFolderId)state.selectedFolderId=F.DEFAULT_ID;
+        state.documentFolders=Object.fromEntries(Object.entries(state.documentFolders)
+          .map(([hash,id])=>[hash,id===openFolderId?F.DEFAULT_ID:id]));
+        if(!persist()){Object.assign(state,old);return}
+        openFolderId=null;renderLibrary();
+        folderFeedback('Pasta excluída. Os cards foram preservados em Meus cards.');
+      }catch(error){Object.assign(state,old);folderFeedback(error.message,true)}
+    };
+    const swipe={cards:[],index:0,returnFocus:null,gesture:null};
+    function openReader(cards,startId=null,heading='Meus cards'){
+      const available=cards.filter(c=>c&&typeof c.title==='string'&&typeof c.text==='string');
+      if(!available.length){folderFeedback('Esta pasta ainda não tem cards para ler.',true);return}
+      swipe.cards=available.slice();
+      swipe.index=Math.max(0,startId?swipe.cards.findIndex(c=>c.id===startId):0);
+      swipe.returnFocus=document.activeElement;
+      $('#swipe-heading').textContent=heading;
+      $('#swipe-reader').classList.remove('hidden');
+      document.body.classList.add('swipe-open');
+      renderSwipeCard();
+      $('#swipe-close').focus();
+    }
+    function renderSwipeCard(direction=0){
+      const card=swipe.cards[swipe.index];
+      if(!card)return;
+      window.VisuAI.register([card]);
+      const wrapper=$('#swipe-card');
+      wrapper.classList.remove('enter-next','enter-prev');
+      wrapper.innerHTML=cardMarkup(card);
+      if(direction){
+        void wrapper.offsetWidth; // reinicia apenas animação de transição
+        wrapper.classList.add(direction>0?'enter-next':'enter-prev');
+      }
+      $('#swipe-counter').textContent=(swipe.index+1)+' de '+swipe.cards.length;
+      $('#swipe-prev').disabled=swipe.index===0;
+      $('#swipe-next').disabled=swipe.index===swipe.cards.length-1;
+      $('#swipe-stage').scrollTop=0;
+    }
+    function navigateReader(delta){
+      const index=swipe.index+delta;
+      if(index<0||index>=swipe.cards.length)return;
+      swipe.index=index;
+      renderSwipeCard(delta);
+    }
+    function closeReader(){
+      if($('#swipe-reader').classList.contains('hidden'))return;
+      $('#swipe-reader').classList.add('hidden');
+      document.body.classList.remove('swipe-open');
+      swipe.cards=[];swipe.gesture=null;
+      if(swipe.returnFocus?.isConnected)swipe.returnFocus.focus();
+    }
+    $('#swipe-close').onclick=closeReader;
+    $('#swipe-prev').onclick=()=>navigateReader(-1);
+    $('#swipe-next').onclick=()=>navigateReader(1);
+    $('#read-folder').onclick=()=>{
+      if(!openFolderId)return;
+      openReader(F.cardsIn(state.cards,state.folders,openFolderId),null,
+        F.folderName(state.folders,openFolderId));
+    };
+    $('#read-all').onclick=()=>openReader(state.cards,null,'Todos os cards');
+    const swipeStage=$('#swipe-stage');
+    swipeStage.addEventListener('pointerdown',event=>{
+      if(event.isPrimary===false)return;
+      swipe.gesture={id:event.pointerId,x:event.clientX,y:event.clientY};
+    });
+    swipeStage.addEventListener('pointerup',event=>{
+      const start=swipe.gesture;
+      swipe.gesture=null;
+      if(!start||start.id!==event.pointerId)return;
+      const dx=event.clientX-start.x,dy=event.clientY-start.y;
+      if(Math.abs(dx)>=65&&Math.abs(dx)>Math.abs(dy)*1.5)
+        navigateReader(dx<0?1:-1);
+    });
+    swipeStage.addEventListener('pointercancel',()=>{swipe.gesture=null});
+    document.addEventListener('keydown',event=>{
+      if($('#swipe-reader').classList.contains('hidden'))return;
+      if(event.key==='Escape'){event.preventDefault();closeReader()}
+      else if(event.key==='ArrowRight'){event.preventDefault();navigateReader(1)}
+      else if(event.key==='ArrowLeft'){event.preventDefault();navigateReader(-1)}
+      else if(event.key==='Tab'){
+        // Modal acessível: o foco não sai do modo leitura.
+        const buttons=[...$('#swipe-reader').querySelectorAll('button:not([disabled])')];
+        if(!buttons.length)return;
+        const first=buttons[0],last=buttons[buttons.length-1];
+        if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+        else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+      }
+    });
     function candidateChunks(pages,startPage=1){return window.VisuPDFIntelligence.extract(pages,window.VisuSelection.prioritize,startPage)}
     async function updateAIStatus(){
       if(!window.VisuAI.configured())return;
