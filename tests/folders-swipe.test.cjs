@@ -82,3 +82,34 @@ test('Scripts inline continuam sintaticamente válidos',()=>{
   const scripts=[...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)];
   for(const part of scripts)assert.doesNotThrow(()=>new vm.Script(part[1]));
 });
+
+test('Pasta automática por PDF e escolha manual persistem no navegador',()=>{
+  assert.match(html,/folderPreference:stored\.folderPreference==='manual'\?'manual':'auto'/);
+  assert.match(html,/value="__auto__"/);
+  assert.match(html,/state\.folderPreference==='auto'/);
+  assert.match(html,/state\.folderPreference='manual'/);
+  assert.match(html,/state\.documentFolders=\{\.\.\.state\.documentFolders,\[hash\]:state\.selectedFolderId\}/);
+  assert.match(html,/F\.suggestedName\(file\.name,state\.folders\)/);
+  assert.match(html,/state\.documentFolders\[state\.parsed\.hash\]\|\|state\.selectedFolderId/);
+  assert.match(html,/folderPreference:state\.folderPreference/);
+});
+
+test('Backups incluem nomes das pastas e restauram sem perder cards antigos',()=>{
+  assert.match(html,/folders:state\.folders,cards:state\.cards,reviews:state\.reviews/);
+  assert.match(html,/F\.normalizeFolders\(data\.folders\)/);
+  assert.match(html,/state\.folders=mergedFolders/);
+  assert.match(html,/if\(!persist\(\)\)\{state\.cards=previous;state\.folders=previousFolders/);
+  assert.match(html,/folderId:folderMap\[c\.folderId\]\|\|F\.DEFAULT_ID/);
+  assert.match(html,/documentHash:typeof c\.documentHash/);
+});
+
+test('Leitura rápida mantém o card completo e acessibilidade no celular',()=>{
+  assert.match(html,/role="dialog" aria-modal="true"/);
+  assert.match(html,/aria-label="Deslize para a esquerda/);
+  assert.match(html,/swipeStage\.addEventListener\('pointerdown'/);
+  assert.match(html,/swipeStage\.addEventListener\('pointerup'/);
+  assert.match(html,/swipeStage\.addEventListener\('pointercancel'/);
+  assert.match(html,/if\(index<0\|\|index>=swipe\.cards\.length\)return/);
+  assert.match(html,/document\.body\.classList\.remove\('swipe-open'\)/);
+  assert.match(html,/if\(swipe\.returnFocus\?\.isConnected\)swipe\.returnFocus\.focus\(\)/);
+});
