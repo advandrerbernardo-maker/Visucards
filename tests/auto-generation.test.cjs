@@ -13,6 +13,7 @@ test('Geração de bloco inteiro é opcional e continua local, sem chamar IA a c
   assert.match(html,/if\(!autoGenerating\)try\{aiResult=await window\.VisuAI\.enhance\(cards\)/);
   assert.match(html,/await \$\('#generate'\)\.onclick\(\)/);
   assert.match(html,/setTimeout\(resolve,20\)/);
+  assert.match(html,/if\(scroll\)\$\('#results'\)\.scrollIntoView/);
   assert.match(html,/if\(state\.generationCursor<=before\)break/);
 });
 
@@ -23,7 +24,7 @@ test('Parar geração preserva o checkpoint já persistido e permite continuar',
   assert.match(html,/state\.cards\.push\(\.\.\.cards\)/);
   assert.match(html,/if\(!persist\(\)\)\{/);
   assert.match(html,/Geração pausada/);
-  assert.match(html,/lastCards,'ÚLTIMOS CARDS · LOTE LOCAL'/);
+  assert.match(html,/lastCards,'ÚLTIMOS CARDS · LOTE LOCAL',false/);
 });
 
 test('PDFs não repetem cards idênticos nos blocos seguintes',()=>{
