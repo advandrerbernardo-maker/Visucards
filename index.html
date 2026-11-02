@@ -480,10 +480,12 @@
       const candidates=preparedCandidates();
       const used=Math.min(state.generationCursor,candidates.length);
       const remaining=candidates.length-used;
+      const doc=activeDocument();
       const canGenerate=Boolean(state.parsed)&&remaining>0&&window.VisuPolicy.remainingCards(state.cardCount)>0&&!readingPDF&&!generating;
       $('#generate').disabled=!canGenerate;
-      $('#generate').textContent=remaining===0&&state.parsed?'PDF concluído':remaining===1?'Gerar último card':used>0?'Gerar mais 2 cards':'Gerar meus cards';
-      const doc=activeDocument();
+      $('#generate').textContent=remaining===0&&state.parsed
+        ?(doc&&doc.nextPage<=doc.totalPages?'Bloco concluído':'PDF concluído')
+        :remaining===1?'Gerar último card':used>0?'Gerar mais 2 cards':'Gerar meus cards';
       const hasMore=Boolean(doc&&doc.nextPage<=doc.totalPages);
       const range=hasMore?window.VisuPDFBatches.range(doc.totalPages,doc.nextPage):null;
       $('#next-pages').classList.toggle('hidden',!state.parsed?.hash||!hasMore);
