@@ -44,7 +44,7 @@ test('Leitor libera o PDF, acompanha cada bloco e preserva posição na falha',(
 test('Modo de testes mostra 15 páginas por etapa e publica o leitor',()=>{
   assert.match(html,/PDF de qualquer quantidade de páginas/);
   assert.match(html,/15 páginas por etapa/);
-  assert.match(html,/VISUCARDS · VERSÃO 1\.2 DE TESTE/);
+  assert.match(html,/VISUCARDS · VERSÃO 1\.3 DE TESTE/);
   assert.match(workflow,/node --test tests\/\*\.test\.cjs/);
   assert.match(workflow,/cp pdf-batches\.js site\/pdf-batches\.js/);
 });
