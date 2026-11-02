@@ -467,7 +467,10 @@
       p.chunks.every(c=>typeof c.text==='string'&&c.text.length<=650&&Number.isSafeInteger(c.page)&&c.page>=1&&c.page<=(p.totalPages||15))?p:null;
     const state={month:stored.month||month(),pdfCount:stored.pdfCount||0,cardCount:stored.cardCount||0,generationCursor:Number.isSafeInteger(stored.generationCursor)&&stored.generationCursor>=0?stored.generationCursor:0,cards:Array.isArray(stored.cards)?stored.cards:[],parsed:recoverParsed(stored.parsed),preview:[],reviews:stored.reviews&&typeof stored.reviews==='object'&&!Array.isArray(stored.reviews)?stored.reviews:{},
       documents:(Array.isArray(stored.documents)?stored.documents:[]).map(window.VisuPDFBatches.normalizeDoc).filter(Boolean),
-      activeHash:typeof stored.activeHash==='string'?stored.activeHash:null};
+      activeHash:typeof stored.activeHash==='string'?stored.activeHash:null,
+      folders:window.VisuFolders.normalizeFolders(stored.folders),
+      documentFolders:stored.documentFolders&&typeof stored.documentFolders==='object'&&!Array.isArray(stored.documentFolders)?{...stored.documentFolders}:{},
+      selectedFolderId:typeof stored.selectedFolderId==='string'?stored.selectedFolderId:window.VisuFolders.DEFAULT_ID};
     if(state.parsed?.hash)state.activeHash=state.parsed.hash;
     let activeBlob=null;
     let readingPDF=false;
@@ -487,7 +490,7 @@
       state.month=month();state.pdfCount=0;state.cardCount=0;
       if(!window.VisuPolicy.TEST_MODE.unlimitedPDFs){state.generationCursor=0;state.parsed=null}
     }
-    const persist=()=>{try{localStorage.setItem(STORE,JSON.stringify({month:state.month,pdfCount:state.pdfCount,cardCount:state.cardCount,generationCursor:state.generationCursor,cards:state.cards,parsed:state.parsed,reviews:state.reviews,documents:state.documents,activeHash:state.activeHash}));return true}catch(e){show('Não foi possível salvar os dados neste aparelho. Faça um backup e libere espaço.',true);return false}};
+    const persist=()=>{try{localStorage.setItem(STORE,JSON.stringify({month:state.month,pdfCount:state.pdfCount,cardCount:state.cardCount,generationCursor:state.generationCursor,cards:state.cards,parsed:state.parsed,reviews:state.reviews,documents:state.documents,activeHash:state.activeHash,folders:state.folders,documentFolders:state.documentFolders,selectedFolderId:state.selectedFolderId}));return true}catch(e){show('Não foi possível salvar os dados neste aparelho. Faça um backup e libere espaço.',true);return false}};
     const show=(str,error=false,ok=false)=>{const n=$('#file-status');n.textContent=str;n.className='status show'+(error?' error':ok?' ok':'')};
     const colors=['#884fc8','#ed578b','#399eba','#83539f'];
     const iconsFor=(s)=>{const v=s.toLowerCase();if(/lei|art\.|jurídic|direito|tribunal|constitui|juiz|processo|defesa/.test(v))return ['⚖️','📜','🔎'];if(/prazo|dia|mês|ano|data|tempo/.test(v))return ['⏳','🗓️','📌'];if(/saúde|medic|hospital/.test(v))return ['🩺','💊','💚'];if(/matem|cálcul|número|soma/.test(v))return ['🔢','📐','🧮'];return ['📚','💡','✏️']};
@@ -496,6 +499,24 @@
     function words(s,max){const parts=clean(s).split(/\s+/);return parts.length>max?parts.slice(0,max).join(' ')+'…':parts.join(' ')}
     const titleFrom=s=>{const t=clean(s).replace(/^\d+[.)]\s*/, '');const parts=t.split(/\s+/);return parts.slice(0,11).join(' ').replace(/[,:;.!?]$/,'')+(parts.length>11?'…':'')||'RESUMO PARA REVISÃO'};
     const id=()=>('c'+Date.now().toString(36)+Math.random().toString(36).slice(2,7));
+    const F=window.VisuFolders;
+    const newFolderId=()=>('p'+id());
+    let openFolderId=null;
+    // Migração sem apagar cards salvos por versões anteriores.
+    for(const doc of state.documents){
+      if(!F.validId(doc.hash)||state.documentFolders[doc.hash])continue;
+      const name=F.suggestedName(doc.file,state.folders);
+      const folderId=newFolderId();
+      state.folders=F.create(state.folders,name,folderId);
+      state.documentFolders[doc.hash]=folderId;
+    }
+    state.cards=state.cards.map(card=>({...card,
+      folderId:state.folders.some(f=>f.id===card.folderId)?card.folderId:
+        state.documentFolders[card.documentHash]||F.DEFAULT_ID
+    }));
+    if(!state.folders.some(f=>f.id===state.selectedFolderId))state.selectedFolderId=F.DEFAULT_ID;
+    if(state.parsed?.hash&&state.documentFolders[state.parsed.hash]&&stored.selectedFolderId===undefined)
+      state.selectedFolderId=state.documentFolders[state.parsed.hash];
     const activeDocument=()=>state.documents.find(d=>d.hash===state.activeHash)||null;
     function preparedCandidates(){
       return state.parsed?window.VisuSelection.buildQueue(state.parsed.chunks):[];
@@ -516,6 +537,7 @@
       if(!unlimited)$('#card-meter').style.width=Math.min(state.cardCount/window.VisuPolicy.FREE.cards*100,100)+'%';
       $('#month-display').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).toUpperCase();
       $('#library-count').textContent=state.cards.length+' CARDS';
+      renderFolderSelect();
       const candidates=preparedCandidates();
       const used=Math.min(state.generationCursor,candidates.length);
       const remaining=candidates.length-used;
@@ -577,7 +599,51 @@
       </article>`;
     }
     function drawCards(cards,type,scroll=true){state.preview=cards;$('#results').classList.remove('hidden');$('#result-type').textContent=type;$('#card-grid').innerHTML=cards.map((c,i)=>`<div class="preview-wrap">${cardMarkup(c)}<div class="card-actions"><button class="btn smallbtn" data-export="${i}">⬇ PNG</button><button class="btn outline smallbtn" data-print="${i}">🖨 PDF</button><button class="btn outline smallbtn" data-edit="${i}">✎ Editar</button></div><div id="edit-${i}" class="editorbox hidden"><label>Título</label><textarea class="editing" data-field="title" data-index="${i}">${escapeHTML(c.title)}</textarea><label>Texto principal</label><textarea class="editing" data-field="text" data-index="${i}">${escapeHTML(c.text)}</textarea><label>Observação</label><textarea class="editing" data-field="note" data-index="${i}">${escapeHTML(c.note||'')}</textarea><button type="button" class="btn smallbtn" data-save="${i}">Salvar edição</button></div></div>`).join('');if(scroll)$('#results').scrollIntoView({behavior:'smooth',block:'start'})}
-    function renderLibrary(){refresh();const query=clean($('#library-search').value||'').toLowerCase();const entries=state.cards.filter(c=>(c.title+' '+c.text+' '+c.source).toLowerCase().includes(query));$('#library-list').innerHTML=entries.length?entries.slice().reverse().map(c=>`<div class="libitem"><div><strong>${escapeHTML(c.title)}</strong><small>${escapeHTML(c.source)}</small></div><div class="buttonrow"><button class="btn outline smallbtn" data-libexport="${escapeHTML(c.id)}">⬇ PNG</button><button class="btn outline smallbtn" data-libprint="${escapeHTML(c.id)}">🖨 PDF</button><button class="btn outline smallbtn" data-libdelete="${escapeHTML(c.id)}">Excluir</button></div></div>`).join(''):'<div class="empty"><span class="big">📂</span>Nenhum card encontrado.</div>'}
+    function renderFolderSelect(){
+      const select=$('#target-folder');
+      if(!select)return;
+      if(!state.folders.some(f=>f.id===state.selectedFolderId))state.selectedFolderId=F.DEFAULT_ID;
+      select.innerHTML=state.folders.map(folder=>'<option value="'+escapeHTML(folder.id)+'"'+
+        (folder.id===state.selectedFolderId?' selected':'')+'>'+escapeHTML(folder.name)+'</option>').join('');
+      $('#selected-folder-hint').textContent='Novos cards serão salvos em: '+F.folderName(state.folders,state.selectedFolderId)+'.';
+    }
+    function renderLibrary(){
+      refresh();
+      const query=clean($('#library-search').value||'').toLowerCase();
+      if(openFolderId&&!state.folders.some(f=>f.id===openFolderId))openFolderId=null;
+      const viewing=Boolean(openFolderId),searching=Boolean(query);
+      $('#folder-grid').classList.toggle('hidden',viewing||searching);
+      $('#library-folder-header').classList.toggle('hidden',!viewing);
+      $('#library-list').classList.toggle('hidden',!viewing&&!searching);
+      if(!viewing&&!searching){
+        $('#folder-grid').innerHTML=state.folders.map(folder=>{
+          const count=F.cardsIn(state.cards,state.folders,folder.id).length;
+          return '<button type="button" class="folder-tile" data-openfolder="'+escapeHTML(folder.id)+'" aria-label="Abrir pasta '+escapeHTML(folder.name)+' com '+count+' cards">'+
+            '<span class="folder-tile-icon" aria-hidden="true">📁</span><strong>'+escapeHTML(folder.name)+'</strong><small>'+count+' card(s)</small></button>';
+        }).join('');
+      }
+      if(viewing){
+        $('#current-folder-name').textContent=F.folderName(state.folders,openFolderId);
+        $('#read-folder').disabled=!F.cardsIn(state.cards,state.folders,openFolderId).length;
+        $('#rename-folder').classList.toggle('hidden',openFolderId===F.DEFAULT_ID);
+        $('#delete-folder').classList.toggle('hidden',openFolderId===F.DEFAULT_ID);
+      }
+      const entries=state.cards.filter(card=>
+        (!viewing||F.folderForCard(card,state.folders)===openFolderId)&&
+        (!query||(card.title+' '+card.text+' '+card.source).toLowerCase().includes(query))).slice().reverse();
+      $('#read-all').disabled=!state.cards.length;
+      $('#library-list').innerHTML=entries.length?entries.map(card=>{
+        const folderId=F.folderForCard(card,state.folders);
+        const folderOptions=state.folders.map(folder=>'<option value="'+escapeHTML(folder.id)+'"'+
+          (folder.id===folderId?' selected':'')+'>'+escapeHTML(folder.name)+'</option>').join('');
+        return '<div class="libitem"><div><strong>'+escapeHTML(card.title)+'</strong><small>'+escapeHTML(card.source)+'</small></div>'+
+          '<div class="buttonrow"><button class="btn smallbtn" data-libread="'+escapeHTML(card.id)+'">↔ Ler</button>'+
+          '<select aria-label="Mover card para pasta" data-libmove="'+escapeHTML(card.id)+'">'+folderOptions+'</select>'+
+          '<button class="btn outline smallbtn" data-libexport="'+escapeHTML(card.id)+'">⬇ PNG</button>'+
+          '<button class="btn outline smallbtn" data-libprint="'+escapeHTML(card.id)+'">🖨 PDF</button>'+
+          '<button class="btn outline smallbtn" data-libdelete="'+escapeHTML(card.id)+'">Excluir</button></div></div>';
+      }).join(''):'<div class="empty"><span class="big">📂</span>Nenhum card encontrado nesta pasta ou busca.</div>';
+    }
     function candidateChunks(pages,startPage=1){return window.VisuPDFIntelligence.extract(pages,window.VisuSelection.prioritize,startPage)}
     async function updateAIStatus(){
       if(!window.VisuAI.configured())return;
