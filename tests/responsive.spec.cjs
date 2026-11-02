@@ -91,6 +91,11 @@ for(const viewport of viewports){
       await checkLayout(page,'Leitura rápida / XP, '+viewport.name);
       await page.locator('#swipe-learn').click();
       await expect(page.locator('#swipe-counter')).toContainText('2 de 5');
+      // O card entra deslizando por ~230 ms. A distância temporária faz parte da
+      // animação, não é um erro de responsividade da posição final.
+      await page.locator('#swipe-card').evaluate(async element=>{
+        await Promise.all(element.getAnimations().map(animation=>animation.finished.catch(()=>{})));
+      });
       await checkLayout(page,'Leitura após confirmar XP, '+viewport.name);
       await page.locator('#swipe-close').click();
       await expect(page.locator('#swipe-reader')).toBeHidden();
