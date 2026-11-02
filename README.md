@@ -37,6 +37,20 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 - Não coloque documentos sigilosos nesta versão experimental.
 - Os combos e valores exibidos são exemplos e não estão à venda.
 
+## Responsividade obrigatória
+
+Toda alteração do VISUCARDS precisa passar por testes automáticos em **Chromium real**, antes de ser publicada. O arquivo `tests/responsive.spec.cjs` verifica as larguras **320, 360, 390, 430, 768, 1024 e 1440 pixels** e percorre telas de criação, prévia de cards, biblioteca, pastas, ranking e leitura rápida. Detecta rolagem horizontal inesperada, controles que ultrapassam as bordas da tela e erros de JavaScript.
+
+O workflow `.github/workflows/pages.yml` roda os testes Node existentes e depois a validação responsiva no navegador. **Uma falha impede a publicação no GitHub Pages**; o GitHub Actions guarda capturas e relatório de erros para análise. A validação abrange as larguras informadas, não garante todos os modelos de aparelho nem substitui conferência visual manual.
+
+Para verificar localmente com Node instalado:
+
+```bash
+npm install
+npx playwright install chromium
+npm run test:responsive
+```
+
 ## Testes e publicação
 
 O arquivo `index.html` desta versão concentra a interface e o JavaScript do protótipo para facilitar a publicação.
