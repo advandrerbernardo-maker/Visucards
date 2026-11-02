@@ -809,6 +809,12 @@
       $('#swipe-counter').textContent=(swipe.index+1)+' de '+swipe.cards.length;
       $('#swipe-prev').disabled=swipe.index===0;
       $('#swipe-next').disabled=swipe.index===swipe.cards.length-1;
+      const completed=state.gameDemo.awards.some(a=>a.id===card.id);
+      $('#swipe-learn').disabled=completed;
+      $('#swipe-learn').textContent=completed?'Card já concluído':'Concluir card (+10 XP)';
+      $('#swipe-xp-message').textContent=completed
+        ?'Você já recebeu o XP deste card. Passe para o próximo.'
+        :'Deslizar não dá XP. Confirme a leitura para ganhar 10 pontos uma única vez.';
       $('#swipe-stage').scrollTop=0;
     }
     function navigateReader(delta){
@@ -822,11 +828,48 @@
       $('#swipe-reader').classList.add('hidden');
       document.body.classList.remove('swipe-open');
       swipe.cards=[];swipe.gesture=null;
+      if(!$('#tab-ranking').classList.contains('hidden'))renderRanking();
       if(swipe.returnFocus?.isConnected)swipe.returnFocus.focus();
     }
     $('#swipe-close').onclick=closeReader;
     $('#swipe-prev').onclick=()=>navigateReader(-1);
     $('#swipe-next').onclick=()=>navigateReader(1);
+    $('#swipe-learn').onclick=()=>{
+      const current=swipe.cards[swipe.index];if(!current)return;
+      const previous=state.gameDemo;
+      const result=window.VisuRankingDemo.award(previous,current.id);
+      if(!result.awarded){
+        $('#swipe-xp-message').textContent='Este card já recebeu XP. Não é possível pontuar duas vezes.';
+        $('#swipe-learn').disabled=true;return;
+      }
+      state.gameDemo=result.state;
+      if(!persist()){
+        state.gameDemo=previous;
+        $('#swipe-xp-message').textContent='Não foi possível salvar o XP neste navegador.';
+        return;
+      }
+      const isLast=swipe.index===swipe.cards.length-1;
+      if(!isLast)navigateReader(1);
+      else renderSwipeCard();
+      $('#swipe-xp-message').textContent=isLast
+        ?'Missão concluída! +10 XP neste card. Feche para consultar o ranking.'
+        :'+10 XP salvos! Continue estudando o próximo card.';
+    };
+    $('#swipe-review-later').onclick=()=>{
+      const current=swipe.cards[swipe.index];if(!current)return;
+      // Só salvar revisão para cards reais da biblioteca, nunca nos exemplos de demonstração.
+      if(state.cards.some(c=>c.id===current.id)){
+        const oldReviews=state.reviews;
+        state.reviews={...state.reviews,[current.id]:{
+          level:0,next:reviewDate(1),last:reviewDate(),remembered:false
+        }};
+        if(!persist()){state.reviews=oldReviews;return}
+      }
+      if(swipe.index<swipe.cards.length-1){
+        navigateReader(1);
+        $('#swipe-xp-message').textContent='Card separado para revisar. Nenhum XP foi concedido.';
+      }else $('#swipe-xp-message').textContent='Fim da leitura. O último card foi marcado para revisão sem XP.';
+    };
     $('#read-folder').onclick=()=>{
       if(!openFolderId)return;
       openReader(F.cardsIn(state.cards,state.folders,openFolderId),null,
