@@ -10,7 +10,7 @@
   const config=()=>root.VISUCARDS_AI_CONFIG||{};
   const configured=()=>{
     const c=config();
-    return /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(String(c.url||'')) &&
+    return c.enabled===true && /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(String(c.url||'')) &&
       /^(sb_publishable_[A-Za-z0-9_-]+|eyJ[A-Za-z0-9_.-]+)$/.test(String(c.publishableKey||''));
   };
   let clientPromise;
