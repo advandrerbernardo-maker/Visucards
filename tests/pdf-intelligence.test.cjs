@@ -91,3 +91,16 @@ test('Não descarta artigos curtos com conteúdo legal específico',()=>{
   assert.ok(result.chunks.some(c=>c.text.startsWith('Art. 10')));
   assert.ok(result.chunks.some(c=>c.text.startsWith('Art. 11')));
 });
+
+test('Em PDF de 15 páginas, o limite de 50 trechos cobre todas as páginas com conteúdo',()=>{
+  const fragment=n=>'Art. '+n+' A competência da administração será exercida mediante requisitos expressos na norma, com prazo de trinta dias para análise e decisão fundamentada.';
+  const pages=Array.from({length:15},(_,page)=>Array.from({length:10},(_,i)=>fragment(page*100+i+1)).join('\n'));
+  const result=engine.extract(pages,selection.prioritize);
+  assert.equal(result.diagnostics.pages,15);
+  assert.equal(result.chunks.length,50);
+  const numbers=new Set(result.chunks.map(c=>c.page));
+  assert.equal(numbers.size,15,'Todas as 15 páginas devem contribuir com conteúdo');
+  for(let page=1;page<=15;page++)assert.ok(numbers.has(page),'Página '+page+' ficou de fora');
+  assert.ok(result.chunks.every(c=>c.text.length<=650));
+  assert.ok(result.chunks.every(c=>c.page>=1&&c.page<=15));
+});
