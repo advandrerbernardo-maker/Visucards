@@ -1,4 +1,4 @@
-# VISUCARDS 1.0 | Protótipo para concursos
+# VISUCARDS 1.1 | Protótipo para concursos
 
 Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs com texto selecionável em cards ilustrados para revisão.
 
@@ -6,9 +6,9 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 - Interface responsiva em português e demonstração de cards.
 - **Modo de testes 1.0:** envie PDFs sem limite mensal, com **até 50 MB por arquivo e sem limite prévio de páginas**. O leitor analisa as páginas **1 a 15**, depois **16 a 30** e assim até o final; o próximo intervalo é liberado depois de gerar os cards do bloco atual. PDFs digitalizados sem texto selecionável ainda dependem de OCR.
 - **Triagem 0.6:** reconstrói linhas do PDF, separa artigos e dispositivos legais, remove cabeçalhos e fragmentos repetidos, identifica páginas e prioriza candidatos didaticamente úteis. Dispositivos curtos com referência normativa também são preservados.
-- **Geração sem limite mensal:** cards em lotes de até dois por clique. O progresso por documento é mantido no navegador. Ao usar os trechos selecionados do bloco de 15 páginas, clique em **Ler páginas 16 a 30**, **31 a 45** etc. O leitor não volta às páginas concluídas. O botão de recomeço não é mostrado para PDFs identificados pela versão 1.0.
+- **Geração simplificada 1.1:** além do botão manual de dois cards, o comando **Gerar bloco inteiro** cria automaticamente todos os cards ainda disponíveis naquele intervalo de até 15 páginas, salva os cards a cada dois e oferece **Pausar geração**. É possível continuar depois sem refazer cards. O modo de geração automática usa o processamento **local**, sem consumir cota de IA externa; a prévia mostra os últimos cards gerados, e o restante está na biblioteca. Ao terminar, clique em **Ler páginas 16 a 30**, **31 a 45** etc.
 - As regras comerciais futuras de 1 PDF de 5 páginas e 2 cards por mês continuam apenas como configuração de referência, mas **não bloqueiam** uploads nem geração no modo de testes.
-- **Triagem 0.7:** além de identificar regras, exceções, prazos e artigos, remove textos iguais e muito semelhantes de maneira conservadora e distribui melhor os assuntos entre páginas. É uma seleção didática, **não** uma medida de incidência real nas provas.
+- **Triagem 0.7 + proteção 1.1:** além de identificar regras, exceções, prazos e artigos, elimina textos idênticos e muito semelhantes de maneira conservadora, distribui os assuntos entre páginas e verifica se a mesma explicação já virou card em bloco anterior **do mesmo PDF**, evitando repetições. É uma seleção didática, **não** uma medida de incidência real nas provas.
 - O texto escolhido é preservado em trechos de até 650 caracteres; textos longos são divididos. Cada **bloco de 15 páginas** seleciona no máximo dez trechos por página e 50 no total, reservando inicialmente um de cada página com conteúdo elegível. A referência de página continua sendo a página **real do documento**, inclusive depois da 15. Isso **não** equivale a um resumo completo do PDF.
 - **Cards editoriais ilustrados (0.5):** cabeçalho com hierarquia, ilustração temática em SVG, trecho central, complementos numerados, identificação de artigos/prazos/ressalvas quando constarem literalmente no PDF, notas e fonte. As notas dos novos cards agora oferecem **perguntas de revisão conforme as pistas do texto**, sem acrescentar respostas inventadas.
 - Três estilos visuais (caderno, quadrinhos e minimalista), edição de textos, exportação PNG e impressão/PDF adaptadas ao novo layout.
@@ -64,11 +64,11 @@ O serviço Recebi+ e outros projetos não são utilizados nem alterados por este
 
 1. Selecione um PDF com texto legível de **até 50 MB**. Ele pode ter mais de 15 páginas: somente o primeiro bloco será lido inicialmente.
 2. Escolha o estilo dos cards (caderno ilustrado, quadrinhos ou minimalista).
-3. Toque em **Gerar meus cards** para receber até dois cards por vez. Quando concluir os trechos do bloco 1 a 15, toque em **Ler páginas 16 a 30** (ou até o fim, se faltar menos); siga assim até terminar o documento sem repetir páginas.
+3. Toque em **Gerar bloco inteiro** para criar, de uma vez, os cards restantes das páginas 1 a 15. Se preferir, **Gerar meus cards** continua criando dois por vez. Durante a criação automática, é possível pausar sem perder o que já foi salvo. Ao concluir, toque em **Ler páginas 16 a 30** (ou até o fim, se faltar menos) e repita até terminar o documento sem reler páginas.
 
 A triagem identifica pistas didáticas no próprio PDF, priorizando regras, artigos, exceções, prazos e conceitos relevantes para revisão. **Não há importação de CSV, filtros de banca/cargo ou ranking histórico de questões.** O aplicativo não afirma que os assuntos escolhidos são estatisticamente os mais cobrados.
 
-Os cards já salvos, as revisões e os backups continuam disponíveis. Ao escolher outro PDF, o conteúdo em análise muda, mas cada documento conserva seu checkpoint de páginas e de cards no navegador. Um documento já concluído é reconhecido por hash e não é importado de novo. O último PDF ativo pode ser retomado do cache local; para outros arquivos, selecione o mesmo PDF novamente. O visual 0.5 permanece protegido em `DESIGN_LOCK.md`. PDFs digitalizados ainda precisam de OCR para leitura.
+Os cards já salvos, as revisões e os backups continuam disponíveis. Os novos cards recebem um identificador do documento para impedir que um trecho de bloco anterior seja selecionado novamente; esse identificador também é preservado nos backups novos. Ao escolher outro PDF, o conteúdo em análise muda, mas cada documento conserva seu checkpoint de páginas e de cards no navegador. Um documento já concluído é reconhecido por hash e não é importado de novo. O último PDF ativo pode ser retomado do cache local; para outros arquivos, selecione o mesmo PDF novamente. O visual 0.5 permanece protegido em `DESIGN_LOCK.md`. PDFs digitalizados ainda precisam de OCR para leitura.
 
 ### IA opcional
 
