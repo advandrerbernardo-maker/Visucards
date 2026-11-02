@@ -11,13 +11,14 @@ create table if not exists public.visu_ai_daily_usage (
 
 alter table public.visu_ai_daily_usage enable row level security;
 revoke all on public.visu_ai_daily_usage from public,anon,authenticated;
--- Somente a Edge Function validada acessa como service_role.
+grant select,insert,update on public.visu_ai_daily_usage to service_role;
+-- Somente a Edge Function autenticada usa o papel service_role.
 
 create or replace function public.visu_ai_reserve(p_user uuid)
 returns boolean
 language plpgsql
-security definer
-set search_path = public,pg_temp
+security invoker
+set search_path = ''
 as $$
 declare new_calls integer;
 begin
@@ -34,6 +35,7 @@ $$;
 revoke all on function public.visu_ai_reserve(uuid) from public,anon,authenticated;
 grant execute on function public.visu_ai_reserve(uuid) to service_role;
 
+-- A função é SECURITY INVOKER e não faz bypass das permissões. Chamada RPC exclusiva service_role.
 -- Validar em um projeto separado após aplicar:
 -- select relrowsecurity from pg_class where oid='public.visu_ai_daily_usage'::regclass;
 -- select grantee,privilege_type from information_schema.routine_privileges
