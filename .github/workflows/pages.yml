@@ -40,6 +40,7 @@ jobs:
         run: |
           mkdir -p site
           cp index.html site/index.html
+          cp ranking-demo.js site/ranking-demo.js
           cp folders.js site/folders.js
           cp pdf-batches.js site/pdf-batches.js
           cp selection.js site/selection.js
