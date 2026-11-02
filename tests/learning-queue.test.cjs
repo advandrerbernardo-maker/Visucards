@@ -59,5 +59,5 @@ test('Layout fixado 0.5 permanece independente da fila didática',()=>{
   assert.match(design,/design-locked-v0\.5/);
   assert.match(html,/premium-card-style/);
   assert.match(html,/function cardMarkup\(c\)/);
-  assert.match(html,/VISUCARDS · VERSÃO 0\.8 DE TESTE/);
+  assert.match(html,/VISUCARDS · VERSÃO 0\.9 DE TESTE/);
 });
