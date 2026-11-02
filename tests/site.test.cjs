@@ -17,8 +17,8 @@ test('Scripts internos compilam sem erros', () => {
   for (const match of scripts) assert.doesNotThrow(() => new vm.Script(match[1]));
 });
 
-test('Modo de testes: PDFs ilimitados, até 15 páginas e 50 MB, com cards ilimitados', () => {
-  assert.match(html, /Até 15 páginas e 50 MB por arquivo/);
+test('Modo de testes: PDFs ilimitados e leitura sequencial de 15 páginas até o fim', () => {
+  assert.match(html, /PDF de qualquer quantidade de páginas, até 50 MB/);
   assert.match(html, /PDFs sem limite mensal/);
   assert.match(html, /Cards ilimitados durante os testes/);
   const begin=html.indexOf('/* Fonte original: policy.js */');
@@ -30,7 +30,8 @@ test('Modo de testes: PDFs ilimitados, até 15 páginas e 50 MB, com cards ilimi
   const cfg=sandbox.module.exports;
   assert.equal(cfg.TEST_MODE.unlimitedCards,true);
   assert.equal(cfg.TEST_MODE.unlimitedPDFs,true);
-  assert.equal(cfg.TEST_MODE.pdfPages,15);
+  assert.equal(cfg.TEST_MODE.pdfPages,Infinity);
+  assert.equal(cfg.TEST_MODE.batchPages,15);
   assert.equal(cfg.TEST_MODE.maxFileBytes,50*1024*1024);
   assert.equal(cfg.FREE.pdf,1,'Proposta comercial ainda preservada');
   assert.equal(cfg.FREE.pages,5,'Proposta comercial ainda preservada');
@@ -38,7 +39,8 @@ test('Modo de testes: PDFs ilimitados, até 15 páginas e 50 MB, com cards ilimi
   assert.equal(cfg.remainingCards(999999),Infinity);
   assert.equal(cfg.canUploadPDF(0,15,50*1024*1024),true);
   assert.equal(cfg.canUploadPDF(25,15,50*1024*1024),true);
-  assert.equal(cfg.canUploadPDF(0,16,1024),false);
+  assert.equal(cfg.canUploadPDF(0,16,1024),true);
+  assert.equal(cfg.canUploadPDF(25,10000,1024),true);
   assert.equal(cfg.canUploadPDF(0,15,50*1024*1024+1),false);
   assert.equal(cfg.canUploadPDF(0,0,1024),false);
   assert.equal(cfg.canUploadPDF(0,10,0),false);
