@@ -17,7 +17,8 @@ async function checkLayout(page,context){
     const width=document.documentElement.clientWidth;
     const selectors=[
       '.sidebar','.brand','.nav','.nav button','main',
-      '.topbar','.hero','.panel','.panel-head',
+      '.topbar','.hero','.home-card-shortcut','.home-card-shortcut-icon',
+      '.home-card-shortcut-copy','.home-card-shortcut-tail','.panel','.panel-head',
       '.folder-create','#folder-grid','.folder-tile','.folder-current',
       '.librarytools','.ranking-hero','.ranking-head',
       '.ranking-periods','.ranking-entry',
@@ -60,7 +61,13 @@ for(const viewport of viewports){
     try{
       await page.goto('/index.html',{waitUntil:'domcontentloaded'});
       await expect(page.locator('#target-folder option')).toHaveCount(2);
-      await checkLayout(page,'Tela Criar, '+viewport.name);
+      await expect(page.locator('#home-my-cards')).toBeVisible();
+      await expect(page.locator('#home-card-count')).toHaveText('0 cards');
+      await checkLayout(page,'Tela Criar e atalho Meus Cards, '+viewport.name);
+      await page.locator('#home-my-cards').click();
+      await expect(page.locator('#home-shortcut-message')).toContainText('Você ainda não tem cards salvos');
+      await expect(page.locator('#swipe-reader')).toBeHidden();
+      await checkLayout(page,'Atalho sem cards, '+viewport.name);
 
       // A prévia usa os cards editoriais originais, não uma cópia simplificada.
       await page.locator('#demo').click();
@@ -97,6 +104,36 @@ for(const viewport of viewports){
         await Promise.all(element.getAnimations().map(animation=>animation.finished.catch(()=>{})));
       });
       await checkLayout(page,'Leitura após confirmar XP, '+viewport.name);
+      await page.locator('#swipe-close').click();
+      await expect(page.locator('#swipe-reader')).toBeHidden();
+
+      // Simula biblioteca local com dois cards próprios, sem PDF ou backend.
+      await page.evaluate(()=>{
+        localStorage.setItem('visucards_demo_v1',JSON.stringify({cards:[
+          {id:'atalho-1',title:'LEITURA DIRETA DO CARD',text:'Um card salvo aparece no modo leitura sem entrar na biblioteca.',source:'Teste de responsividade',color:0,layout:'caderno'},
+          {id:'atalho-2',title:'SEGUNDO CARD',text:'O deslize lateral permite avançar de forma rápida.',source:'Teste de responsividade',color:1,layout:'caderno'}
+        ]}));
+      });
+      await page.reload({waitUntil:'domcontentloaded'});
+      await expect(page.locator('#home-card-count')).toHaveText('2 cards');
+      await checkLayout(page,'Atalho inicial com cards salvos, '+viewport.name);
+      await page.locator('#home-my-cards').click();
+      await expect(page.locator('#swipe-reader')).toBeVisible();
+      await expect(page.locator('#swipe-heading')).toHaveText('Meus Cards');
+      await expect(page.locator('#swipe-counter')).toHaveText('1 de 2');
+      await checkLayout(page,'Atalho direto para swipe, '+viewport.name);
+      const swipeBox=await page.locator('#swipe-stage').boundingBox();
+      expect(swipeBox,'Área de deslize não deve desaparecer').toBeTruthy();
+      const gestureY=swipeBox.y+Math.min(swipeBox.height/2,75);
+      await page.mouse.move(swipeBox.x+swipeBox.width*.75,gestureY);
+      await page.mouse.down();
+      await page.mouse.move(swipeBox.x+swipeBox.width*.2,gestureY,{steps:8});
+      await page.mouse.up();
+      await expect(page.locator('#swipe-counter')).toHaveText('2 de 2');
+      await page.locator('#swipe-card').evaluate(async element=>{
+        await Promise.all(element.getAnimations().map(animation=>animation.finished.catch(()=>{})));
+      });
+      await checkLayout(page,'Atalho após deslize lateral, '+viewport.name);
       await page.locator('#swipe-close').click();
       await expect(page.locator('#swipe-reader')).toBeHidden();
       expect(errors,'Erros inesperados no JavaScript, '+viewport.name).toEqual([]);
