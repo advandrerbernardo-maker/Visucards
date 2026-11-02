@@ -136,13 +136,14 @@
     });
   }
 
-  function extract(pages,prioritize){
+  function extract(pages,prioritize,startPage=1){
+    if(!Number.isSafeInteger(startPage)||startPage<1)throw Error('Página inicial inválida');
     if(!Array.isArray(pages))return {chunks:[],diagnostics:{pages:0,candidates:0,duplicates:0,selected:0}};
     const processed=withoutRepeatedMargins(pages);
     let candidates=0,duplicates=0;
     const result=[];
     processed.forEach((lines,index)=>{
-      const candidatesOnPage=segments(lines).map(text=>({text,page:index+1}));
+      const candidatesOnPage=segments(lines).map(text=>({text,page:startPage+index}));
       candidates+=candidatesOnPage.length;
       const sorted=typeof prioritize==='function'?prioritize(candidatesOnPage):candidatesOnPage;
       let accepted=0;
