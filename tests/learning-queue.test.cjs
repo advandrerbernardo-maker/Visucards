@@ -43,12 +43,12 @@ test('Resto de um único trecho vira um card sem repetir o início do PDF',()=>{
   assert.equal(selection.nextBatch(pool,next.nextCursor,2).selected.length,0);
 });
 
-test('Fluxo simplificado informa andamento e permite recomeço manual',()=>{
+test('Fluxo simplificado mostra progresso por bloco e próximas páginas',()=>{
   assert.match(html,/id="coverage-hint"/);
   assert.match(html,/id="restart-generation"/);
   assert.match(html,/function preparedCandidates\(\)/);
   assert.match(html,/window\.VisuSelection\.buildQueue\(state\.parsed\.chunks\)/);
-  assert.match(html,/\$\{used\} de \$\{candidates\.length\} trechos selecionados/);
+  assert.match(html,/\$\{used\} de \$\{candidates\.length\} trechos deste bloco utilizados/);
   assert.match(html,/window\.VisuSelection\.studyPrompt\(p\.text\)/);
   assert.match(html,/state\.generationCursor=0;/);
   assert.match(html,/if\(!persist\(\)\)\{state\.generationCursor=previousCursor/);
@@ -59,5 +59,5 @@ test('Layout fixado 0.5 permanece independente da fila didática',()=>{
   assert.match(design,/design-locked-v0\.5/);
   assert.match(html,/premium-card-style/);
   assert.match(html,/function cardMarkup\(c\)/);
-  assert.match(html,/VISUCARDS · VERSÃO 0\.9 DE TESTE/);
+  assert.match(html,/VISUCARDS · VERSÃO 1\.0 DE TESTE/);
 });
