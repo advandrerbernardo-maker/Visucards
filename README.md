@@ -1,4 +1,4 @@
-# VISUCARDS 1.1 | Protótipo para concursos
+# VISUCARDS 1.2 | Protótipo para concursos
 
 Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs com texto selecionável em cards ilustrados para revisão.
 
@@ -16,7 +16,10 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 - **Integração de IA preparada (0.8):** cliente autenticado, Edge Function Supabase exclusiva, cota diária por usuário e retorno em diagramas vetoriais específicos com rótulos literais do PDF. O modelo pode sugerir título e disposição gráfica, mas nunca substitui o texto original nem inventa leis ou dados.
 - **Infraestrutura criada:** projeto Supabase exclusivo **VISUCARDS** (`cuzqfjmjfozfngrahkzz`, São Paulo), tabela de cota com RLS e função `visucards-ai` publicada com verificação de JWT. **A IA externa continua desativada** (`enabled:false` em `ai-config.js`) até concluir a configuração do segredo `GROQ_API_KEY`, as URLs de autenticação e um teste real. O modo local continua funcionando.
 - Diagramas da IA são SVGs próprios de estudo (fluxo, passos, comparação ou linha do tempo), não imagens realistas geradas por difusão. O design visual 0.5 permanece bloqueado.
-- Biblioteca local, busca, backup e restauração.
+- **Pastas nomeadas (1.2):** o usuário cria, renomeia, abre e exclui pastas (sem apagar seus cards); cada PDF novo recebe uma pasta própria com nome baseado no arquivo, ou o usuário escolhe uma pasta já existente. Novos cards ficam na pasta correspondente. Cards antigos sem identificação permanecem em **Meus cards**; arquivos identificados de versões anteriores são agrupados automaticamente.
+- **Mover cards:** na biblioteca, escolha outra pasta diretamente na linha do card. O título, texto, imagem vetorial, fonte e revisões continuam intactos.
+- **Leitura rápida por deslize (1.2):** abra uma pasta e toque em **Leitura rápida**, ou use **Ler todos os cards**. Aparece um card por vez em tela cheia; deslize para a esquerda para avançar e para a direita para voltar. Há botões e teclas ←/→ como alternativas, Escape para sair e rolagem vertical para textos longos.
+- Biblioteca local, busca, backup e restauração, agora com nomes das pastas incluídos no JSON e compatibilidade com backups anteriores.
 - **Modo revisão** na biblioteca: ocultar/responder, marcar dificuldade, agendar próximas revisões e fazer revisão livre. Revisar não consome cota mensal.
 - Próxima revisão armazenada no navegador e incluída no backup.
 - Vitrine ilustrativa de combos e planos, **sem compras reais**.
@@ -26,7 +29,7 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 - A nova análise completa de estrutura do PDF será aplicada a arquivos enviados **a partir da versão 0.6**. Cards já salvos não são reescritos.
 - Existe um banco Supabase exclusivo com controle de cota para IA, mas a autenticação por e-mail ainda depende da configuração das URLs e a integração está desativada. A biblioteca segue local, sem sincronização, cobrança ou OCR. As cotas comerciais de PDFs e cards ainda são locais.
 - Foi incluído o arquivo `backend/schema_preparacao.sql` com RLS, mas **não foi executado** em nenhum Supabase. Precisa de testes reais.
-- Dados guardados no navegador podem desaparecer; use o backup.
+- Dados guardados no navegador podem desaparecer; use o backup. Pastas são **organizações locais**, não diretórios reais do aparelho nem pastas sincronizadas com Supabase. Limpar os dados do navegador apaga também os nomes e vínculos das pastas locais.
 - O **modo de testes** aceita PDFs ilimitados, de **até 50 MB, com qualquer número de páginas**, lidos em partes de até 15. Identifica documentos pelo SHA-256 do arquivo; reimportar o mesmo PDF reconhece o progresso e não duplica páginas nem cards. Quando terminado, o mesmo documento não é importado novamente. O arquivo PDF ativo pode ser guardado em **IndexedDB local** para continuar após fechar a aba. Se o aparelho não permitir guardar o arquivo, basta selecioná-lo novamente para retomar no ponto salvo. Os cards antigos continuam na biblioteca.
 - O uso sem limite pode ocupar o armazenamento do aparelho. Apenas o PDF ativo é guardado localmente para retomada automática, quando houver espaço. Os metadados de progresso e hashes identificam PDFs já importados; ao apagar os dados do navegador, esse histórico também desaparece. Faça backup dos cards regularmente; o backup da biblioteca não contém o PDF original.
 - O leitor PDF.js 6.4.299 é carregado pela internet quando necessário.
@@ -37,7 +40,7 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 
 O arquivo `index.html` desta versão concentra a interface e o JavaScript do protótipo para facilitar a publicação.
 
-O fluxo `.github/workflows/pages.yml` publica `selection.js`, `card-design.js`, `pdf-intelligence.js`, `ai-cards.js` e `ai-config.js`, executa os testes presentes em `tests/*.test.cjs` e só depois tenta publicar o HTML no GitHub Pages.
+O fluxo `.github/workflows/pages.yml` publica `folders.js`, `pdf-batches.js`, `selection.js`, `card-design.js`, `pdf-intelligence.js`, `ai-cards.js` e `ai-config.js`, executa os testes presentes em `tests/*.test.cjs` e só depois tenta publicar o HTML no GitHub Pages.
 
 Para rodar os testes localmente:
 
@@ -62,13 +65,14 @@ O serviço Recebi+ e outros projetos não são utilizados nem alterados por este
 
 ## Fluxo de criação simplificado
 
-1. Selecione um PDF com texto legível de **até 50 MB**. Ele pode ter mais de 15 páginas: somente o primeiro bloco será lido inicialmente.
+1. Selecione um PDF com texto legível de **até 50 MB**. Ele pode ter mais de 15 páginas: somente o primeiro bloco será lido inicialmente. O aplicativo cria automaticamente uma pasta com o nome do documento; se preferir, escolha ou crie uma pasta antes de importar.
 2. Escolha o estilo dos cards (caderno ilustrado, quadrinhos ou minimalista).
 3. Toque em **Gerar bloco inteiro** para criar, de uma vez, os cards restantes das páginas 1 a 15. Se preferir, **Gerar meus cards** continua criando dois por vez. Durante a criação automática, é possível pausar sem perder o que já foi salvo. Ao concluir, toque em **Ler páginas 16 a 30** (ou até o fim, se faltar menos) e repita até terminar o documento sem reler páginas.
+4. Abra **Minha biblioteca** para ver as pastas, renomeá-las e mover cards entre elas. Abra a pasta e selecione **Leitura rápida** para passar os cards horizontalmente no celular.
 
 A triagem identifica pistas didáticas no próprio PDF, priorizando regras, artigos, exceções, prazos e conceitos relevantes para revisão. **Não há importação de CSV, filtros de banca/cargo ou ranking histórico de questões.** O aplicativo não afirma que os assuntos escolhidos são estatisticamente os mais cobrados.
 
-Os cards já salvos, as revisões e os backups continuam disponíveis. Os novos cards recebem um identificador do documento para impedir que um trecho de bloco anterior seja selecionado novamente; esse identificador também é preservado nos backups novos. Ao escolher outro PDF, o conteúdo em análise muda, mas cada documento conserva seu checkpoint de páginas e de cards no navegador. Um documento já concluído é reconhecido por hash e não é importado de novo. O último PDF ativo pode ser retomado do cache local; para outros arquivos, selecione o mesmo PDF novamente. O visual 0.5 permanece protegido em `DESIGN_LOCK.md`. PDFs digitalizados ainda precisam de OCR para leitura.
+Os cards já salvos, as revisões e os backups continuam disponíveis. Os novos cards recebem um identificador do documento para impedir que um trecho de bloco anterior seja selecionado novamente; esse identificador também é preservado nos backups novos. A versão 1.2 inclui também o identificador da pasta e seus nomes nos backups; backups 1.1 e anteriores continuam importáveis. Ao escolher outro PDF, o conteúdo em análise muda, mas cada documento conserva seu checkpoint de páginas e de cards no navegador. Um documento já concluído é reconhecido por hash e não é importado de novo. O último PDF ativo pode ser retomado do cache local; para outros arquivos, selecione o mesmo PDF novamente. O visual 0.5 permanece protegido em `DESIGN_LOCK.md`. PDFs digitalizados ainda precisam de OCR para leitura.
 
 ### IA opcional
 
