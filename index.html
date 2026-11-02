@@ -513,7 +513,8 @@
       folders:window.VisuFolders.normalizeFolders(stored.folders),
       documentFolders:stored.documentFolders&&typeof stored.documentFolders==='object'&&!Array.isArray(stored.documentFolders)?{...stored.documentFolders}:{},
       selectedFolderId:typeof stored.selectedFolderId==='string'?stored.selectedFolderId:window.VisuFolders.DEFAULT_ID,
-      folderPreference:stored.folderPreference==='manual'?'manual':'auto'};
+      folderPreference:stored.folderPreference==='manual'?'manual':'auto',
+      gameDemo:window.VisuRankingDemo.normalize(stored.gameDemo)};
     if(state.parsed?.hash)state.activeHash=state.parsed.hash;
     let activeBlob=null;
     let readingPDF=false;
@@ -533,7 +534,7 @@
       state.month=month();state.pdfCount=0;state.cardCount=0;
       if(!window.VisuPolicy.TEST_MODE.unlimitedPDFs){state.generationCursor=0;state.parsed=null}
     }
-    const persist=()=>{try{localStorage.setItem(STORE,JSON.stringify({month:state.month,pdfCount:state.pdfCount,cardCount:state.cardCount,generationCursor:state.generationCursor,cards:state.cards,parsed:state.parsed,reviews:state.reviews,documents:state.documents,activeHash:state.activeHash,folders:state.folders,documentFolders:state.documentFolders,selectedFolderId:state.selectedFolderId,folderPreference:state.folderPreference}));return true}catch(e){show('Não foi possível salvar os dados neste aparelho. Faça um backup e libere espaço.',true);return false}};
+    const persist=()=>{try{localStorage.setItem(STORE,JSON.stringify({month:state.month,pdfCount:state.pdfCount,cardCount:state.cardCount,generationCursor:state.generationCursor,cards:state.cards,parsed:state.parsed,reviews:state.reviews,documents:state.documents,activeHash:state.activeHash,folders:state.folders,documentFolders:state.documentFolders,selectedFolderId:state.selectedFolderId,folderPreference:state.folderPreference,gameDemo:state.gameDemo}));return true}catch(e){show('Não foi possível salvar os dados neste aparelho. Faça um backup e libere espaço.',true);return false}};
     const show=(str,error=false,ok=false)=>{const n=$('#file-status');n.textContent=str;n.className='status show'+(error?' error':ok?' ok':'')};
     const colors=['#884fc8','#ed578b','#399eba','#83539f'];
     const iconsFor=(s)=>{const v=s.toLowerCase();if(/lei|art\.|jurídic|direito|tribunal|constitui|juiz|processo|defesa/.test(v))return ['⚖️','📜','🔎'];if(/prazo|dia|mês|ano|data|tempo/.test(v))return ['⏳','🗓️','📌'];if(/saúde|medic|hospital/.test(v))return ['🩺','💊','💚'];if(/matem|cálcul|número|soma/.test(v))return ['🔢','📐','🧮'];return ['📚','💡','✏️']};
@@ -615,7 +616,7 @@
           :`Trechos deste PDF antigo concluídos. Você pode selecionar outro arquivo.`;
       }
     }
-    function switchTab(name){all('.tab').forEach(el=>el.classList.toggle('hidden',el.id!=='tab-'+name));all('[data-tab]').forEach(el=>{if(el.closest('.nav'))el.setAttribute('aria-current',el.dataset.tab===name?'page':'false')});if(name==='biblioteca')renderLibrary();window.scrollTo({top:0,behavior:'smooth'})}
+    function switchTab(name){all('.tab').forEach(el=>el.classList.toggle('hidden',el.id!=='tab-'+name));all('[data-tab]').forEach(el=>{if(el.closest('.nav'))el.setAttribute('aria-current',el.dataset.tab===name?'page':'false')});if(name==='biblioteca')renderLibrary();if(name==='ranking')renderRanking();window.scrollTo({top:0,behavior:'smooth'})}
     all('[data-tab]').forEach(el=>el.addEventListener('click',()=>switchTab(el.dataset.tab)));
     function cardMarkup(c){
       const d=window.VisuCardDesign.build(c);
@@ -860,6 +861,43 @@
         else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
       }
     });
+    // Ranking de demonstração local: participantes e pontos alheios são exemplos fictícios.
+    const game=window.VisuRankingDemo;
+    let rankingPeriod='weekly';
+    const numberBR=n=>Number(n||0).toLocaleString('pt-BR');
+    function renderRanking(){
+      const people=game.standings(state.gameDemo,rankingPeriod);
+      const myself=people.find(item=>item.id==='you');
+      $('#ranking-your-points').textContent=numberBR(game.score(state.gameDemo,rankingPeriod))+' XP';
+      $('#ranking-my-position').textContent='Sua posição neste exemplo: '+myself.place+'º de '+people.length;
+      $('#ranking-completed').textContent=state.gameDemo.awards.length+' card(s) concluído(s) neste navegador.';
+      all('[data-ranking-period]').forEach(button=>{
+        const active=button.dataset.rankingPeriod===rankingPeriod;
+        button.classList.toggle('active',active);
+        button.setAttribute('aria-pressed',active?'true':'false');
+      });
+      const trophy=place=>place===1?'🥇':place===2?'🥈':place===3?'🥉':place+'º';
+      $('#ranking-list').innerHTML=people.map(item=>
+        '<div class="ranking-entry'+(item.id==='you'?' you':'')+'">'+
+          '<span class="ranking-place" aria-label="Posição '+item.place+'">'+trophy(item.place)+'</span>'+
+          '<div class="ranking-person"><strong>'+escapeHTML(item.name)+'</strong><small>'+
+          (item.example?'Participante fictício':'Sua pontuação local de teste')+'</small></div>'+
+          '<span class="ranking-xp">'+numberBR(item.points)+' XP</span>'+
+        '</div>').join('');
+    }
+    all('[data-ranking-period]').forEach(button=>button.addEventListener('click',()=>{
+      rankingPeriod=button.dataset.rankingPeriod;renderRanking();
+    }));
+    $('#ranking-test').onclick=()=>{
+      openReader(game.demoCards(),null,'Missão de teste · 5 cards');
+    };
+    $('#ranking-reset').onclick=()=>{
+      if(!confirm('Zerar somente seu XP de teste? Pastas, cards e revisões continuarão salvos.'))return;
+      const previous=state.gameDemo;
+      state.gameDemo=game.normalize(null);
+      if(!persist()){state.gameDemo=previous;return}
+      renderRanking();
+    };
     function candidateChunks(pages,startPage=1){return window.VisuPDFIntelligence.extract(pages,window.VisuSelection.prioritize,startPage)}
     async function updateAIStatus(){
       if(!window.VisuAI.configured())return;
