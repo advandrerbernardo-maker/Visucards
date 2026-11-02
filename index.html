@@ -289,7 +289,7 @@
         <button type="button" data-tab="combos"><span>◈</span> Combos</button>
         <button type="button" data-tab="planos"><span>♛</span> Planos</button>
       </nav>
-      <div class="sidefoot"><strong>PLANO GRATUITO</strong>1 PDF de até 5 páginas/mês<br/>Cards ilimitados para testes</div>
+      <div class="sidefoot"><strong>PLANO GRATUITO</strong>PDFs ilimitados de até 15 páginas cada<br/>Cards ilimitados para testes</div>
     </aside>
     <main>
       <div class="topbar"><span class="eyebrow">VISUCARDS · VERSÃO 0.8 DE TESTE</span><span class="pill">✦ Plano gratuito</span></div>
@@ -297,7 +297,7 @@
         <div class="hero"><div><div class="eyebrow" style="color:#d0b6ff">RESUMO ILUSTRADO PARA CONCURSOS</div><h1>Seu PDF vira cards ilustrados para revisar.</h1><p class="lead">Transforme trechos do seu conteúdo em cards coloridos para revisar e memorizar.</p></div><div class="hero-art" aria-hidden="true">📚✨</div></div>
         <div class="grid">
           <section class="panel"><div class="panel-head"><h2>Comece pelo seu PDF</h2><span class="tag">PASSO 1</span></div>
-            <div class="dropzone" id="dropzone"><div class="uploadicon">📄</div><strong>Arraste ou selecione um PDF</strong><p>Arquivo de até 5 páginas no plano gratuito.</p><button type="button" class="btn" id="pick-file">Selecionar PDF</button><input type="file" id="pdf-input" accept="application/pdf,.pdf" style="display:none" /></div>
+            <div class="dropzone" id="dropzone"><div class="uploadicon">📄</div><strong>Arraste ou selecione um PDF</strong><p>Arquivos de até 15 páginas. Quantidade de PDFs ilimitada durante os testes.</p><button type="button" class="btn" id="pick-file">Selecionar PDF</button><input type="file" id="pdf-input" accept="application/pdf,.pdf" style="display:none" /></div>
             <div id="file-status" class="status" role="status"></div>
             <div class="setting-row"><label for="visual-style">Estilo dos cards</label><select id="visual-style"><option value="caderno">Caderno ilustrado</option><option value="quadrinhos">Quadrinhos</option><option value="minimalista">Minimalista</option></select></div>
             <p class="hint" style="margin-top:12px">Os assuntos são selecionados automaticamente do PDF, com prioridade didática para artigos, regras, prazos e exceções. Isso não representa frequência comprovada em concursos.</p>
@@ -315,9 +315,9 @@
             <p class="hint" style="margin-top:13px">O PDF é lido no próprio navegador. Sem IA conectada, os trechos não são enviados a servidores. Com IA ativada, somente os trechos escolhidos para os cards são enviados ao serviço seguro. PDFs escaneados sem texto selecionável ainda não são compatíveis.</p>
           </section>
           <section class="panel"><div class="panel-head"><h2>Uso no modo de testes</h2><span class="tag" id="month-display">MÊS ATUAL</span></div>
-            <div class="meter"><div class="meter-head"><span>PDFs utilizados</span><span id="pdf-counter">0 de 1</span></div><div class="track"><div class="fill" id="pdf-meter" style="width:0%"></div></div></div>
+            <div class="meter"><div class="meter-head"><span>PDFs utilizados</span><span id="pdf-counter">0 · ilimitados</span></div><div class="track"><div class="fill" id="pdf-meter" style="width:0%"></div></div></div>
             <div class="meter"><div class="meter-head"><span>Cards ilustrados</span><span id="card-counter">0 · ilimitados</span></div><div class="track"><div class="fill" id="card-meter" style="width:0%"></div></div></div>
-            <div class="stack" style="margin-top:22px"><div class="step"><div class="num">1</div><div><strong>Escolha seu conteúdo</strong><small>Até 5 páginas de PDF</small></div></div><div class="step"><div class="num">2</div><div><strong>Veja um infográfico didático</strong><small>Trechos, regras, prazos e dados destacados do documento</small></div></div><div class="step"><div class="num">3</div><div><strong>Personalize e exporte</strong><small>Edite textos e exporte em PNG ou impressão/PDF</small></div></div></div>
+            <div class="stack" style="margin-top:22px"><div class="step"><div class="num">1</div><div><strong>Escolha seu conteúdo</strong><small>Até 15 páginas por PDF</small></div></div><div class="step"><div class="num">2</div><div><strong>Veja um infográfico didático</strong><small>Trechos, regras, prazos e dados destacados do documento</small></div></div><div class="step"><div class="num">3</div><div><strong>Personalize e exporte</strong><small>Edite textos e exporte em PNG ou impressão/PDF</small></div></div></div>
             <div class="notice">A seleção local funciona mesmo sem IA. O gerador de diagramas por IA usa um backend separado e só será ativado após a configuração segura do serviço. O modelo visual aprovado permanece inalterado.</div>
           </section>
         </div>
@@ -336,7 +336,7 @@
         </div>
       </section>
       <section id="tab-combos" class="tab hidden"><div class="eyebrow">MARKETPLACE</div><h1>Combos para seu concurso</h1><p class="lead">Materiais prontos para revisão, organizados por cargo, disciplina e edital.</p><div class="sectiontitle"><h2>Combos de exemplo</h2><span class="tag">CATÁLOGO ILUSTRATIVO</span></div><div class="catalog"><article class="product"><div class="product-icon">⚖️📘</div><strong>TJAM 2027</strong><p>Cards ilustrados de Direito e matérias previstas no edital, quando confirmado.</p><span class="price">R$ 79,90</span><button class="btn secondary" onclick="alert('Vitrine demonstrativa: nenhuma compra será realizada.')">Ver detalhes</button></article><article class="product"><div class="product-icon">📚🏛️</div><strong>DPE-AM</strong><p>Estudo visual por área jurídica, cargo e disciplinas do edital correspondente.</p><span class="price">R$ 69,90</span><button class="btn secondary" onclick="alert('Vitrine demonstrativa: nenhuma compra será realizada.')">Ver detalhes</button></article><article class="product"><div class="product-icon">🛡️📗</div><strong>Guarda Municipal</strong><p>Legislação e disciplinas selecionadas conforme município e edital.</p><span class="price">R$ 59,90</span><button class="btn secondary" onclick="alert('Vitrine demonstrativa: nenhuma compra será realizada.')">Ver detalhes</button></article></div><div class="notice">Os combos acima ainda não estão disponíveis para compra. Os valores são referências comerciais de teste, não ofertas reais.</div></section>
-      <section id="tab-planos" class="tab hidden"><div class="eyebrow">ESCOLHA SEU RITMO</div><h1>Planos VISUCARDS</h1><p class="lead">Compre apenas o combo que precisa ou assine o Premium para gerar mais materiais.</p><div class="plans" style="margin-top:24px"><article class="plan"><span class="tag">GRATUITO</span><div class="amount">R$ 0</div><ul><li>1 PDF de até 5 páginas/mês</li><li>Cards ilimitados durante os testes (proposta futura: 2/mês)</li><li>Prévia dos combos</li><li>Biblioteca básica</li><li>Marca VISUCARDS</li></ul><button class="btn outline full" disabled>Seu plano atual</button></article><article class="plan featured"><span class="tag">PREMIUM</span><div class="amount">R$ 29,90 <span class="small muted">/mês</span></div><ul><li>Até 10 PDFs de 50 páginas/mês</li><li>60 cards ilustrados/mês</li><li>Edição e exportação</li><li>Biblioteca Premium selecionada</li><li>Desconto em combos avulsos</li></ul><button class="btn full" onclick="alert('Assinaturas ainda não estão habilitadas neste protótipo.')">Em breve</button></article><article class="plan"><span class="tag">COMPRA AVULSA</span><div class="amount">A partir de R$ 29,90</div><ul><li>Compre combos específicos</li><li>Acesso independente da assinatura</li><li>Cards por disciplina e assunto</li><li>Revisões de concurso</li><li>Materiais incluídos no pacote</li></ul><button class="btn outline full" data-tab="combos">Explorar combos</button></article></div><div class="notice">Preços, benefícios e limites do Premium são propostas para validação. Não há contratação ou cobrança neste protótipo.</div></section>
+      <section id="tab-planos" class="tab hidden"><div class="eyebrow">ESCOLHA SEU RITMO</div><h1>Planos VISUCARDS</h1><p class="lead">Compre apenas o combo que precisa ou assine o Premium para gerar mais materiais.</p><div class="plans" style="margin-top:24px"><article class="plan"><span class="tag">GRATUITO</span><div class="amount">R$ 0</div><ul><li>PDFs ilimitados de até 15 páginas cada</li><li>Cards ilimitados durante os testes (proposta futura: 2/mês)</li><li>Prévia dos combos</li><li>Biblioteca básica</li><li>Marca VISUCARDS</li></ul><button class="btn outline full" disabled>Seu plano atual</button></article><article class="plan featured"><span class="tag">PREMIUM</span><div class="amount">R$ 29,90 <span class="small muted">/mês</span></div><ul><li>Até 10 PDFs de 50 páginas/mês</li><li>60 cards ilustrados/mês</li><li>Edição e exportação</li><li>Biblioteca Premium selecionada</li><li>Desconto em combos avulsos</li></ul><button class="btn full" onclick="alert('Assinaturas ainda não estão habilitadas neste protótipo.')">Em breve</button></article><article class="plan"><span class="tag">COMPRA AVULSA</span><div class="amount">A partir de R$ 29,90</div><ul><li>Compre combos específicos</li><li>Acesso independente da assinatura</li><li>Cards por disciplina e assunto</li><li>Revisões de concurso</li><li>Materiais incluídos no pacote</li></ul><button class="btn outline full" data-tab="combos">Explorar combos</button></article></div><div class="notice">Preços, benefícios e limites do Premium são propostas para validação. Não há contratação ou cobrança neste protótipo.</div></section>
       <p class="footer">VISUCARDS · Protótipo funcional local · Conteúdo extraído do PDF: confira o texto e as fontes oficiais. Não substitui a revisão humana. Interface e elementos visuais próprios.</p>
     </main>
   </div>
@@ -374,8 +374,8 @@
 /* Regras puras do protótipo. O servidor deverá validar estas cotas novamente. */
 (function (root) {
   'use strict';
-  const FREE = Object.freeze({ pdf: 1, pages: 5, cards: 2, maxFileBytes: 12 * 1024 * 1024 });
-  const TEST_MODE = Object.freeze({ unlimitedCards: true });
+  const FREE = Object.freeze({ pdf: 1, pages: 15, cards: 2, maxFileBytes: 12 * 1024 * 1024 });
+  const TEST_MODE = Object.freeze({ unlimitedCards: true, unlimitedPDFs: true });
   function currentMonth(date = new Date()) {
     return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
   }
@@ -384,7 +384,7 @@
     return Math.max(0, FREE.cards - (Number.isInteger(used) && used >= 0 ? used : FREE.cards));
   }
   function canUploadPDF(used, pages, bytes) {
-    return Number.isInteger(used) && used < FREE.pdf && Number.isInteger(pages) && pages >= 1 && pages <= FREE.pages && Number.isFinite(bytes) && bytes > 0 && bytes <= FREE.maxFileBytes;
+    return Number.isInteger(used) && (TEST_MODE.unlimitedPDFs || used < FREE.pdf) && Number.isInteger(pages) && pages >= 1 && pages <= FREE.pages && Number.isFinite(bytes) && bytes > 0 && bytes <= FREE.maxFileBytes;
   }
   root.VisuPolicy = Object.freeze({ FREE, TEST_MODE, currentMonth, remainingCards, canUploadPDF });
   if (typeof module === 'object' && module.exports) module.exports = root.VisuPolicy;
@@ -407,7 +407,7 @@
     const month=()=>window.VisuPolicy.currentMonth();
     const escapeHTML=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     let stored;try{stored=JSON.parse(localStorage.getItem(STORE)||'{}')}catch{stored={}}
-    const recoverParsed=(p)=>p&&typeof p.file==='string'&&p.file.length<=180&&Array.isArray(p.chunks)&&p.chunks.length<=50&&p.chunks.every(c=>typeof c.text==='string'&&c.text.length<=650&&Number.isInteger(c.page)&&c.page>=1&&c.page<=5)?p:null;
+    const recoverParsed=(p)=>p&&typeof p.file==='string'&&p.file.length<=180&&Array.isArray(p.chunks)&&p.chunks.length<=50&&p.chunks.every(c=>typeof c.text==='string'&&c.text.length<=650&&Number.isInteger(c.page)&&c.page>=1&&c.page<=15)?p:null;
     const state={month:stored.month||month(),pdfCount:stored.pdfCount||0,cardCount:stored.cardCount||0,generationCursor:Number.isSafeInteger(stored.generationCursor)&&stored.generationCursor>=0?stored.generationCursor:0,cards:Array.isArray(stored.cards)?stored.cards:[],parsed:recoverParsed(stored.parsed),preview:[],reviews:stored.reviews&&typeof stored.reviews==='object'&&!Array.isArray(stored.reviews)?stored.reviews:{}};
     let readingPDF=false;
     let generating=false;
@@ -437,10 +437,10 @@
       if(state.month!==month()){
         state.month=month();state.pdfCount=0;state.cardCount=0;state.generationCursor=0;state.parsed=null;persist();
       }
-      $('#pdf-counter').textContent=`${state.pdfCount} de 1`;
+      $('#pdf-counter').textContent=`${state.pdfCount} · ilimitados`;
       const unlimited=window.VisuPolicy.TEST_MODE.unlimitedCards;
       $('#card-counter').textContent=unlimited?`${state.cardCount} · ilimitados`:`${state.cardCount} de ${window.VisuPolicy.FREE.cards}`;
-      $('#pdf-meter').style.width=state.pdfCount*100+'%';
+      $('#pdf-meter').closest('.track').classList.add('hidden');
       $('#card-meter').closest('.track').classList.toggle('hidden',unlimited);
       if(!unlimited)$('#card-meter').style.width=Math.min(state.cardCount/window.VisuPolicy.FREE.cards*100,100)+'%';
       $('#month-display').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).toUpperCase();
@@ -583,7 +583,7 @@
     async function readFile(file){
       refresh();
       if(readingPDF){show('Já estamos lendo um PDF. Aguarde a conclusão.',true);return}
-      if(state.pdfCount>=window.VisuPolicy.FREE.pdf){show(state.parsed?'Você já enviou seu PDF neste mês. Gere os cards do material salvo.':'Seu limite de 1 PDF neste mês já foi utilizado.',true);return}
+      if(!window.VisuPolicy.TEST_MODE.unlimitedPDFs && state.pdfCount>=window.VisuPolicy.FREE.pdf){show(state.parsed?'Você já enviou seu PDF neste mês. Gere os cards do material salvo.':'Seu limite de 1 PDF neste mês já foi utilizado.',true);return}
       if(!/\.pdf$/i.test(file.name)&&file.type!=='application/pdf'){show('Selecione um arquivo PDF válido.',true);return}
       if(file.size>window.VisuPolicy.FREE.maxFileBytes){show('Este protótipo aceita arquivos de até 12 MB.',true);return}
       readingPDF=true;$('#pick-file').disabled=true;$('#generate').disabled=true;
@@ -592,7 +592,7 @@
         const reader=await loadPDFReader();
         const buffer=await file.arrayBuffer();
         const pdf=await reader.getDocument({data:new Uint8Array(buffer),isEvalSupported:false}).promise;
-        if(pdf.numPages<1||pdf.numPages>window.VisuPolicy.FREE.pages){show(`Este PDF tem ${pdf.numPages} páginas. O plano gratuito aceita de 1 a 5.`,true);return}
+        if(pdf.numPages<1||pdf.numPages>window.VisuPolicy.FREE.pages){show(`Este PDF tem ${pdf.numPages} páginas. O limite atual é de 1 a 15.`,true);return}
         const pages=[];
         for(let p=1;p<=pdf.numPages;p++){
           const page=await pdf.getPage(p);const content=await page.getTextContent();pages.push(window.VisuPDFIntelligence.pageText(content.items));
@@ -602,7 +602,7 @@
         if(!extracted.chunks.length){show('Não foi possível identificar trechos úteis no PDF.',true);return}
         const parsed={file:file.name.slice(0,180),chunks:extracted.chunks.map(c=>({text:c.text,page:c.page}))};
         const previous={parsed:state.parsed,pdfCount:state.pdfCount,generationCursor:state.generationCursor};
-        state.parsed=parsed;state.pdfCount=1;state.generationCursor=0;
+        state.parsed=parsed;state.pdfCount=previous.pdfCount+1;state.generationCursor=0;
         if(!persist()){state.parsed=previous.parsed;state.pdfCount=previous.pdfCount;state.generationCursor=previous.generationCursor;refresh();return}
         state.preview=[];
         $('#results').classList.add('hidden');
