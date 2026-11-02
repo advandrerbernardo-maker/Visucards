@@ -51,7 +51,7 @@ test('A posição original da página é mantida após 15 páginas',()=>{
 });
 
 test('Versão 1.1 mantém design oficial 0.5 e limite de 50 MB por PDF',()=>{
-  assert.match(html,/VISUCARDS · VERSÃO 1\.2 DE TESTE/);
+  assert.match(html,/VISUCARDS · VERSÃO 1\.3 DE TESTE/);
   assert.match(visual,/design-locked-v0\.5/);
   assert.match(html,/maxFileBytes: 50 \* 1024 \* 1024/);
   assert.match(html,/function cardMarkup\(c\)/);
