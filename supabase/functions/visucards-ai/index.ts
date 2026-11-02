@@ -26,7 +26,7 @@ function validCard(input:unknown):input is InputCard{
   return typeof card.id==="string"&&/^[a-zA-Z0-9_-]{4,50}$/.test(card.id)&&
     typeof card.title==="string"&&card.title.length>=4&&card.title.length<=240&&
     typeof card.text==="string"&&card.text.length>=35&&card.text.length<=650&&
-    Number.isInteger(card.page)&&Number(card.page)>=1&&Number(card.page)<=15;
+    Number.isSafeInteger(card.page)&&Number(card.page)>=1;
 }
 function clean(value:unknown){return String(value??"").replace(/\s+/g," ").trim()}
 function groundedPlan(plan:unknown,text:string):VisualPlan|null{
