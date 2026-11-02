@@ -278,6 +278,29 @@
       .premium-head,.premium-hero,.premium-step,.premium-note,.premium-anchor-area{break-inside:avoid}
     }
   </style>
+  <style id="library-folder-style">
+    .folder-create{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:16px}.folder-create input{flex:1 1 210px;min-width:0}
+    .folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:17px}
+    .folder-tile{border:1px solid #e0d4f2;background:#fbf9ff;text-align:left;padding:18px;border-radius:17px;display:grid;gap:10px;min-width:0;min-height:130px;color:var(--text);transition:transform .15s,box-shadow .15s}
+    .folder-tile:focus-visible,.folder-tile:hover{outline:2px solid #8a59cf;outline-offset:1px;transform:translateY(-1px)}
+    .folder-tile-icon{font-size:30px;line-height:1}.folder-tile strong{font-size:14px;overflow-wrap:anywhere;line-height:1.35}.folder-tile small{color:var(--muted)}
+    .folder-current{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 0 17px;border-top:1px solid var(--border)}
+    .folder-current-title{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}.folder-current h2{font-size:19px;overflow-wrap:anywhere;margin:0}
+    .libitem select{max-width:150px;font-size:12px;padding:8px;border:1px solid #d9c9f4;border-radius:9px;background:white;color:var(--text)}
+    body.swipe-open{overflow:hidden}
+    .swipe-reader{position:fixed;inset:0;z-index:9999;background:#211636;display:flex;flex-direction:column;align-items:stretch;color:white;padding:env(safe-area-inset-top,0px) max(12px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(12px,env(safe-area-inset-left,0px))}
+    .swipe-head{width:min(740px,100%);margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 0 12px;flex:0 0 auto}
+    .swipe-head h2{font-size:17px;line-height:1.25;margin:4px 0;overflow-wrap:anywhere;color:white}.swipe-eyebrow{font-size:10px;font-weight:800;letter-spacing:.09em;color:#d7b6ff}#swipe-counter{font-size:12px;color:#f1e5ff}
+    .swipe-close{background:#4d386a;color:white;border:1px solid #8f70b0;border-radius:12px;padding:11px 13px;flex-shrink:0;font-size:12px;font-weight:800;min-height:44px}
+    .swipe-stage{touch-action:pan-y;overscroll-behavior:contain;width:min(740px,100%);margin:auto;flex:1 1 0;min-height:0;overflow-y:auto;overflow-x:hidden;border-radius:17px;padding:7px 5px 20px;-webkit-overflow-scrolling:touch}
+    .swipe-card{width:min(610px,100%);margin:0 auto;transform-origin:center center;will-change:transform}.swipe-card .card-visual.premium-card{width:100%;box-shadow:0 9px 30px rgba(0,0,0,.2)}
+    .swipe-card.enter-next{animation:swipe-next-in .23s ease-out}.swipe-card.enter-prev{animation:swipe-prev-in .23s ease-out}
+    @keyframes swipe-next-in{from{opacity:.4;transform:translateX(45px) rotate(2deg)}to{opacity:1;transform:translateX(0)}}
+    @keyframes swipe-prev-in{from{opacity:.4;transform:translateX(-45px) rotate(-2deg)}to{opacity:1;transform:translateX(0)}}
+    .swipe-footer{width:min(740px,100%);display:flex;gap:10px;align-items:center;justify-content:space-between;margin:auto;flex:0 0 auto;padding:12px 0}.swipe-footer .btn{min-height:46px;min-width:112px}.swipe-instruction{font-size:11px;color:#dcc5f1;text-align:center}
+    @media(max-width:680px){.folder-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.folder-tile{padding:13px;min-height:123px}.folder-current .buttonrow{width:100%}.folder-current .buttonrow button{flex:1}.swipe-head{padding:9px 0}.swipe-stage{padding:5px 0 12px}.swipe-footer{padding:9px 0}.swipe-footer .btn{min-width:100px;padding:10px;font-size:12px}.swipe-instruction{font-size:10px;max-width:95px}}
+    @media(prefers-reduced-motion:reduce){.swipe-card.enter-next,.swipe-card.enter-prev{animation:none}}
+  </style>
 </head>
 <body>
   <div class="app">
@@ -292,13 +315,15 @@
       <div class="sidefoot"><strong>MODO DE TESTES</strong>PDFs sem limite mensal<br/>15 páginas por etapa · 50 MB por PDF</div>
     </aside>
     <main>
-      <div class="topbar"><span class="eyebrow">VISUCARDS · VERSÃO 1.1 DE TESTE</span><span class="pill">✦ Plano gratuito</span></div>
+      <div class="topbar"><span class="eyebrow">VISUCARDS · VERSÃO 1.2 DE TESTE</span><span class="pill">✦ Plano gratuito</span></div>
       <section id="tab-criar" class="tab">
         <div class="hero"><div><div class="eyebrow" style="color:#d0b6ff">RESUMO ILUSTRADO PARA CONCURSOS</div><h1>Seu PDF vira cards ilustrados para revisar.</h1><p class="lead">Transforme trechos do seu conteúdo em cards coloridos para revisar e memorizar.</p></div><div class="hero-art" aria-hidden="true">📚✨</div></div>
         <div class="grid">
           <section class="panel"><div class="panel-head"><h2>Comece pelo seu PDF</h2><span class="tag">PASSO 1</span></div>
             <div class="dropzone" id="dropzone"><div class="uploadicon">📄</div><strong>Arraste ou selecione um PDF</strong><p>PDF de qualquer quantidade de páginas, até 50 MB. Leitura em blocos de 15 páginas, sem repetir.</p><button type="button" class="btn" id="pick-file">Selecionar PDF</button><input type="file" id="pdf-input" accept="application/pdf,.pdf" style="display:none" /></div>
             <div id="file-status" class="status" role="status"></div>
+            <div class="setting-row"><label for="target-folder">Pasta dos novos cards</label><select id="target-folder" aria-label="Escolher a pasta onde salvar os cards"></select><button type="button" id="quick-new-folder" class="btn secondary smallbtn">+ Nova pasta</button></div>
+            <p class="hint" id="selected-folder-hint" style="margin:6px 0 0">Os cards deste PDF serão organizados na pasta selecionada.</p>
             <div class="setting-row"><label for="visual-style">Estilo dos cards</label><select id="visual-style"><option value="caderno">Caderno ilustrado</option><option value="quadrinhos">Quadrinhos</option><option value="minimalista">Minimalista</option></select></div>
             <p class="hint" style="margin-top:12px">Os assuntos são selecionados automaticamente do PDF, com prioridade didática para artigos, regras, prazos e exceções. Isso não representa frequência comprovada em concursos.</p>
             <details id="ai-setup" class="hidden" style="margin-top:12px;border:1px solid #ded5ed;border-radius:12px;padding:12px">
@@ -325,7 +350,12 @@
         </div>
         <div id="results" class="hidden"><div class="sectiontitle"><div><h2>Seus cards ilustrados</h2><div class="muted small">Revise o conteúdo antes de estudar.</div></div><span class="tag" id="result-type">PRÉVIA</span></div><div class="showcase" id="card-grid"></div></div>
       </section>
-      <section id="tab-biblioteca" class="tab hidden"><h1>Minha biblioteca</h1><p class="lead">Os cards ficam salvos neste navegador, nesta primeira versão.</p><div class="panel" style="margin-top:22px"><div class="panel-head"><h2>Cards salvos</h2><span class="tag" id="library-count">0 CARDS</span></div><div class="librarytools"><input id="library-search" class="search-input" type="search" placeholder="Buscar meus cards" aria-label="Buscar cards"/><button id="backup-library" class="btn secondary smallbtn">⬇ Backup da biblioteca</button><button id="restore-library" type="button" class="btn secondary smallbtn">↥ Restaurar backup</button><input id="restore-file" type="file" accept="application/json,.json" hidden/></div><div class="actionrow"><button type="button" id="start-review" class="btn">🧠 Revisar meus cards</button></div><div id="library-list" class="librarylist"></div><div class="notice">Armazenamento local demonstrativo: ao limpar os dados do navegador, seus cards poderão desaparecer. A biblioteca sincronizada será implementada com login e banco de dados.</div></div></section>
+      <section id="tab-biblioteca" class="tab hidden"><h1>Minha biblioteca</h1><p class="lead">Organize seus cards em pastas e abra uma delas para ler deslizando para os lados.</p><div class="panel" style="margin-top:22px">
+            <div class="panel-head"><h2>Minhas pastas</h2><span class="tag" id="library-count">0 CARDS</span></div>
+            <div class="folder-create"><input id="folder-name-input" maxlength="65" class="search-input" placeholder="Nome da nova pasta. Ex.: Direito Constitucional" aria-label="Nome da nova pasta"/><button type="button" id="create-folder" class="btn">+ Criar pasta</button></div>
+            <div id="folder-grid" class="folder-grid" aria-label="Pastas da biblioteca"></div>
+            <div id="library-folder-header" class="hidden folder-current"><div class="folder-current-title"><button type="button" id="folder-back" class="btn outline smallbtn">← Minhas pastas</button><h2 id="current-folder-name">Meus cards</h2></div><div class="buttonrow"><button type="button" id="read-folder" class="btn">↔ Leitura rápida</button><button type="button" id="rename-folder" class="btn secondary smallbtn">Renomear</button><button type="button" id="delete-folder" class="btn outline smallbtn">Excluir pasta</button></div></div>
+            <div class="librarytools"><input id="library-search" class="search-input" type="search" placeholder="Buscar meus cards" aria-label="Buscar cards"/><button id="backup-library" class="btn secondary smallbtn">⬇ Backup da biblioteca</button><button id="restore-library" type="button" class="btn secondary smallbtn">↥ Restaurar backup</button><input id="restore-file" type="file" accept="application/json,.json" hidden/></div><div class="actionrow"><button type="button" id="start-review" class="btn">🧠 Revisar meus cards</button><button type="button" id="read-all" class="btn outline">↔ Ler todos os cards</button></div><div id="library-list" class="librarylist hidden"></div><div class="notice">Armazenamento local demonstrativo: ao limpar os dados do navegador, seus cards poderão desaparecer. A biblioteca sincronizada será implementada com login e banco de dados.</div></div></section>
       <section id="tab-revisao" class="tab hidden" aria-labelledby="review-heading">
         <div class="review-meta"><div><div class="eyebrow">ESTUDO ATIVO</div><h1 id="review-heading">Revisão dos meus cards</h1></div><button type="button" id="review-back" class="btn outline">Voltar à biblioteca</button></div>
         <p class="lead">Leia o título, tente lembrar a explicação e revele a resposta. Suas revisões ficam neste navegador.</p>
@@ -341,6 +371,11 @@
       <section id="tab-planos" class="tab hidden"><div class="eyebrow">ESCOLHA SEU RITMO</div><h1>Planos VISUCARDS</h1><p class="lead">Compre apenas o combo que precisa ou assine o Premium para gerar mais materiais.</p><div class="plans" style="margin-top:24px"><article class="plan"><span class="tag">GRATUITO · TESTES</span><div class="amount">R$ 0</div><ul><li>PDFs ilimitados nos testes, qualquer quantidade de páginas, leitura de 15 por etapa e até 50 MB por arquivo</li><li>Cards ilimitados durante os testes (proposta futura: 2/mês)</li><li>Prévia dos combos</li><li>Biblioteca básica</li><li>Marca VISUCARDS</li></ul><button class="btn outline full" disabled>Seu plano atual</button></article><article class="plan featured"><span class="tag">PREMIUM</span><div class="amount">R$ 29,90 <span class="small muted">/mês</span></div><ul><li>Até 10 PDFs de 50 páginas/mês</li><li>60 cards ilustrados/mês</li><li>Edição e exportação</li><li>Biblioteca Premium selecionada</li><li>Desconto em combos avulsos</li></ul><button class="btn full" onclick="alert('Assinaturas ainda não estão habilitadas neste protótipo.')">Em breve</button></article><article class="plan"><span class="tag">COMPRA AVULSA</span><div class="amount">A partir de R$ 29,90</div><ul><li>Compre combos específicos</li><li>Acesso independente da assinatura</li><li>Cards por disciplina e assunto</li><li>Revisões de concurso</li><li>Materiais incluídos no pacote</li></ul><button class="btn outline full" data-tab="combos">Explorar combos</button></article></div><div class="notice">Preços, benefícios e limites do Premium são propostas para validação. Não há contratação ou cobrança neste protótipo.</div></section>
       <p class="footer">VISUCARDS · Protótipo funcional local · Conteúdo extraído do PDF: confira o texto e as fontes oficiais. Não substitui a revisão humana. Interface e elementos visuais próprios.</p>
     </main>
+  </div>
+  <div id="swipe-reader" class="swipe-reader hidden" role="dialog" aria-modal="true" aria-labelledby="swipe-heading" tabindex="-1">
+    <header class="swipe-head"><div><span class="swipe-eyebrow">VISUCARDS · LEITURA RÁPIDA</span><h2 id="swipe-heading">Meus cards</h2><span id="swipe-counter" aria-live="polite"></span></div><button type="button" id="swipe-close" class="swipe-close" aria-label="Fechar leitura rápida">✕ Fechar</button></header>
+    <div id="swipe-stage" class="swipe-stage" aria-label="Deslize para a esquerda para avançar e para a direita para voltar"><div id="swipe-card" class="swipe-card"></div></div>
+    <footer class="swipe-footer"><button type="button" id="swipe-prev" class="btn outline">← Anterior</button><span class="swipe-instruction">Deslize o card para os lados</span><button type="button" id="swipe-next" class="btn yellow">Próximo →</button></footer>
   </div>
   <script>
 /* Fonte original: illustrations.js */
@@ -409,6 +444,7 @@
 })(typeof window !== 'undefined' ? window : globalThis);
 
 </script>
+  <script src="./folders.js"></script>
   <script src="./pdf-batches.js"></script>
   <script src="./selection.js"></script>
   <script src="./pdf-intelligence.js"></script>
