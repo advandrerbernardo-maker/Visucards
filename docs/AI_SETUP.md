@@ -6,7 +6,7 @@
 - **Custo de criação informado pelo Supabase:** 0 por mês para o projeto criado no plano Free. O plano é sujeito aos limites do Supabase e não abrange despesas eventuais do provedor de IA.
 - **Banco:** migração `visucards_ai_daily_usage_and_quota` aplicada neste projeto em 2026-11-02 UTC, com RLS e tabela `public.visu_ai_daily_usage`.
 - **Acesso:** `anon` e `authenticated` não possuem permissão para leitura/escrita da tabela nem para executar `visu_ai_reserve`. Apenas `service_role` chama a função; ela é `security invoker`.
-- **Backend:** Edge Function `visucards-ai` publicada e atualizada para aceitar referências de até 15 páginas, status `ACTIVE`, `verify_jwt=true`.
+- **Backend:** Edge Function `visucards-ai` publicada e atualizada para aceitar a página original de documentos com mais de 15 páginas, status `ACTIVE`, `verify_jwt=true`.
 - **Site:** `ai-config.js` inclui apenas a URL e a *publishable key* públicas do projeto VISUCARDS. `enabled:false` impede chamadas de IA até a ativação final.
 - **Recebi-plus:** projeto separado, nenhuma tabela ou função alterada nele.
 
@@ -22,7 +22,7 @@ Estas duas configurações são feitas pelo responsável dentro dos respectivos 
 
 ## Como funciona
 
-O fluxo permanece **PDF → escolha do estilo → gerar cards**, sem CSV. No modo de testes, é possível enviar PDFs sem limite mensal, com **até 15 páginas e 50 MB por arquivo**. O leitor é local por padrão. Quando a IA estiver ativada e o usuário autenticar por e-mail, somente **até dois trechos de 650 caracteres cada** (com título, identificador e página) serão transmitidos ao Supabase e ao provedor Groq, não o PDF integral. A IA sugere estrutura visual e rótulos; o servidor e o navegador exigem rótulos literais do texto. O conteúdo original e a página continuam vindo do PDF.
+O fluxo permanece **PDF → escolha do estilo → gerar cards**, sem CSV. No modo de testes, é possível enviar PDFs sem limite mensal, com **até 50 MB e sem limite de páginas por arquivo**, processando 15 páginas por vez. O leitor é local por padrão. Quando a IA estiver ativada e o usuário autenticar por e-mail, somente **até dois trechos de 650 caracteres cada** (com título, identificador e página) serão transmitidos ao Supabase e ao provedor Groq, não o PDF integral. A IA sugere estrutura visual e rótulos; o servidor e o navegador exigem rótulos literais do texto. O conteúdo original e a página continuam vindo do PDF.
 
 Em caso de falha de autenticação, de servidor ou de provedor, o app usa diagramas locais; não envia documentos inteiros. A função reserva no máximo **dez solicitações de IA por dia UTC** por conta, mesmo se o provedor falhar, para limitar custos e abusos. O limite não substitui um orçamento máximo no provedor.
 
