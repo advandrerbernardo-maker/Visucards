@@ -1,4 +1,4 @@
-# VISUCARDS 1.2 | Protótipo para concursos
+# VISUCARDS 1.3 | Protótipo para concursos
 
 Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs com texto selecionável em cards ilustrados para revisão.
 
@@ -19,6 +19,7 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 - **Pastas nomeadas (1.2):** o usuário cria, renomeia, abre e exclui pastas (sem apagar seus cards); cada PDF novo recebe uma pasta própria com nome baseado no arquivo, ou o usuário escolhe uma pasta já existente. Novos cards ficam na pasta correspondente. Cards antigos sem identificação permanecem em **Meus cards**; arquivos identificados de versões anteriores são agrupados automaticamente.
 - **Mover cards:** na biblioteca, escolha outra pasta diretamente na linha do card. O título, texto, imagem vetorial, fonte e revisões continuam intactos.
 - **Leitura rápida por deslize (1.2):** abra uma pasta e toque em **Leitura rápida**, ou use **Ler todos os cards**. Aparece um card por vez em tela cheia; deslize para a esquerda para avançar e para a direita para voltar. Há botões e teclas ←/→ como alternativas, Escape para sair e rolagem vertical para textos longos.
+- **Ranking de Conhecimento demonstrativo (1.3):** nova aba **Ranking** com períodos semanal, mensal e geral e os nomes de exemplo Estudante Aurora, Concurseiro AM, Lex 2027, Você e Foco Jurídico. Somente o usuário local (Você) ganha XP real de teste ao confirmar a conclusão de um card (+10 XP, apenas uma vez por ID), inclusive na missão pronta de cinco cards sem precisar importar PDF. Os outros nomes e pontos são fictícios; a classificação NÃO representa usuários reais nem dados do Supabase. Navegar/deslizar não soma XP. A opção **Rever depois** para cards reais mantém a revisão local e não premia XP. **Reiniciar XP de teste** apaga apenas a pontuação demonstrativa, não cards nem pastas.
 - Biblioteca local, busca, backup e restauração, agora com nomes das pastas incluídos no JSON e compatibilidade com backups anteriores.
 - **Modo revisão** na biblioteca: ocultar/responder, marcar dificuldade, agendar próximas revisões e fazer revisão livre. Revisar não consome cota mensal.
 - Próxima revisão armazenada no navegador e incluída no backup.
@@ -27,7 +28,7 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 ## Limitações importantes
 - O processamento e a seleção padrão são **locais**. A integração de IA será opcional quando o backend próprio estiver ativo; nesse caso, apenas os trechos selecionados serão transmitidos com autenticação para gerar diagramas, não o PDF completo. Melhorias de triagem não equivalem a avaliação humana nem à previsão da banca.
 - A nova análise completa de estrutura do PDF será aplicada a arquivos enviados **a partir da versão 0.6**. Cards já salvos não são reescritos.
-- Existe um banco Supabase exclusivo com controle de cota para IA, mas a autenticação por e-mail ainda depende da configuração das URLs e a integração está desativada. A biblioteca segue local, sem sincronização, cobrança ou OCR. As cotas comerciais de PDFs e cards ainda são locais.
+- Existe um banco Supabase exclusivo com controle de cota para IA, mas a autenticação por e-mail ainda depende da configuração das URLs e a integração está desativada. A biblioteca segue local, sem sincronização, cobrança ou OCR. **O Ranking 1.3 é somente uma demonstração no navegador: ainda não existe cadastro de jogadores, placar global ou validação de XP no servidor.** Para competição real entre usuários, será necessário autenticação, apelido público opcional, armazenamento central protegido, apuração segura das atividades e controles contra fraudes. As cotas comerciais de PDFs e cards ainda são locais.
 - Foi incluído o arquivo `backend/schema_preparacao.sql` com RLS, mas **não foi executado** em nenhum Supabase. Precisa de testes reais.
 - Dados guardados no navegador podem desaparecer; use o backup. Pastas são **organizações locais**, não diretórios reais do aparelho nem pastas sincronizadas com Supabase. Limpar os dados do navegador apaga também os nomes e vínculos das pastas locais.
 - O **modo de testes** aceita PDFs ilimitados, de **até 50 MB, com qualquer número de páginas**, lidos em partes de até 15. Identifica documentos pelo SHA-256 do arquivo; reimportar o mesmo PDF reconhece o progresso e não duplica páginas nem cards. Quando terminado, o mesmo documento não é importado novamente. O arquivo PDF ativo pode ser guardado em **IndexedDB local** para continuar após fechar a aba. Se o aparelho não permitir guardar o arquivo, basta selecioná-lo novamente para retomar no ponto salvo. Os cards antigos continuam na biblioteca.
@@ -40,7 +41,7 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 
 O arquivo `index.html` desta versão concentra a interface e o JavaScript do protótipo para facilitar a publicação.
 
-O fluxo `.github/workflows/pages.yml` publica `folders.js`, `pdf-batches.js`, `selection.js`, `card-design.js`, `pdf-intelligence.js`, `ai-cards.js` e `ai-config.js`, executa os testes presentes em `tests/*.test.cjs` e só depois tenta publicar o HTML no GitHub Pages.
+O fluxo `.github/workflows/pages.yml` publica `ranking-demo.js`, `folders.js`, `pdf-batches.js`, `selection.js`, `card-design.js`, `pdf-intelligence.js`, `ai-cards.js` e `ai-config.js`, executa os testes presentes em `tests/*.test.cjs` e só depois tenta publicar o HTML no GitHub Pages.
 
 Para rodar os testes localmente:
 
@@ -69,6 +70,7 @@ O serviço Recebi+ e outros projetos não são utilizados nem alterados por este
 2. Escolha o estilo dos cards (caderno ilustrado, quadrinhos ou minimalista).
 3. Toque em **Gerar bloco inteiro** para criar, de uma vez, os cards restantes das páginas 1 a 15. Se preferir, **Gerar meus cards** continua criando dois por vez. Durante a criação automática, é possível pausar sem perder o que já foi salvo. Ao concluir, toque em **Ler páginas 16 a 30** (ou até o fim, se faltar menos) e repita até terminar o documento sem reler páginas.
 4. Abra **Minha biblioteca** para ver as pastas, renomeá-las e mover cards entre elas. Abra a pasta e selecione **Leitura rápida** para passar os cards horizontalmente no celular.
+5. Abra **Ranking** e toque em **Testar com 5 cards** para iniciar a missão pronta. Marque **Concluir card (+10 XP)** após cada leitura. Volte ao ranking e compare **Semanal**, **Mensal** e **Geral**. Este placar usa nomes e valores fictícios, não usuários cadastrados.
 
 A triagem identifica pistas didáticas no próprio PDF, priorizando regras, artigos, exceções, prazos e conceitos relevantes para revisão. **Não há importação de CSV, filtros de banca/cargo ou ranking histórico de questões.** O aplicativo não afirma que os assuntos escolhidos são estatisticamente os mais cobrados.
 
