@@ -75,7 +75,7 @@ test('Estilo visual dos cards continua protegido e o backup inclui as pastas',()
   assert.match(html,/cardMarkup\(card\)/);
   assert.match(html,/folderMap\[c\.folderId\]\|\|F\.DEFAULT_ID/);
   assert.match(html,/window\.VisuAI\.register\(\[card\]\)/);
-  assert.match(html,/VISUCARDS · VERSÃO 1\.2 DE TESTE/);
+  assert.match(html,/VISUCARDS · VERSÃO 1\.3 DE TESTE/);
   assert.match(fs.readFileSync('DESIGN_LOCK.md','utf8'),/design-locked-v0\.5/);
 });
 test('Scripts inline continuam sintaticamente válidos',()=>{
