@@ -278,6 +278,21 @@
       .premium-head,.premium-hero,.premium-step,.premium-note,.premium-anchor-area{break-inside:avoid}
     }
   </style>
+  <style id="home-shortcut-style">
+    .home-card-shortcut{width:100%;display:flex;align-items:center;gap:16px;min-width:0;margin-top:17px;padding:16px 20px;background:#fff;border:1px solid #dcd0ed;border-radius:18px;color:var(--text);text-align:left;box-shadow:var(--shadow);transition:box-shadow .15s,transform .15s,border-color .15s}
+    .home-card-shortcut:hover{border-color:#9765d9;box-shadow:0 12px 26px rgba(61,28,111,.12)}
+    .home-card-shortcut:active{transform:scale(.992)}
+    .home-card-shortcut:focus-visible{outline:3px solid var(--purple);outline-offset:3px}
+    .home-card-shortcut-icon{flex:0 0 62px;width:62px;height:62px;display:grid;place-items:center;border-radius:17px;background:#eee6ff;font-size:32px}
+    .home-card-shortcut-copy{flex:1 1 auto;min-width:0;display:grid;gap:5px}
+    .home-card-shortcut-copy strong{font-size:19px;font-weight:850;line-height:1.2}
+    .home-card-shortcut-copy small{color:#6c5d7f;font-size:12px;line-height:1.4;overflow-wrap:anywhere}
+    .home-card-shortcut-tail{flex:0 0 auto;display:flex;align-items:center;gap:11px;color:#693ab1;font-size:12px;font-weight:800}
+    .home-card-shortcut-arrow{font-size:25px}
+    #home-shortcut-message:not(.hidden){padding:9px 12px;margin:8px 0 0;border-radius:10px;background:#fff5d8;color:#76521f}
+    @media(max-width:680px){.home-card-shortcut{gap:11px;padding:13px 12px;border-radius:15px}.home-card-shortcut-icon{flex-basis:48px;width:48px;height:48px;border-radius:12px;font-size:24px}.home-card-shortcut-copy strong{font-size:16px}.home-card-shortcut-copy small{font-size:11px}.home-card-shortcut-tail{gap:5px;font-size:10px}.home-card-shortcut-arrow{font-size:18px}}
+    @media(max-width:360px){.home-card-shortcut{gap:8px;padding:11px 9px}.home-card-shortcut-icon{flex-basis:42px;width:42px;height:42px;font-size:22px}.home-card-shortcut-tail{flex-direction:column;gap:0;justify-content:center}.home-card-shortcut-copy strong{font-size:15px}}
+  </style>
   <style id="ranking-demo-style">
     .ranking-hero{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;background:linear-gradient(110deg,#30204b,#513178);color:white}
     .ranking-hero .eyebrow{color:#e4cdfd}.ranking-hero h2{font-size:35px;margin:10px 0 4px}.ranking-hero .hint{color:#e8daf7}
@@ -325,7 +340,7 @@
       <nav class="nav" aria-label="Navegação">
         <button type="button" data-tab="criar" aria-current="page"><span>✦</span> Criar cards</button>
         <button type="button" data-tab="biblioteca"><span>▦</span> Minha biblioteca</button>
-        <button type="button" data-tab="ranking"><span>🏆</span> Ranking
+        <button type="button" data-tab="ranking"><span>🏆</span> Ranking</button>
         <button type="button" data-tab="combos"><span>◈</span> Combos</button>
         <button type="button" data-tab="planos"><span>♛</span> Planos</button>
       </nav>
@@ -335,6 +350,12 @@
       <div class="topbar"><span class="eyebrow">VISUCARDS · VERSÃO 1.3 DE TESTE</span><span class="pill">✦ Plano gratuito</span></div>
       <section id="tab-criar" class="tab">
         <div class="hero"><div><div class="eyebrow" style="color:#d0b6ff">RESUMO ILUSTRADO PARA CONCURSOS</div><h1>Seu PDF vira cards ilustrados para revisar.</h1><p class="lead">Transforme trechos do seu conteúdo em cards coloridos para revisar e memorizar.</p></div><div class="hero-art" aria-hidden="true">📚✨</div></div>
+        <button type="button" id="home-my-cards" class="home-card-shortcut" aria-label="Meus Cards: abrir diretamente a leitura rápida dos cards salvos">
+          <span class="home-card-shortcut-icon" aria-hidden="true">📚</span>
+          <span class="home-card-shortcut-copy"><strong>Meus Cards</strong><small>Toque para ler e passar os cards para o lado</small></span>
+          <span class="home-card-shortcut-tail"><span id="home-card-count">0 cards</span><span class="home-card-shortcut-arrow" aria-hidden="true">➜</span></span>
+        </button>
+        <p id="home-shortcut-message" class="hint hidden" role="status" aria-live="polite"></p>
         <div class="grid">
           <section class="panel"><div class="panel-head"><h2>Comece pelo seu PDF</h2><span class="tag">PASSO 1</span></div>
             <div class="dropzone" id="dropzone"><div class="uploadicon">📄</div><strong>Arraste ou selecione um PDF</strong><p>PDF de qualquer quantidade de páginas, até 50 MB. Leitura em blocos de 15 páginas, sem repetir.</p><button type="button" class="btn" id="pick-file">Selecionar PDF</button><input type="file" id="pdf-input" accept="application/pdf,.pdf" style="display:none" /></div>
@@ -581,6 +602,7 @@
       if(!unlimited)$('#card-meter').style.width=Math.min(state.cardCount/window.VisuPolicy.FREE.cards*100,100)+'%';
       $('#month-display').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).toUpperCase();
       $('#library-count').textContent=state.cards.length+' CARDS';
+      $('#home-card-count').textContent=state.cards.length+' '+(state.cards.length===1?'card':'cards');
       renderFolderSelect();
       const candidates=preparedCandidates();
       const used=Math.min(state.generationCursor,candidates.length);
@@ -876,6 +898,17 @@
         F.folderName(state.folders,openFolderId));
     };
     $('#read-all').onclick=()=>openReader(state.cards,null,'Todos os cards');
+    $('#home-my-cards').onclick=()=>{
+      const message=$('#home-shortcut-message');
+      if(!state.cards.length){
+        message.textContent='Você ainda não tem cards salvos. Envie um PDF e gere seus cards para começar a leitura.';
+        message.classList.remove('hidden');
+        return;
+      }
+      message.textContent='';
+      message.classList.add('hidden');
+      openReader(state.cards.slice().reverse(),null,'Meus Cards');
+    };
     const swipeStage=$('#swipe-stage');
     swipeStage.addEventListener('pointerdown',event=>{
       if(event.isPrimary===false)return;
