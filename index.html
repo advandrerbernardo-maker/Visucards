@@ -292,7 +292,7 @@
       <div class="sidefoot"><strong>MODO DE TESTES</strong>PDFs sem limite mensal<br/>15 páginas por etapa · 50 MB por PDF</div>
     </aside>
     <main>
-      <div class="topbar"><span class="eyebrow">VISUCARDS · VERSÃO 1.0 DE TESTE</span><span class="pill">✦ Plano gratuito</span></div>
+      <div class="topbar"><span class="eyebrow">VISUCARDS · VERSÃO 1.1 DE TESTE</span><span class="pill">✦ Plano gratuito</span></div>
       <section id="tab-criar" class="tab">
         <div class="hero"><div><div class="eyebrow" style="color:#d0b6ff">RESUMO ILUSTRADO PARA CONCURSOS</div><h1>Seu PDF vira cards ilustrados para revisar.</h1><p class="lead">Transforme trechos do seu conteúdo em cards coloridos para revisar e memorizar.</p></div><div class="hero-art" aria-hidden="true">📚✨</div></div>
         <div class="grid">
@@ -310,8 +310,9 @@
               <button id="ai-logout" type="button" class="btn outline smallbtn hidden">Desconectar IA</button>
               <p id="ai-status" class="hint" role="status" style="margin-top:10px">Entre com e-mail confirmado para ativar a IA.</p>
             </details>
-            <div class="actionrow"><button class="btn yellow" id="generate" disabled>Gerar meus cards</button><button class="btn secondary hidden" type="button" id="next-pages">Próximas páginas</button><button class="btn outline hidden" type="button" id="restart-generation">↻ Recomeçar cards</button><button class="btn outline" id="demo">Ver demonstração</button></div>
+            <div class="actionrow"><button class="btn yellow" id="generate" disabled>Gerar meus cards</button><button class="btn secondary hidden" type="button" id="generate-block">Gerar bloco inteiro</button><button class="btn secondary hidden" type="button" id="next-pages">Próximas páginas</button><button class="btn outline hidden" type="button" id="restart-generation">↻ Recomeçar cards</button><button class="btn outline" id="demo">Ver demonstração</button></div>
             <p id="document-progress" class="hint hidden" role="status" aria-live="polite" style="margin:10px 0 0;font-weight:700"></p>
+            <p id="batch-progress" class="hint hidden" role="status" aria-live="polite" style="margin:8px 0 0"></p>
             <p id="coverage-hint" class="hint hidden" role="status" aria-live="polite" style="margin:10px 0 0"></p>
             <p class="hint" style="margin-top:13px">O PDF é lido no próprio navegador. Sem IA conectada, os trechos não são enviados a servidores. Com IA ativada, somente os trechos escolhidos para os cards são enviados ao serviço seguro. PDFs escaneados sem texto selecionável ainda não são compatíveis.</p>
           </section>
@@ -319,7 +320,7 @@
             <div class="meter"><div class="meter-head"><span>PDFs analisados neste mês</span><span id="pdf-counter">0 · ilimitados</span></div><div class="track"><div class="fill" id="pdf-meter" style="width:0%"></div></div></div>
             <div class="meter"><div class="meter-head"><span>Cards ilustrados</span><span id="card-counter">0 · ilimitados</span></div><div class="track"><div class="fill" id="card-meter" style="width:0%"></div></div></div>
             <div class="stack" style="margin-top:22px"><div class="step"><div class="num">1</div><div><strong>Escolha seu conteúdo</strong><small>15 páginas por etapa, até 50 MB por PDF</small></div></div><div class="step"><div class="num">2</div><div><strong>Veja um infográfico didático</strong><small>Trechos, regras, prazos e dados destacados do documento</small></div></div><div class="step"><div class="num">3</div><div><strong>Personalize e exporte</strong><small>Edite textos e exporte em PNG ou impressão/PDF</small></div></div></div>
-            <div class="notice">Durante os testes, o aplicativo lê páginas 1 a 15, depois 16 a 30 e segue até o fim, sem voltar às páginas já lidas. Documentos iguais são identificados e não são importados novamente. O progresso fica salvo neste navegador; a biblioteca permanece intacta. A IA externa continua desativada até a configuração segura.</div>
+            <div class="notice">Durante os testes, você pode gerar um bloco inteiro de cards com um toque, pausar e continuar depois. As páginas são lidas de 15 em 15, sem recomeçar ou repetir documentos. A geração em lote usa o modo local, sem consumir cota de IA externa. Sua biblioteca permanece salva neste navegador.</div>
           </section>
         </div>
         <div id="results" class="hidden"><div class="sectiontitle"><div><h2>Seus cards ilustrados</h2><div class="muted small">Revise o conteúdo antes de estudar.</div></div><span class="tag" id="result-type">PRÉVIA</span></div><div class="showcase" id="card-grid"></div></div>
@@ -435,6 +436,8 @@
     let activeBlob=null;
     let readingPDF=false;
     let generating=false;
+    let autoGenerating=false;
+    let autoStop=false;
     window.VisuAI.installArtHook();
     window.VisuAI.register(state.cards);
     const PDFJS_VERSION='6.4.299';
@@ -481,15 +484,21 @@
       const used=Math.min(state.generationCursor,candidates.length);
       const remaining=candidates.length-used;
       const doc=activeDocument();
-      const canGenerate=Boolean(state.parsed)&&remaining>0&&window.VisuPolicy.remainingCards(state.cardCount)>0&&!readingPDF&&!generating;
+      const canGenerate=Boolean(state.parsed)&&remaining>0&&window.VisuPolicy.remainingCards(state.cardCount)>0&&!readingPDF&&!generating&&!autoGenerating;
       $('#generate').disabled=!canGenerate;
       $('#generate').textContent=remaining===0&&state.parsed
         ?(doc&&doc.nextPage<=doc.totalPages?'Bloco concluído':'PDF concluído')
         :remaining===1?'Gerar último card':used>0?'Gerar mais 2 cards':'Gerar meus cards';
+      const fullBatchButton=$('#generate-block');
+      fullBatchButton.classList.toggle('hidden',!state.parsed?.hash||(!autoGenerating&&remaining<=2));
+      fullBatchButton.disabled=readingPDF||(!autoGenerating&&(generating||remaining===0));
+      fullBatchButton.textContent=autoGenerating?'Pausar geração':'Gerar bloco inteiro';
+      $('#batch-progress').classList.toggle('hidden',!autoGenerating);
+      if(autoGenerating)$('#batch-progress').textContent='Gerando cards deste bloco: '+used+' de '+candidates.length+' trechos. Cada card é salvo separadamente.';
       const hasMore=Boolean(doc&&doc.nextPage<=doc.totalPages);
       const range=hasMore?window.VisuPDFBatches.range(doc.totalPages,doc.nextPage):null;
       $('#next-pages').classList.toggle('hidden',!state.parsed?.hash||!hasMore);
-      $('#next-pages').disabled=readingPDF||generating||remaining>0;
+      $('#next-pages').disabled=readingPDF||generating||autoGenerating||remaining>0;
       if(range)$('#next-pages').textContent=`Ler páginas ${range.start} a ${range.end}`;
       $('#restart-generation').classList.toggle('hidden',Boolean(state.parsed?.hash)||!state.parsed||remaining>0||readingPDF);
       $('#document-progress').classList.toggle('hidden',!state.parsed?.hash);
@@ -663,9 +672,12 @@
           show('Lendo páginas '+range.start+' a '+range.end+': página '+p+' de '+doc.totalPages+'...');
       }
       const extracted=candidateChunks(pages,range.start);
+      const previousCards=state.cards.filter(card=>card.documentHash===doc.hash);
+      const uniqueChunks=extracted.chunks.filter(chunk=>!previousCards.some(card=>
+        window.VisuSelection.nearDuplicate(card.text,chunk.text)));
       const parsed={hash:doc.hash,file:doc.file,totalPages:doc.totalPages,
         pageStart:range.start,pageEnd:range.end,
-        chunks:extracted.chunks.map(c=>({text:c.text,page:c.page}))};
+        chunks:uniqueChunks.map(c=>({text:c.text,page:c.page}))};
       let updated=window.VisuPDFBatches.batch(doc,parsed);
       if(!parsed.chunks.length)updated=window.VisuPDFBatches.moveCursor(updated,0,0);
       if(!saveProgress(updated,parsed,0,!state.documents.some(x=>x.hash===doc.hash)))return false;
@@ -680,7 +692,7 @@
     }
     async function readFile(file){
       refresh();
-      if(readingPDF||generating){show('A leitura ou geração ainda não terminou.',true);return}
+      if(readingPDF||generating||autoGenerating){show('A leitura ou geração ainda não terminou.',true);return}
       const limits=window.VisuPolicy.uploadLimits();
       if(!/\.pdf$/i.test(file.name)&&file.type!=='application/pdf'){
         show('Selecione um arquivo PDF válido.',true);return
@@ -724,7 +736,7 @@
       }
     }
     $('#next-pages').onclick=async()=>{
-      if(readingPDF||generating)return;
+      if(readingPDF||generating||autoGenerating)return;
       const doc=activeDocument();
       if(!doc||!state.parsed?.hash){show('Selecione um PDF para começar.',true);return}
       if(state.generationCursor<preparedCandidates().length){
@@ -775,10 +787,11 @@
         text:clean(p.text),
         note:window.VisuSelection.studyPrompt(p.text),
         source:state.parsed.file+' · pág. '+p.page,
+        documentHash:state.parsed.hash||null,
         color:i%4,layout:currentLayout()
       }));
       let aiResult={cards,usedAI:false,reason:'not_configured'};
-      try{aiResult=await window.VisuAI.enhance(cards)}catch{aiResult={cards,usedAI:false,reason:'service_error'}}
+      if(!autoGenerating)try{aiResult=await window.VisuAI.enhance(cards)}catch{aiResult={cards,usedAI:false,reason:'service_error'}}
       if(aiResult.usedAI)cards.splice(0,cards.length,...aiResult.cards);
       else cards.splice(0,cards.length,...window.VisuAI.decorateLocal(cards));
       window.VisuAI.register(cards);
@@ -796,7 +809,7 @@
         refresh();return
       }
       refresh();
-      drawCards(cards,aiResult.usedAI?'CARDS COM IA · FONTE CONFERÍVEL':'CARDS DO PDF · SELEÇÃO LOCAL');
+      if(!autoGenerating)drawCards(cards,aiResult.usedAI?'CARDS COM IA · FONTE CONFERÍVEL':'CARDS DO PDF · SELEÇÃO LOCAL');
       const finishNote=batch.exhausted
         ?doc?(doc.nextPage<=doc.totalPages
             ?' Bloco concluído. Agora toque em Ler páginas '+doc.nextPage+' a '+Math.min(doc.nextPage+14,doc.totalPages)+'.'
@@ -806,8 +819,48 @@
       const aiNote=aiResult.usedAI
         ?' Diagramas personalizados por IA, com rótulos conferidos no trecho original.'
         :aiResult.reason==='service_error'?' IA indisponível: cards gerados localmente.':'';
-      show(cards.length+' card(s) criados a partir do PDF. Confira a página de origem.'+aiNote+finishNote,false,true);
+      if(!autoGenerating)show(cards.length+' card(s) criados a partir do PDF. Confira a página de origem.'+aiNote+finishNote,false,true);
       }finally{generating=false;refresh()}
+    };
+    $('#generate-block').onclick=async()=>{
+      if(autoGenerating){
+        autoStop=true;
+        $('#generate-block').disabled=true;
+        $('#generate-block').textContent='Pausando...';
+        return;
+      }
+      if(readingPDF||generating||!state.parsed?.hash)return;
+      const hash=state.activeHash,start=state.parsed.pageStart;
+      const available=preparedCandidates().length-state.generationCursor;
+      if(available<=0)return;
+      autoGenerating=true;autoStop=false;refresh();
+      let saved=0,lastCards=[];
+      try{
+        while(!autoStop&&state.activeHash===hash&&state.parsed?.pageStart===start){
+          const before=state.generationCursor;
+          const cardIndex=state.cards.length;
+          if(before>=preparedCandidates().length)break;
+          await $('#generate').onclick();
+          if(state.generationCursor<=before)break; // falha ao salvar: não repetir
+          const added=state.cards.slice(cardIndex);
+          saved+=added.length;
+          lastCards=added;
+          // Ceder tempo à interface móvel, permitindo pausar a operação.
+          await new Promise(resolve=>setTimeout(resolve,20));
+        }
+      }catch(error){console.error('Falha ao gerar bloco',error)}
+      finally{
+        const stopped=autoStop;
+        autoGenerating=false;autoStop=false;
+        refresh();
+        if(saved){
+          drawCards(lastCards,'ÚLTIMOS CARDS · LOTE LOCAL');
+          const remaining=preparedCandidates().length-state.generationCursor;
+          show(saved+' novo(s) card(s) salvos na biblioteca. '+(remaining
+            ?(stopped?'Geração pausada.':'Geração interrompida.')+' Restam '+remaining+' trechos neste bloco.'
+            :activeDocument()?.nextPage<=activeDocument()?.totalPages?'Bloco concluído. Avance para as próximas 15 páginas.':'Documento concluído.'),false,true);
+        }else show('Nenhum card novo foi salvo. Confira o espaço de armazenamento e o PDF.',true);
+      }
     };
     $('#demo').onclick=()=>drawCards([
       {id:'example1',title:'CONTRADITÓRIO E AMPLA DEFESA',text:'O art. 5º, LV, da Constituição Federal assegura o contraditório e a ampla defesa em processos judiciais e administrativos. A pessoa interessada pode apresentar argumentos e utilizar os meios e recursos admitidos em direito. A aplicação depende das regras do procedimento correspondente.',note:'Exemplo didático. Confira o texto do art. 5º, LV, da Constituição Federal.',source:'Exemplo demonstrativo · Constituição Federal',color:0,layout:currentLayout()},
@@ -819,7 +872,7 @@
       if(tooLong){show('O campo '+tooLong.dataset.field+' excede o limite. Reduza o texto antes de salvar.',true);return}
       edited.forEach(el=>{c[el.dataset.field]=clean(el.value)});const storedCard=state.cards.find(s=>s.id===c.id);if(storedCard)Object.assign(storedCard,c);persist();drawCards(state.preview,$('#result-type').textContent)}});
     $('#library-search').addEventListener('input',renderLibrary);
-    $('#backup-library').addEventListener('click',()=>{const data=JSON.stringify({app:'VISUCARDS',version:'1.0',exported_at:new Date().toISOString(),cards:state.cards,reviews:state.reviews},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='VISUCARDS_biblioteca_backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+    $('#backup-library').addEventListener('click',()=>{const data=JSON.stringify({app:'VISUCARDS',version:'1.1',exported_at:new Date().toISOString(),cards:state.cards,reviews:state.reviews},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='VISUCARDS_biblioteca_backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
     $('#restore-library').onclick=()=>$('#restore-file').click();
     $('#restore-file').addEventListener('change',async e=>{
       const file=e.target.files[0];e.target.value='';if(!file)return;
@@ -832,6 +885,7 @@
           return {id:typeof c.id==='string'&&/^[a-z0-9_-]{1,80}$/i.test(c.id)?c.id:id()+'-'+i,
             title:c.title.slice(0,160),text:c.text.slice(0,1000),note:String(c.note||'').slice(0,500),
             source:String(c.source||'Backup do VISUCARDS').slice(0,240),
+            documentHash:typeof c.documentHash==='string'&&/^[a-f0-9]{64}$/.test(c.documentHash)?c.documentHash:null,
             color:Number.isInteger(c.color)&&c.color>=0&&c.color<4?c.color:0,
             layout:['caderno','quadrinhos','minimalista'].includes(c.layout)?c.layout:'caderno'};
         });
