@@ -278,6 +278,22 @@
       .premium-head,.premium-hero,.premium-step,.premium-note,.premium-anchor-area{break-inside:avoid}
     }
   </style>
+  <style id="ranking-demo-style">
+    .ranking-hero{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;background:linear-gradient(110deg,#30204b,#513178);color:white}
+    .ranking-hero .eyebrow{color:#e4cdfd}.ranking-hero h2{font-size:35px;margin:10px 0 4px}.ranking-hero .hint{color:#e8daf7}
+    .ranking-hero-actions{display:flex;gap:9px;flex-wrap:wrap}.ranking-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .ranking-head h2{font-size:19px}.ranking-periods{display:flex;gap:7px;background:#f0eafa;padding:5px;border-radius:13px;margin:13px 0}
+    .ranking-period{flex:1;padding:11px 7px;background:transparent;color:#6d5399;border:0;border-radius:10px;font-size:13px;font-weight:850;min-height:44px}
+    .ranking-period.active{background:white;color:#4d268d;box-shadow:0 2px 7px rgba(50,20,100,.1)}.ranking-period:focus-visible{outline:2px solid #7841cb}
+    .ranking-entry{display:flex;align-items:center;gap:12px;border-bottom:1px solid #eee6f5;padding:14px 9px;min-width:0}
+    .ranking-entry:last-child{border-bottom:0}.ranking-entry.you{background:#f2eafd;border-radius:14px;border:1px solid #d5c2ec;margin:6px 0}
+    .ranking-place{width:36px;text-align:center;font-size:21px;flex-shrink:0;font-weight:800;color:#6b5187}
+    .ranking-person{flex:1;min-width:0}.ranking-person strong{display:block;overflow-wrap:anywhere;font-size:14px}
+    .ranking-person small{font-size:11px;color:#847a91}.ranking-xp{white-space:nowrap;font-size:15px;font-weight:850;color:#4e2e75}
+    .swipe-gamebar{display:flex;gap:10px;justify-content:center;align-items:center;max-width:740px;width:100%;margin:0 auto;padding:5px 0}
+    .swipe-gamebar button{flex:1;min-height:42px;max-width:250px}.swipe-xp-message{font-size:11px;text-align:center;color:#e2d0f0;min-height:18px;margin:3px auto}
+    @media(max-width:680px){.ranking-hero{padding:18px}.ranking-entry{gap:7px;padding:12px 6px}.ranking-person strong{font-size:13px}.ranking-xp{font-size:13px}.swipe-gamebar .btn{font-size:11px;padding:9px}}
+  </style>
   <style id="library-folder-style">
     .folder-create{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:16px}.folder-create input{flex:1 1 210px;min-width:0}
     .folder-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:17px}
@@ -309,13 +325,14 @@
       <nav class="nav" aria-label="Navegação">
         <button type="button" data-tab="criar" aria-current="page"><span>✦</span> Criar cards</button>
         <button type="button" data-tab="biblioteca"><span>▦</span> Minha biblioteca</button>
+        <button type="button" data-tab="ranking"><span>🏆</span> Ranking
         <button type="button" data-tab="combos"><span>◈</span> Combos</button>
         <button type="button" data-tab="planos"><span>♛</span> Planos</button>
       </nav>
       <div class="sidefoot"><strong>MODO DE TESTES</strong>PDFs sem limite mensal<br/>15 páginas por etapa · 50 MB por PDF</div>
     </aside>
     <main>
-      <div class="topbar"><span class="eyebrow">VISUCARDS · VERSÃO 1.2 DE TESTE</span><span class="pill">✦ Plano gratuito</span></div>
+      <div class="topbar"><span class="eyebrow">VISUCARDS · VERSÃO 1.3 DE TESTE</span><span class="pill">✦ Plano gratuito</span></div>
       <section id="tab-criar" class="tab">
         <div class="hero"><div><div class="eyebrow" style="color:#d0b6ff">RESUMO ILUSTRADO PARA CONCURSOS</div><h1>Seu PDF vira cards ilustrados para revisar.</h1><p class="lead">Transforme trechos do seu conteúdo em cards coloridos para revisar e memorizar.</p></div><div class="hero-art" aria-hidden="true">📚✨</div></div>
         <div class="grid">
@@ -367,6 +384,29 @@
           <p class="review-summary" id="review-summary" role="status"></p><button type="button" id="review-free" class="btn outline hidden">Fazer revisão livre</button>
         </div>
       </section>
+      <section id="tab-ranking" class="tab hidden" aria-labelledby="ranking-title">
+        <div class="eyebrow">GAMIFICAÇÃO · DEMONSTRAÇÃO LOCAL</div>
+        <h1 id="ranking-title">Ranking de Conhecimento</h1>
+        <p class="lead">Teste como será a classificação semanal, mensal e geral. Os nomes e as pontuações dos outros participantes são exemplos fictícios. A sua pontuação de teste fica salva apenas neste navegador.</p>
+        <div class="ranking-hero panel" style="margin-top:22px">
+          <div><div class="eyebrow">SEU PROGRESSO DE TESTE</div><h2 id="ranking-your-points">0 XP</h2><p id="ranking-my-position" class="hint">Sua posição: 5º</p><p id="ranking-completed" class="hint">0 cards concluídos.</p></div>
+          <div class="ranking-hero-actions"><button type="button" id="ranking-test" class="btn yellow">▶ Testar com 5 cards</button><button type="button" id="ranking-reset" class="btn outline smallbtn">Reiniciar XP de teste</button></div>
+        </div>
+        <div class="panel ranking-panel" style="margin-top:16px">
+          <div class="ranking-head"><h2>Classificação demonstrativa</h2><span class="tag">USUÁRIOS FICTÍCIOS</span></div>
+          <div class="ranking-periods" role="group" aria-label="Período do ranking">
+            <button class="ranking-period active" type="button" data-ranking-period="weekly" aria-pressed="true">Semanal</button>
+            <button class="ranking-period" type="button" data-ranking-period="monthly" aria-pressed="false">Mensal</button>
+            <button class="ranking-period" type="button" data-ranking-period="all" aria-pressed="false">Geral</button>
+          </div>
+          <div id="ranking-list" aria-live="polite"></div>
+          <p class="hint" style="margin-top:15px">Esta é uma simulação, não uma classificação real de usuários. Ações feitas aqui não criam conta, não enviam dados ao servidor e não valem pontos num ranking global.</p>
+        </div>
+        <div class="panel" style="margin-top:16px">
+          <h2 style="font-size:18px">Como ganhar pontos neste teste?</h2>
+          <p class="hint">Abra a missão e toque em <strong>Concluir card (+10 XP)</strong> depois de estudar. Cada card rende XP uma única vez. Deslizar sem confirmar a leitura não rende pontos. A opção <strong>Rever depois</strong> não dá XP.</p>
+        </div>
+      </section>
       <section id="tab-combos" class="tab hidden"><div class="eyebrow">MARKETPLACE</div><h1>Combos para seu concurso</h1><p class="lead">Materiais prontos para revisão, organizados por cargo, disciplina e edital.</p><div class="sectiontitle"><h2>Combos de exemplo</h2><span class="tag">CATÁLOGO ILUSTRATIVO</span></div><div class="catalog"><article class="product"><div class="product-icon">⚖️📘</div><strong>TJAM 2027</strong><p>Cards ilustrados de Direito e matérias previstas no edital, quando confirmado.</p><span class="price">R$ 79,90</span><button class="btn secondary" onclick="alert('Vitrine demonstrativa: nenhuma compra será realizada.')">Ver detalhes</button></article><article class="product"><div class="product-icon">📚🏛️</div><strong>DPE-AM</strong><p>Estudo visual por área jurídica, cargo e disciplinas do edital correspondente.</p><span class="price">R$ 69,90</span><button class="btn secondary" onclick="alert('Vitrine demonstrativa: nenhuma compra será realizada.')">Ver detalhes</button></article><article class="product"><div class="product-icon">🛡️📗</div><strong>Guarda Municipal</strong><p>Legislação e disciplinas selecionadas conforme município e edital.</p><span class="price">R$ 59,90</span><button class="btn secondary" onclick="alert('Vitrine demonstrativa: nenhuma compra será realizada.')">Ver detalhes</button></article></div><div class="notice">Os combos acima ainda não estão disponíveis para compra. Os valores são referências comerciais de teste, não ofertas reais.</div></section>
       <section id="tab-planos" class="tab hidden"><div class="eyebrow">ESCOLHA SEU RITMO</div><h1>Planos VISUCARDS</h1><p class="lead">Compre apenas o combo que precisa ou assine o Premium para gerar mais materiais.</p><div class="plans" style="margin-top:24px"><article class="plan"><span class="tag">GRATUITO · TESTES</span><div class="amount">R$ 0</div><ul><li>PDFs ilimitados nos testes, qualquer quantidade de páginas, leitura de 15 por etapa e até 50 MB por arquivo</li><li>Cards ilimitados durante os testes (proposta futura: 2/mês)</li><li>Prévia dos combos</li><li>Biblioteca básica</li><li>Marca VISUCARDS</li></ul><button class="btn outline full" disabled>Seu plano atual</button></article><article class="plan featured"><span class="tag">PREMIUM</span><div class="amount">R$ 29,90 <span class="small muted">/mês</span></div><ul><li>Até 10 PDFs de 50 páginas/mês</li><li>60 cards ilustrados/mês</li><li>Edição e exportação</li><li>Biblioteca Premium selecionada</li><li>Desconto em combos avulsos</li></ul><button class="btn full" onclick="alert('Assinaturas ainda não estão habilitadas neste protótipo.')">Em breve</button></article><article class="plan"><span class="tag">COMPRA AVULSA</span><div class="amount">A partir de R$ 29,90</div><ul><li>Compre combos específicos</li><li>Acesso independente da assinatura</li><li>Cards por disciplina e assunto</li><li>Revisões de concurso</li><li>Materiais incluídos no pacote</li></ul><button class="btn outline full" data-tab="combos">Explorar combos</button></article></div><div class="notice">Preços, benefícios e limites do Premium são propostas para validação. Não há contratação ou cobrança neste protótipo.</div></section>
       <p class="footer">VISUCARDS · Protótipo funcional local · Conteúdo extraído do PDF: confira o texto e as fontes oficiais. Não substitui a revisão humana. Interface e elementos visuais próprios.</p>
@@ -375,6 +415,7 @@
   <div id="swipe-reader" class="swipe-reader hidden" role="dialog" aria-modal="true" aria-labelledby="swipe-heading" tabindex="-1">
     <header class="swipe-head"><div><span class="swipe-eyebrow">VISUCARDS · LEITURA RÁPIDA</span><h2 id="swipe-heading">Meus cards</h2><span id="swipe-counter" aria-live="polite"></span></div><button type="button" id="swipe-close" class="swipe-close" aria-label="Fechar leitura rápida">✕ Fechar</button></header>
     <div id="swipe-stage" class="swipe-stage" aria-label="Deslize para a esquerda para avançar e para a direita para voltar"><div id="swipe-card" class="swipe-card"></div></div>
+    <div class="swipe-gamebar"><button type="button" id="swipe-review-later" class="btn outline smallbtn">Rever depois</button><button type="button" id="swipe-learn" class="btn yellow smallbtn">Concluir card (+10 XP)</button></div><p id="swipe-xp-message" class="swipe-xp-message" role="status" aria-live="polite">O XP é concedido apenas após confirmar a leitura, uma vez por card.</p>
     <footer class="swipe-footer"><button type="button" id="swipe-prev" class="btn outline">← Anterior</button><span class="swipe-instruction">Deslize o card para os lados</span><button type="button" id="swipe-next" class="btn yellow">Próximo →</button></footer>
   </div>
   <script>
@@ -444,6 +485,7 @@
 })(typeof window !== 'undefined' ? window : globalThis);
 
 </script>
+  <script src="./ranking-demo.js"></script>
   <script src="./folders.js"></script>
   <script src="./pdf-batches.js"></script>
   <script src="./selection.js"></script>
