@@ -976,6 +976,8 @@
         }
         const cached=await cacheActiveDocument(hash,file);
         if(existing?.pending?.parsed){
+          if(state.folders.some(f=>f.id===state.documentFolders[hash]))
+            state.selectedFolderId=state.documentFolders[hash];
           if(saveProgress(existing,existing.pending.parsed,existing.pending.cursor)){
             show('Documento reconhecido. Retomando da página '+existing.pending.parsed.pageStart+' a '+existing.pending.parsed.pageEnd+', sem reler páginas.'+(cached?'':' Se fechar o navegador, selecione este arquivo novamente.'),false,true);
           }
@@ -988,8 +990,28 @@
         }
         const doc=existing||window.VisuPDFBatches.create(hash,file.name,pdf.numPages,file.size);
         if(doc.totalPages!==pdf.numPages)throw Error('O número de páginas do documento mudou.');
-        const ok=await extractNextBlock(pdf,doc);
-        if(ok&&!cached)show('Bloco lido e salvo. Se fechar o navegador, selecione o mesmo PDF para continuar as páginas seguintes.',false,true);
+        // Pasta automática pelo nome do PDF, ou pasta escolhida previamente.
+        const oldFolders=state.folders,oldMapping=state.documentFolders,oldSelected=state.selectedFolderId;
+        if(!state.folders.some(f=>f.id===state.documentFolders[hash])){
+          if(state.selectedFolderId===F.DEFAULT_ID){
+            const folderId=newFolderId();
+            state.folders=F.create(state.folders,F.suggestedName(file.name,state.folders),folderId);
+            state.selectedFolderId=folderId;
+          }
+          state.documentFolders={...state.documentFolders,[hash]:state.selectedFolderId};
+        }else state.selectedFolderId=state.documentFolders[hash];
+        let ok=false;
+        try{ok=await extractNextBlock(pdf,doc)}
+        catch(error){
+          state.folders=oldFolders;state.documentFolders=oldMapping;state.selectedFolderId=oldSelected;
+          throw error
+        }
+        if(!ok){
+          state.folders=oldFolders;state.documentFolders=oldMapping;state.selectedFolderId=oldSelected;
+          refresh();
+          return
+        }
+        if(!cached)show('Bloco lido e salvo. Se fechar o navegador, selecione o mesmo PDF para continuar as páginas seguintes.',false,true);
       }catch(error){
         console.error(error);
         show('Não foi possível ler este PDF. Confira se ele não está protegido por senha, corrompido ou sem suporte no navegador.',true);
@@ -1051,6 +1073,7 @@
         note:window.VisuSelection.studyPrompt(p.text),
         source:state.parsed.file+' · pág. '+p.page,
         documentHash:state.parsed.hash||null,
+        folderId:state.documentFolders[state.parsed.hash]||state.selectedFolderId||F.DEFAULT_ID,
         color:i%4,layout:currentLayout()
       }));
       let aiResult={cards,usedAI:false,reason:'not_configured'};
@@ -1135,24 +1158,36 @@
       if(tooLong){show('O campo '+tooLong.dataset.field+' excede o limite. Reduza o texto antes de salvar.',true);return}
       edited.forEach(el=>{c[el.dataset.field]=clean(el.value)});const storedCard=state.cards.find(s=>s.id===c.id);if(storedCard)Object.assign(storedCard,c);persist();drawCards(state.preview,$('#result-type').textContent)}});
     $('#library-search').addEventListener('input',renderLibrary);
-    $('#backup-library').addEventListener('click',()=>{const data=JSON.stringify({app:'VISUCARDS',version:'1.1',exported_at:new Date().toISOString(),cards:state.cards,reviews:state.reviews},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='VISUCARDS_biblioteca_backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
+    $('#backup-library').addEventListener('click',()=>{const data=JSON.stringify({app:'VISUCARDS',version:'1.2',exported_at:new Date().toISOString(),folders:state.folders,cards:state.cards,reviews:state.reviews},null,2);const blob=new Blob([data],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='VISUCARDS_biblioteca_backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)});
     $('#restore-library').onclick=()=>$('#restore-file').click();
     $('#restore-file').addEventListener('change',async e=>{
       const file=e.target.files[0];e.target.value='';if(!file)return;
-      if(file.size>2*1024*1024){show('Backup acima de 2 MB. Selecione um arquivo menor.',true);return}
+      if(file.size>10*1024*1024){show('Backup acima de 10 MB. Selecione um arquivo menor.',true);return}
       try{
         const data=JSON.parse(await file.text());
-        if(data.app!=='VISUCARDS'||!Array.isArray(data.cards)||data.cards.length>500)throw Error('Formato desconhecido');
+        if(data.app!=='VISUCARDS'||!Array.isArray(data.cards)||data.cards.length>2000)throw Error('Formato desconhecido');
+        let mergedFolders=state.folders.slice();
+        const folderMap={[F.DEFAULT_ID]:F.DEFAULT_ID};
+        for(const incoming of F.normalizeFolders(data.folders)){
+          if(incoming.id===F.DEFAULT_ID)continue;
+          const sameName=mergedFolders.find(f=>f.name.toLocaleLowerCase('pt-BR')===incoming.name.toLocaleLowerCase('pt-BR'));
+          if(sameName){folderMap[incoming.id]=sameName.id;continue}
+          const folderId=mergedFolders.some(f=>f.id===incoming.id)?newFolderId():incoming.id;
+          mergedFolders=F.create(mergedFolders,incoming.name,folderId);
+          folderMap[incoming.id]=folderId;
+        }
         const parsed=data.cards.map((c,i)=>{
           if(!c||typeof c!=='object'||typeof c.title!=='string'||!c.title.trim()||typeof c.text!=='string'||!c.text.trim())throw Error('Card inválido');
           return {id:typeof c.id==='string'&&/^[a-z0-9_-]{1,80}$/i.test(c.id)?c.id:id()+'-'+i,
             title:c.title.slice(0,160),text:c.text.slice(0,1000),note:String(c.note||'').slice(0,500),
             source:String(c.source||'Backup do VISUCARDS').slice(0,240),
             documentHash:typeof c.documentHash==='string'&&/^[a-f0-9]{64}$/.test(c.documentHash)?c.documentHash:null,
+            folderId:folderMap[c.folderId]||F.DEFAULT_ID,
             color:Number.isInteger(c.color)&&c.color>=0&&c.color<4?c.color:0,
             layout:['caderno','quadrinhos','minimalista'].includes(c.layout)?c.layout:'caderno'};
         });
         const previous=state.cards;
+        const previousFolders=state.folders;
         // Backups antigos continuam compatíveis. Nunca se importa uma revisão sem card correspondente.
         const previousReviews=state.reviews;
         const incomingReviews={};
@@ -1162,13 +1197,43 @@
         const seen=new Set(previous.map(c=>c.id));
 
         state.cards=[...previous,...parsed.filter(c=>!seen.has(c.id))];
+        state.folders=mergedFolders;
         state.reviews={...incomingReviews,...state.reviews};
-        if(!persist()){state.cards=previous;state.reviews=previousReviews;return}
+        if(!persist()){state.cards=previous;state.folders=previousFolders;state.reviews=previousReviews;return}
         window.VisuAI.register(state.cards);
         renderLibrary();show(`Backup restaurado: ${state.cards.length-previous.length} novo(s) card(s).`,false,true);
       }catch(err){show('O backup não é compatível ou contém dados inválidos.',true)}
     });
-    $('#library-list').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const key=b.dataset.libexport||b.dataset.libprint||b.dataset.libdelete;const c=state.cards.find(c=>c.id===key);if(!c)return;if(b.dataset.libexport)exportPNG(c);else if(b.dataset.libprint)printCard(c);else if(b.dataset.libdelete&&confirm('Excluir este card da sua biblioteca?')){state.cards=state.cards.filter(item=>item.id!==key);delete state.reviews[key];persist();renderLibrary()}});
+    $('#library-list').addEventListener('click',e=>{
+      const button=e.target.closest('button');
+      if(!button)return;
+      const key=button.dataset.libread||button.dataset.libexport||button.dataset.libprint||button.dataset.libdelete;
+      const card=state.cards.find(item=>item.id===key);
+      if(!card)return;
+      if(button.dataset.libread){
+        const list=openFolderId?F.cardsIn(state.cards,state.folders,openFolderId).slice().reverse():state.cards.slice().reverse();
+        openReader(list,card.id,openFolderId?F.folderName(state.folders,openFolderId):'Resultados da busca');
+      }else if(button.dataset.libexport)exportPNG(card);
+      else if(button.dataset.libprint)printCard(card);
+      else if(button.dataset.libdelete&&confirm('Excluir este card da sua biblioteca?')){
+        const before=state.cards,oldReview=state.reviews;
+        state.cards=state.cards.filter(item=>item.id!==key);
+        state.reviews={...state.reviews};delete state.reviews[key];
+        if(!persist()){state.cards=before;state.reviews=oldReview;return}
+        renderLibrary();
+      }
+    });
+    $('#library-list').addEventListener('change',e=>{
+      const select=e.target.closest('select[data-libmove]');
+      if(!select)return;
+      const previous=state.cards;
+      try{
+        state.cards=F.moveCard(state.cards,select.dataset.libmove,select.value,state.folders);
+        if(!persist()){state.cards=previous;renderLibrary();return}
+        renderLibrary();
+        folderFeedback('Card movido para "'+F.folderName(state.folders,select.value)+'".');
+      }catch(error){state.cards=previous;renderLibrary();folderFeedback(error.message,true)}
+    });
     function printCard(c){
       if(!c)return;
       window.VisuAI.register([c]);
