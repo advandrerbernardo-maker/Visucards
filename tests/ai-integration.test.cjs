@@ -83,6 +83,7 @@ test('Backend exige usuário confirmado, reserva cota e mantém segredo só no s
   assert.match(server,/Deno\.env\.get\("GROQ_API_KEY"\)/);
   assert.match(server,/response_format:\{type:"json_object"\}/);
   assert.match(server,/groundedPlan\(entry\.visual,input\.text\)/);
+  assert.match(server,/Number\(card\.page\)<=15/);
   assert.match(server,/origin!==ALLOWED_ORIGIN/);
   assert.match(quota,/enable row level security/);
   assert.match(quota,/revoke all on function public\.visu_ai_reserve\(uuid\) from public,anon,authenticated/);
