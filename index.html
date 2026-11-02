@@ -625,52 +625,133 @@
     $('#review-free').onclick=()=>startReview(true);
     $('#pick-file').onclick=()=>$('#pdf-input').click();
     const zone=$('#dropzone');zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag')});zone.addEventListener('dragleave',()=>zone.classList.remove('drag'));zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('drag');if(e.dataTransfer.files[0])readFile(e.dataTransfer.files[0])});$('#pdf-input').addEventListener('change',e=>{if(e.target.files[0])readFile(e.target.files[0])});
+    // PDF binário ativo no IndexedDB; progresso e hashes na mesma biblioteca local.
+    async function cacheActiveDocument(hash,file){
+      activeBlob={hash,blob:file};
+      try{await window.VisuPDFBatches.cacheFile(hash,file);return true}
+      catch(error){console.warn('PDF não pôde ser guardado para retomada automática',error);return false}
+    }
+    function saveProgress(doc,parsed,cursor,newDocument=false){
+      const old={documents:state.documents,parsed:state.parsed,activeHash:state.activeHash,
+        generationCursor:state.generationCursor,pdfCount:state.pdfCount};
+      state.documents=[...state.documents.filter(item=>item.hash!==doc.hash),doc];
+      state.parsed=parsed;
+      state.activeHash=doc.hash;
+      state.generationCursor=cursor;
+      if(newDocument)state.pdfCount+=1;
+      if(!persist()){
+        Object.assign(state,old);refresh();return false;
+      }
+      state.preview=[];
+      $('#results').classList.add('hidden');
+      refresh();
+      return true;
+    }
+    async function extractNextBlock(pdf,doc){
+      const range=window.VisuPDFBatches.range(doc.totalPages,doc.nextPage);
+      if(!range)throw Error('Não existem páginas novas para processar.');
+      const pages=[];
+      for(let p=range.start;p<=range.end;p++){
+        const page=await pdf.getPage(p);
+        try{
+          const content=await page.getTextContent();
+          pages.push(window.VisuPDFIntelligence.pageText(content.items));
+        }finally{if(page.cleanup)page.cleanup()}
+        if(p===range.start||p%3===0||p===range.end)
+          show('Lendo páginas '+range.start+' a '+range.end+': página '+p+' de '+doc.totalPages+'...');
+      }
+      const extracted=candidateChunks(pages,range.start);
+      const parsed={hash:doc.hash,file:doc.file,totalPages:doc.totalPages,
+        pageStart:range.start,pageEnd:range.end,
+        chunks:extracted.chunks.map(c=>({text:c.text,page:c.page}))};
+      let updated=window.VisuPDFBatches.batch(doc,parsed);
+      if(!parsed.chunks.length)updated=window.VisuPDFBatches.moveCursor(updated,0,0);
+      if(!saveProgress(updated,parsed,0,!state.documents.some(x=>x.hash===doc.hash)))return false;
+      const uniqueCount=preparedCandidates().length;
+      const next=updated.nextPage<=updated.totalPages
+        ?' Depois, siga para as páginas '+updated.nextPage+' a '+Math.min(updated.nextPage+14,updated.totalPages)+'.'
+        :' Este é o último bloco do PDF.';
+      show(uniqueCount
+        ?'Páginas '+range.start+' a '+range.end+' de '+doc.totalPages+' lidas: '+uniqueCount+' trecho(s) para gerar cards sem reler páginas.'+next
+        :'Páginas '+range.start+' a '+range.end+' não têm texto aproveitável. Se forem imagens digitalizadas, precisam de OCR.'+next,false,Boolean(uniqueCount));
+      return true;
+    }
     async function readFile(file){
       refresh();
-      if(readingPDF){show('Já estamos lendo um PDF. Aguarde a conclusão.',true);return}
+      if(readingPDF||generating){show('A leitura ou geração ainda não terminou.',true);return}
       const limits=window.VisuPolicy.uploadLimits();
-      if(!limits.unlimited&&state.pdfCount>=limits.pdf){
-        show('Seu limite mensal de PDFs foi atingido.',true);return
+      if(!/\.pdf$/i.test(file.name)&&file.type!=='application/pdf'){
+        show('Selecione um arquivo PDF válido.',true);return
       }
-      if(!/\.pdf$/i.test(file.name)&&file.type!=='application/pdf'){show('Selecione um arquivo PDF válido.',true);return}
       if(file.size<1||file.size>limits.maxFileBytes){
-        show(`Selecione um PDF com até ${Math.floor(limits.maxFileBytes/1024/1024)} MB.`,true);return
+        show('Selecione um PDF com até '+Math.floor(limits.maxFileBytes/1024/1024)+' MB.',true);return
       }
       readingPDF=true;$('#pick-file').disabled=true;$('#generate').disabled=true;
       let pdf=null;
       try{
-        show('Lendo seu PDF localmente…');
-        const reader=await loadPDFReader();
+        show('Identificando documento para evitar duplicações...');
         const buffer=await file.arrayBuffer();
+        const hash=await window.VisuPDFBatches.fingerprint(buffer);
+        const existing=state.documents.find(item=>item.hash===hash);
+        if(existing?.completed){
+          show('O PDF "'+existing.file+'" já foi processado até a página '+existing.totalPages+'. Não será importado duas vezes.',false,true);
+          return;
+        }
+        const cached=await cacheActiveDocument(hash,file);
+        if(existing?.pending?.parsed){
+          if(saveProgress(existing,existing.pending.parsed,existing.pending.cursor)){
+            show('Documento reconhecido. Retomando da página '+existing.pending.parsed.pageStart+' a '+existing.pending.parsed.pageEnd+', sem reler páginas.'+(cached?'':' Se fechar o navegador, selecione este arquivo novamente.'),false,true);
+          }
+          return;
+        }
+        const reader=await loadPDFReader();
         pdf=await reader.getDocument({data:new Uint8Array(buffer),isEvalSupported:false}).promise;
         if(!window.VisuPolicy.canUploadPDF(state.pdfCount,pdf.numPages,file.size)){
-          show(`Este PDF tem ${pdf.numPages} página(s). O limite atual é de ${limits.pages} páginas por arquivo.`,true);return
+          show('O arquivo não é um PDF válido para o modo de testes.',true);return
         }
-        const pages=[];
-        for(let p=1;p<=pdf.numPages;p++){
-          const page=await pdf.getPage(p);
-          const content=await page.getTextContent();
-          pages.push(window.VisuPDFIntelligence.pageText(content.items));
-          if(p===1||p%3===0||p===pdf.numPages)show(`Lendo página ${p} de ${pdf.numPages}...`);
-        }
-        if(pages.join('').replace(/\s/g,'').length<70){show('O arquivo não possui texto suficiente para extrair. PDF digitalizado exige OCR, ainda não disponível.',true);return}
-        const extracted=candidateChunks(pages);
-        if(!extracted.chunks.length){show('Não foi possível identificar trechos úteis no PDF.',true);return}
-        const parsed={file:file.name.slice(0,180),chunks:extracted.chunks.map(c=>({text:c.text,page:c.page}))};
-        const previous={parsed:state.parsed,pdfCount:state.pdfCount,generationCursor:state.generationCursor};
-        state.parsed=parsed;state.pdfCount+=1;state.generationCursor=0;
-        if(!persist()){state.parsed=previous.parsed;state.pdfCount=previous.pdfCount;state.generationCursor=previous.generationCursor;refresh();return}
-        state.preview=[];
-        $('#results').classList.add('hidden');
-        refresh();
-        const uniqueCount=preparedCandidates().length;
-        show(`${file.name} lido com sucesso: ${pdf.numPages} página(s) e ${uniqueCount} trecho(s) para revisão, sem repetição. A página de origem aparece em cada card.`,false,true);
-      }catch(e){console.error(e);show('Não foi possível ler o PDF. Verifique se o arquivo não está protegido por senha ou corrompido.',true)}
-      finally{
+        const doc=existing||window.VisuPDFBatches.create(hash,file.name,pdf.numPages,file.size);
+        if(doc.totalPages!==pdf.numPages)throw Error('O número de páginas do documento mudou.');
+        const ok=await extractNextBlock(pdf,doc);
+        if(ok&&!cached)show('Bloco lido e salvo. Se fechar o navegador, selecione o mesmo PDF para continuar as páginas seguintes.',false,true);
+      }catch(error){
+        console.error(error);
+        show('Não foi possível ler este PDF. Confira se ele não está protegido por senha, corrompido ou sem suporte no navegador.',true);
+      }finally{
         if(pdf)try{await pdf.destroy()}catch(e){console.warn('Falha ao liberar leitor PDF',e)}
-        readingPDF=false;$('#pick-file').disabled=false;refresh();$('#pdf-input').value=''
+        readingPDF=false;$('#pick-file').disabled=false;refresh();$('#pdf-input').value='';
       }
     }
+    $('#next-pages').onclick=async()=>{
+      if(readingPDF||generating)return;
+      const doc=activeDocument();
+      if(!doc||!state.parsed?.hash){show('Selecione um PDF para começar.',true);return}
+      if(state.generationCursor<preparedCandidates().length){
+        show('Gere os cards restantes deste bloco antes de avançar.',true);return
+      }
+      if(doc.nextPage>doc.totalPages){
+        show('As '+doc.totalPages+' páginas já foram analisadas. Nenhuma será repetida.',false,true);return
+      }
+      readingPDF=true;$('#pick-file').disabled=true;$('#next-pages').disabled=true;
+      let pdf=null;
+      try{
+        let blob=activeBlob?.hash===doc.hash?activeBlob.blob:null;
+        if(!blob)try{blob=await window.VisuPDFBatches.cachedFile(doc.hash)}catch(e){console.warn('Sem PDF em cache',e)}
+        if(!blob){
+          show('Para continuar sem repetir páginas, selecione novamente o mesmo PDF. O progresso já está salvo.',true);
+          return;
+        }
+        const reader=await loadPDFReader();
+        pdf=await reader.getDocument({data:new Uint8Array(await blob.arrayBuffer()),isEvalSupported:false}).promise;
+        if(pdf.numPages!==doc.totalPages)throw Error('O documento salvo não corresponde ao original.');
+        await extractNextBlock(pdf,doc);
+      }catch(error){
+        console.error(error);
+        show('Não foi possível ler o próximo bloco. O progresso anterior foi mantido. Selecione novamente o mesmo PDF para continuar.',true);
+      }finally{
+        if(pdf)try{await pdf.destroy()}catch(e){console.warn('Falha ao liberar leitor PDF',e)}
+        readingPDF=false;$('#pick-file').disabled=false;refresh();
+      }
+    };
     $('#generate').onclick=async()=>{
       if(generating)return;
       generating=true;
