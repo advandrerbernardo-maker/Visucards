@@ -16,6 +16,10 @@ const source={
 
 test('Configuração vazia desliga chamadas de IA e preserva funcionamento local',async()=>{
   assert.equal(ai.configured(),false);
+  assert.match(config,/enabled:\s*false/);
+  assert.match(config,/cuzqfjmjfozfngrahkzz\.supabase\.co/);
+  assert.match(config,/sb_publishable_/);
+  assert.match(fs.readFileSync('ai-cards.js','utf8'),/c\.enabled===true/);
   const answer=await ai.enhance([source]);
   assert.equal(answer.usedAI,false);
   assert.equal(answer.reason,'not_configured');
