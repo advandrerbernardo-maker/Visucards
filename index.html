@@ -374,7 +374,7 @@
 /* Regras puras do protótipo. O servidor deverá validar estas cotas novamente. */
 (function (root) {
   'use strict';
-  const FREE = Object.freeze({ pdf: 1, pages: 15, cards: 2, maxFileBytes: 12 * 1024 * 1024 });
+  const FREE = Object.freeze({ pdf: 1, pages: 15, cards: 2, maxFileBytes: 50 * 1024 * 1024 });
   const TEST_MODE = Object.freeze({ unlimitedCards: true, unlimitedPDFs: true });
   function currentMonth(date = new Date()) {
     return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
@@ -585,7 +585,7 @@
       if(readingPDF){show('Já estamos lendo um PDF. Aguarde a conclusão.',true);return}
       if(!window.VisuPolicy.TEST_MODE.unlimitedPDFs && state.pdfCount>=window.VisuPolicy.FREE.pdf){show(state.parsed?'Você já enviou seu PDF neste mês. Gere os cards do material salvo.':'Seu limite de 1 PDF neste mês já foi utilizado.',true);return}
       if(!/\.pdf$/i.test(file.name)&&file.type!=='application/pdf'){show('Selecione um arquivo PDF válido.',true);return}
-      if(file.size>window.VisuPolicy.FREE.maxFileBytes){show('Este protótipo aceita arquivos de até 12 MB.',true);return}
+      if(file.size>window.VisuPolicy.FREE.maxFileBytes){show('Este protótipo aceita arquivos de até 50 MB.',true);return}
       readingPDF=true;$('#pick-file').disabled=true;$('#generate').disabled=true;
       try{
         show('Lendo seu PDF localmente…');
