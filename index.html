@@ -762,11 +762,11 @@
       const remaining=window.VisuPolicy.remainingCards(state.cardCount);
       if(remaining<1){show('Você atingiu o limite de cards do seu plano.',true);return}
       const candidates=preparedCandidates();
-      if(!candidates.length){show('Não encontrei conteúdo suficiente para montar cards.',true);return}
+      if(!candidates.length){show(state.parsed?.hash?'Este bloco não possui texto aproveitável. Avance para as próximas páginas ou escolha outro PDF.':'Não encontrei conteúdo suficiente para montar cards.',true);return}
       // Seleção automática do próprio PDF, sem CSV e sem alegar incidência em provas.
       const batch=window.VisuSelection.nextBatch(candidates,state.generationCursor,Math.min(remaining,2));
       const selected=batch.selected;
-      if(!selected.length){refresh();show('Todos os trechos selecionados já viraram cards. Use Recomeçar cards se quiser testar outro estilo.',false,true);return}
+      if(!selected.length){refresh();show(state.parsed?.hash?'Este bloco já terminou. Continue pelas próximas páginas sem repetir.':'Todos os trechos disponíveis já viraram cards.',false,true);return}
       const cards=selected.map((p,i)=>({
         id:id(),
         title:window.VisuPDFIntelligence.headline(p.text),
@@ -781,11 +781,26 @@
       else cards.splice(0,cards.length,...window.VisuAI.decorateLocal(cards));
       window.VisuAI.register(cards);
       const previousCursor=state.generationCursor;
+      const oldDocuments=state.documents;
+      const doc=state.parsed?.hash?activeDocument():null;
+      if(doc){
+        const updated=window.VisuPDFBatches.moveCursor(doc,batch.nextCursor,candidates.length);
+        state.documents=state.documents.map(item=>item.hash===updated.hash?updated:item);
+      }
       state.cardCount+=cards.length;state.generationCursor=batch.nextCursor;state.cards.push(...cards);
-      if(!persist()){state.cardCount-=cards.length;state.generationCursor=previousCursor;state.cards.splice(-cards.length);refresh();return}
+      if(!persist()){
+        state.documents=oldDocuments;state.cardCount-=cards.length;
+        state.generationCursor=previousCursor;state.cards.splice(-cards.length);
+        refresh();return
+      }
       refresh();
       drawCards(cards,aiResult.usedAI?'CARDS COM IA · FONTE CONFERÍVEL':'CARDS DO PDF · SELEÇÃO LOCAL');
-      const finishNote=batch.exhausted?' Você já utilizou todos os trechos selecionados. Use Recomeçar cards para testar outras versões.':` Restam ${batch.remaining} trecho(s) sem repetição.`;
+      const finishNote=batch.exhausted
+        ?doc?(doc.nextPage<=doc.totalPages
+            ?' Bloco concluído. Agora toque em Ler páginas '+doc.nextPage+' a '+Math.min(doc.nextPage+14,doc.totalPages)+'.'
+            :' Documento concluído. Todas as páginas foram processadas uma única vez.')
+          :' Trechos concluídos. Você pode carregar um novo PDF.'
+        :' Restam '+batch.remaining+' trecho(s) deste bloco.';
       const aiNote=aiResult.usedAI
         ?' Diagramas personalizados por IA, com rótulos conferidos no trecho original.'
         :aiResult.reason==='service_error'?' IA indisponível: cards gerados localmente.':'';
