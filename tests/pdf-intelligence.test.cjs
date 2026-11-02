@@ -81,7 +81,7 @@ test('Integra extração e bloqueio visual sem alterar o desenho aprovado',()=>{
   const workflow=fs.readFileSync('.github/workflows/pages.yml','utf8');
   assert.match(html,/script src="\.\/pdf-intelligence\.js"/);
   assert.match(html,/window\.VisuPDFIntelligence\.pageText\(content\.items\)/);
-  assert.match(html,/window\.VisuPDFIntelligence\.extract\(pages,window\.VisuSelection\.prioritize\)/);
+  assert.match(html,/window\.VisuPDFIntelligence\.extract\(pages,window\.VisuSelection\.prioritize,startPage\)/);
   assert.match(html,/window\.VisuPDFIntelligence\.headline\(p\.text\)/);
   assert.match(workflow,/cp pdf-intelligence\.js site\/pdf-intelligence\.js/);
 });
