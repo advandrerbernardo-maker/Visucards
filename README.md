@@ -1,15 +1,15 @@
-# VISUCARDS 0.9 | Protótipo para concursos
+# VISUCARDS 1.0 | Protótipo para concursos
 
 Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs com texto selecionável em cards ilustrados para revisão.
 
 ## O que já funciona
 - Interface responsiva em português e demonstração de cards.
-- **Modo de testes 0.9:** envie quantos PDFs quiser, sem limite mensal de arquivos, com até **15 páginas e 50 MB por PDF**. A leitura acontece no navegador; PDFs escaneados sem texto selecionável ainda dependem de OCR.
+- **Modo de testes 1.0:** envie PDFs sem limite mensal, com **até 50 MB por arquivo e sem limite prévio de páginas**. O leitor analisa as páginas **1 a 15**, depois **16 a 30** e assim até o final; o próximo intervalo é liberado depois de gerar os cards do bloco atual. PDFs digitalizados sem texto selecionável ainda dependem de OCR.
 - **Triagem 0.6:** reconstrói linhas do PDF, separa artigos e dispositivos legais, remove cabeçalhos e fragmentos repetidos, identifica páginas e prioriza candidatos didaticamente úteis. Dispositivos curtos com referência normativa também são preservados.
-- **Modo de testes:** geração sem limite mensal de cards, em lotes de até dois por clique. O app mostra quantos trechos ainda faltam e não repete conteúdo durante o mesmo ciclo; ao concluir, o botão **Recomeçar cards** libera outra rodada para testar outros estilos, sem apagar a biblioteca.
+- **Geração sem limite mensal:** cards em lotes de até dois por clique. O progresso por documento é mantido no navegador. Ao usar os trechos selecionados do bloco de 15 páginas, clique em **Ler páginas 16 a 30**, **31 a 45** etc. O leitor não volta às páginas concluídas. O botão de recomeço não é mostrado para PDFs identificados pela versão 1.0.
 - As regras comerciais futuras de 1 PDF de 5 páginas e 2 cards por mês continuam apenas como configuração de referência, mas **não bloqueiam** uploads nem geração no modo de testes.
 - **Triagem 0.7:** além de identificar regras, exceções, prazos e artigos, remove textos iguais e muito semelhantes de maneira conservadora e distribui melhor os assuntos entre páginas. É uma seleção didática, **não** uma medida de incidência real nas provas.
-- O texto escolhido é preservado dentro de blocos de até 650 caracteres, sem corte com reticências; blocos longos são divididos. A triagem considera até 10 trechos por página e 50 por documento, garantindo ao menos um trecho das páginas que tiverem conteúdo elegível antes de completar por relevância. Isso **não** equivale a um resumo completo do PDF.
+- O texto escolhido é preservado em trechos de até 650 caracteres; textos longos são divididos. Cada **bloco de 15 páginas** seleciona no máximo dez trechos por página e 50 no total, reservando inicialmente um de cada página com conteúdo elegível. A referência de página continua sendo a página **real do documento**, inclusive depois da 15. Isso **não** equivale a um resumo completo do PDF.
 - **Cards editoriais ilustrados (0.5):** cabeçalho com hierarquia, ilustração temática em SVG, trecho central, complementos numerados, identificação de artigos/prazos/ressalvas quando constarem literalmente no PDF, notas e fonte. As notas dos novos cards agora oferecem **perguntas de revisão conforme as pistas do texto**, sem acrescentar respostas inventadas.
 - Três estilos visuais (caderno, quadrinhos e minimalista), edição de textos, exportação PNG e impressão/PDF adaptadas ao novo layout.
 - **Diagramas locais (0.8):** mesmo sem IA externa, o VISUCARDS combina artigos, prazos e ressalvas encontrados literalmente no PDF em diagramas vetoriais personalizados quando há pistas suficientes. Quando não há, mantém a ilustração temática anterior.
@@ -27,8 +27,8 @@ Aplicativo experimental de estudo visual, voltado a transformar trechos de PDFs 
 - Existe um banco Supabase exclusivo com controle de cota para IA, mas a autenticação por e-mail ainda depende da configuração das URLs e a integração está desativada. A biblioteca segue local, sem sincronização, cobrança ou OCR. As cotas comerciais de PDFs e cards ainda são locais.
 - Foi incluído o arquivo `backend/schema_preparacao.sql` com RLS, mas **não foi executado** em nenhum Supabase. Precisa de testes reais.
 - Dados guardados no navegador podem desaparecer; use o backup.
-- O **modo de testes** aceita PDFs ilimitados, com até **15 páginas e 50 MB por arquivo**, e gera cards sem limite mensal. Somente o PDF mais recente fica preparado para a próxima geração. Os cards anteriores permanecem na biblioteca, inclusive depois de enviar outros PDFs.
-- O uso sem limite pode ocupar o armazenamento local do aparelho. Faça backup regularmente; os dados podem ser apagados ao limpar o navegador.
+- O **modo de testes** aceita PDFs ilimitados, de **até 50 MB, com qualquer número de páginas**, lidos em partes de até 15. Identifica documentos pelo SHA-256 do arquivo; reimportar o mesmo PDF reconhece o progresso e não duplica páginas nem cards. Quando terminado, o mesmo documento não é importado novamente. O arquivo PDF ativo pode ser guardado em **IndexedDB local** para continuar após fechar a aba. Se o aparelho não permitir guardar o arquivo, basta selecioná-lo novamente para retomar no ponto salvo. Os cards antigos continuam na biblioteca.
+- O uso sem limite pode ocupar o armazenamento do aparelho. Apenas o PDF ativo é guardado localmente para retomada automática, quando houver espaço. Os metadados de progresso e hashes identificam PDFs já importados; ao apagar os dados do navegador, esse histórico também desaparece. Faça backup dos cards regularmente; o backup da biblioteca não contém o PDF original.
 - O leitor PDF.js 6.4.299 é carregado pela internet quando necessário.
 - Não coloque documentos sigilosos nesta versão experimental.
 - Os combos e valores exibidos são exemplos e não estão à venda.
@@ -55,20 +55,20 @@ Para visualizar sem GitHub Pages, abra `index.html` em um servidor HTTP local. N
 
 ## Próximos passos
 
-**Falta a ativação final do provedor de IA:** adicionar o segredo `GROQ_API_KEY` no painel do projeto VISUCARDS, configurar Auth > URL Configuration com a URL do GitHub Pages, testar login e saída validada do provedor e então mudar `enabled:false` para `true` em `ai-config.js`. A função `visucards-ai` já foi atualizada para receber referências até a página 15; URL e publishable key públicas do projeto estão preenchidas. Consulte [docs/AI_SETUP.md](docs/AI_SETUP.md). **Não utilizar o projeto Recebi+.** Depois testar PDFs reais, OCR e funções comerciais. O layout editorial 0.5 permanece protegido em `DESIGN_LOCK.md`.
+**Falta a ativação final do provedor de IA:** adicionar o segredo `GROQ_API_KEY` no painel do projeto VISUCARDS, configurar Auth > URL Configuration com a URL do GitHub Pages, testar login e saída validada do provedor e então mudar `enabled:false` para `true` em `ai-config.js`. A função `visucards-ai` já aceita referências de páginas acima da 15, sem limite de página fixo; URL e publishable key públicas do projeto estão preenchidas. Consulte [docs/AI_SETUP.md](docs/AI_SETUP.md). **Não utilizar o projeto Recebi+.** Depois testar PDFs reais, OCR e funções comerciais. O layout editorial 0.5 permanece protegido em `DESIGN_LOCK.md`.
 
 O serviço Recebi+ e outros projetos não são utilizados nem alterados por este repositório.
 
 
 ## Fluxo de criação simplificado
 
-1. Selecione um PDF com texto legível de até **15 páginas e 50 MB**. Você pode enviar outros PDFs durante os testes.
+1. Selecione um PDF com texto legível de **até 50 MB**. Ele pode ter mais de 15 páginas: somente o primeiro bloco será lido inicialmente.
 2. Escolha o estilo dos cards (caderno ilustrado, quadrinhos ou minimalista).
-3. Toque em **Gerar meus cards** para receber até dois cards por vez; acompanhe quantos trechos ainda faltam. Quando terminar, **Recomeçar cards** permite criar novas versões do mesmo PDF sem apagar a biblioteca.
+3. Toque em **Gerar meus cards** para receber até dois cards por vez. Quando concluir os trechos do bloco 1 a 15, toque em **Ler páginas 16 a 30** (ou até o fim, se faltar menos); siga assim até terminar o documento sem repetir páginas.
 
 A triagem identifica pistas didáticas no próprio PDF, priorizando regras, artigos, exceções, prazos e conceitos relevantes para revisão. **Não há importação de CSV, filtros de banca/cargo ou ranking histórico de questões.** O aplicativo não afirma que os assuntos escolhidos são estatisticamente os mais cobrados.
 
-Os cards já salvos, as revisões e os backups continuam disponíveis. Ao escolher outro PDF, apenas o conteúdo em análise é substituído. O último PDF processado continua recuperável mesmo com a virada do mês durante os testes. O visual 0.5 permanece protegido em `DESIGN_LOCK.md`. PDFs digitalizados ainda precisam de OCR para leitura.
+Os cards já salvos, as revisões e os backups continuam disponíveis. Ao escolher outro PDF, o conteúdo em análise muda, mas cada documento conserva seu checkpoint de páginas e de cards no navegador. Um documento já concluído é reconhecido por hash e não é importado de novo. O último PDF ativo pode ser retomado do cache local; para outros arquivos, selecione o mesmo PDF novamente. O visual 0.5 permanece protegido em `DESIGN_LOCK.md`. PDFs digitalizados ainda precisam de OCR para leitura.
 
 ### IA opcional
 
