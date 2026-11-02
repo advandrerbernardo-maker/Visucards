@@ -17,11 +17,10 @@ test('Scripts internos compilam sem erros', () => {
   for (const match of scripts) assert.doesNotThrow(() => new vm.Script(match[1]));
 });
 
-test('Modo de testes: geração sem limite mensal de cards, mantendo limite de PDF', () => {
-  assert.match(html, /PDF de até 5 páginas/);
+test('Modo de testes: PDFs ilimitados, até 15 páginas e 50 MB, com cards ilimitados', () => {
+  assert.match(html, /Até 15 páginas e 50 MB por arquivo/);
+  assert.match(html, /PDFs sem limite mensal/);
   assert.match(html, /Cards ilimitados durante os testes/);
-  assert.match(html, /pdf:\s*1/);
-  assert.match(html, /pages:\s*5/);
   const begin=html.indexOf('/* Fonte original: policy.js */');
   const finish=html.indexOf('</script>',begin);
   const policy=html.slice(begin,finish);
@@ -30,12 +29,19 @@ test('Modo de testes: geração sem limite mensal de cards, mantendo limite de P
   vm.runInNewContext(policy,sandbox);
   const cfg=sandbox.module.exports;
   assert.equal(cfg.TEST_MODE.unlimitedCards,true);
+  assert.equal(cfg.TEST_MODE.unlimitedPDFs,true);
+  assert.equal(cfg.TEST_MODE.pdfPages,15);
+  assert.equal(cfg.TEST_MODE.maxFileBytes,50*1024*1024);
+  assert.equal(cfg.FREE.pdf,1,'Proposta comercial ainda preservada');
+  assert.equal(cfg.FREE.pages,5,'Proposta comercial ainda preservada');
   assert.equal(cfg.remainingCards(0),Infinity);
-  assert.equal(cfg.remainingCards(2),Infinity);
   assert.equal(cfg.remainingCards(999999),Infinity);
-  assert.equal(cfg.canUploadPDF(0,5,1024),true);
-  assert.equal(cfg.canUploadPDF(1,5,1024),false);
-  assert.equal(cfg.canUploadPDF(0,6,1024),false);
+  assert.equal(cfg.canUploadPDF(0,15,50*1024*1024),true);
+  assert.equal(cfg.canUploadPDF(25,15,50*1024*1024),true);
+  assert.equal(cfg.canUploadPDF(0,16,1024),false);
+  assert.equal(cfg.canUploadPDF(0,15,50*1024*1024+1),false);
+  assert.equal(cfg.canUploadPDF(0,0,1024),false);
+  assert.equal(cfg.canUploadPDF(0,10,0),false);
 });
 test('Geração continua livre por lotes e oferece recomeço após usar todo o conteúdo',()=>{
   assert.ok(html.includes('state.generationCursor=batch.nextCursor'));
